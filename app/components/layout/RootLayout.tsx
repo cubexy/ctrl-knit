@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "./Header";
 
-function UIWrapper() {
+function RootLayout() {
   return (
     <div
       className="flex justify-center w-screen min-h-screen"
@@ -15,4 +15,4 @@ function UIWrapper() {
   );
 }
 
-export default UIWrapper;
+export default RootLayout;
