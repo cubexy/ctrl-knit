@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router";
 import Header from "./Header";
 
-function Wrapper({ children }: { children: ReactNode }) {
+function UIWrapper() {
   return (
     <div
       className="flex justify-center w-screen min-h-screen"
@@ -9,10 +9,10 @@ function Wrapper({ children }: { children: ReactNode }) {
     >
       <div className="w-5xl max-w-5xl py-4 px-10 flex flex-col gap-4">
         <Header />
-        {children}
+        <Outlet />
       </div>
     </div>
   );
 }
 
-export default Wrapper;
+export default UIWrapper;
