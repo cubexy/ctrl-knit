@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
-import CreateProjectModalContent from "../ui/popover/CreateProjectPopover";
+import { Link } from "react-router";
+import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
 function Header() {
   const createProjectModalRef = useRef<HTMLDialogElement>(null);
@@ -9,10 +10,10 @@ function Header() {
   }, [createProjectModalRef]);
   return (
     <div className="navbar p-0">
-      <div>
+      <Link to="/">
         <kbd className="kbd">ctrl</kbd> + <kbd className="kbd">knit</kbd>
-      </div>
-      <CreateProjectModalContent ref={createProjectModalRef} />
+      </Link>
+      <CreateProjectPopover ref={createProjectModalRef} />
       <div className="flex grow justify-end items-center">
         <div className="flex items-stretch">
           <div className="dropdown dropdown-bottom dropdown-center">

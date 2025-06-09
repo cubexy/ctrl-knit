@@ -1,10 +1,10 @@
 import { useState, type RefObject } from "react";
 
-type CreateProjectModalContentProps = {
+type CreateProjectPopoverProps = {
   ref: RefObject<HTMLDialogElement | null>;
 };
 
-function CreateProjectModalContent(props: CreateProjectModalContentProps) {
+function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const [projectName, setProjectName] = useState("");
   const [projectReference, setProjectReference] = useState("");
 
@@ -33,7 +33,7 @@ function CreateProjectModalContent(props: CreateProjectModalContentProps) {
           />
           <legend className="fieldset-legend">Referenz</legend>
           <input
-            type="text"
+            type="url"
             className="input w-full"
             placeholder="https://www.pinterest.com/meine-coole-inspo/"
             value={projectReference}
@@ -63,4 +63,4 @@ function CreateProjectModalContent(props: CreateProjectModalContentProps) {
   );
 }
 
-export default CreateProjectModalContent;
+export default CreateProjectPopover;

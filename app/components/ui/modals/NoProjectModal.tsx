@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import CreateProjectModalContent from "../popover/CreateProjectPopover";
+import CreateProjectPopover from "../popover/CreateProjectPopover";
 
 function NoProjectModal() {
   const createProjectModalRef = useRef<HTMLDialogElement>(null);
@@ -27,7 +27,7 @@ function NoProjectModal() {
           <button className="btn btn-primary btn-large" onClick={handleShow}>
             Loslegen
           </button>
-          <CreateProjectModalContent ref={createProjectModalRef} />
+          <CreateProjectPopover ref={createProjectModalRef} />
         </div>
       </div>
     </div>
