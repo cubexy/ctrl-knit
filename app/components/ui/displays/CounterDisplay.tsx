@@ -58,18 +58,14 @@ function CounterDisplay(props: CounterDisplayProps) {
     props.count.current / props.count.target
   );
 
-  console.log(gradientClasses);
-
   return (
-    <div key={props.identifier} className="card card-border w-full">
+    <div key={props.identifier} className="card card-border w-full rounded-3xl">
       <div className="card-body items-center p-2 w-full">
         <div className="flex flex-row items-center justify-between w-full pl-1">
           <p>{props.name}</p>
           <EditCounterPopover
             ref={editCounterPopoverRef}
-            onEdit={(name, value, stepOver) => {
-              console.log("Edit Counter:", name, value, stepOver);
-            }}
+            onEdit={(name, value, stepOver) => {}}
           />
           <button
             className="btn btn-xs btn-ghost px-1 py-3"
@@ -108,7 +104,7 @@ function CounterDisplay(props: CounterDisplayProps) {
             {props.stepOver && (
               <div
                 className="tooltip tooltip-bottom"
-                data-tip={`Du hast ${props.stepOver.current} von ${props.stepOver.target} Wiederholungen geschafft!`}
+                data-tip={`${props.stepOver.current * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
               >
                 <div className="badge badge-neutral">{`${props.stepOver.current} / ${props.stepOver.target}`}</div>
               </div>
