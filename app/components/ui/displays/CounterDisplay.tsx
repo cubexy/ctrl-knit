@@ -23,6 +23,43 @@ function CounterDisplay(props: CounterDisplayProps) {
     editCounterPopoverRef.current?.showModal();
   }, [editCounterPopoverRef]);
 
+  // helper function because tailwindcss does not support dynamic classes
+  const getGradientClasses = (percentage: number) => {
+    const p = Math.floor(percentage * 20) * 5;
+
+    const percentageMap = {
+      0: "from-0% to-0%",
+      5: "from-5% to-5%",
+      10: "from-10% to-10%",
+      15: "from-15% to-15%",
+      20: "from-20% to-20%",
+      25: "from-25% to-25%",
+      30: "from-30% to-30%",
+      35: "from-35% to-35%",
+      40: "from-40% to-40%",
+      45: "from-45% to-45%",
+      50: "from-50% to-50%",
+      55: "from-55% to-55%",
+      60: "from-60% to-60%",
+      65: "from-65% to-65%",
+      70: "from-70% to-70%",
+      75: "from-75% to-75%",
+      80: "from-80% to-80%",
+      85: "from-85% to-85%",
+      90: "from-90% to-90%",
+      95: "from-95% to-95%",
+      100: "from-100% to-100%",
+    };
+
+    return percentageMap[p as keyof typeof percentageMap] || "from-50% to-50%";
+  };
+
+  const gradientClasses = getGradientClasses(
+    props.count.current / props.count.target
+  );
+
+  console.log(gradientClasses);
+
   return (
     <div key={props.identifier} className="card card-border w-full">
       <div className="card-body items-center p-2 w-full">
@@ -63,7 +100,9 @@ function CounterDisplay(props: CounterDisplayProps) {
           <button className="btn h-full rounded-l-2xl font-mono text-xl">
             -
           </button>
-          <div className="input border-[#d0e2ed] gap-0 border-x-[1px] input-neutral min-h-36 flex flex-col items-center justify-center font-mono w-full bg-gradient-to-r from-base-300 from-60% to-base-100 to-60% rounded-none">
+          <div
+            className={`input border-[#d0e2ed] gap-0 border-x-[1px] input-neutral min-h-36 flex flex-col items-center justify-center font-mono w-full bg-gradient-to-r from-base-300 to-base-100 ${gradientClasses} rounded-none`}
+          >
             <p className="grow-0 text-6xl">{props.count.current}</p>
             <p className="text-x grow-0">von {props.count.target}</p>
             {props.stepOver && (
