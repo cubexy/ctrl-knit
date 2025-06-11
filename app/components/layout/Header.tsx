@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
+import AddIcon from "../ui/icons/AddIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
 function Header() {
@@ -26,15 +27,7 @@ function Header() {
             <ul tabIndex={0} className="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow-sm">
               <li>
                 <a onClick={handleShow}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    className="h-5 w-5"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
+                  <AddIcon className="size-5" strokeWidth={2} />
                   Neues Projekt erstellen
                 </a>
               </li>
