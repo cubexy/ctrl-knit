@@ -8,6 +8,7 @@ function Header() {
   const handleShow = useCallback(() => {
     createProjectModalRef.current?.showModal();
   }, [createProjectModalRef]);
+
   return (
     <div className="navbar p-0">
       <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
@@ -33,7 +34,7 @@ function Header() {
                     className="h-5 w-5"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>{" "}
+                  </svg>
                   Neues Projekt erstellen
                 </a>
               </li>
