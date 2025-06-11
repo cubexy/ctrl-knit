@@ -24,18 +24,18 @@ export function useProject(props: UseProjectProps) {
       name: counter.name,
       count: {
         current: 0,
-        target: counter.count.target,
+        target: counter.count.target
       },
       stepOver: counter.stepOver
         ? {
             current: 0,
-            target: counter.stepOver.target,
+            target: counter.stepOver.target
           }
-        : undefined,
+        : undefined
     };
     setProject((prev) => ({
       ...prev!,
-      counters: [...prev!.counters, newCounter],
+      counters: [...prev!.counters, newCounter]
     }));
     setIsLoading(false);
   };
@@ -52,14 +52,14 @@ export function useProject(props: UseProjectProps) {
           name: update.name ?? counter.name,
           count: {
             ...counter.count,
-            target: update.count?.target ?? counter.count.target,
+            target: update.count?.target ?? counter.count.target
           },
           stepOver: counter.stepOver
             ? {
                 ...counter.stepOver,
-                target: update.stepOver?.target ?? counter.stepOver?.target,
+                target: update.stepOver?.target ?? counter.stepOver?.target
               }
-            : undefined,
+            : undefined
         };
       }
       return counter;
@@ -79,11 +79,8 @@ export function useProject(props: UseProjectProps) {
           ...counter,
           count: {
             ...counter.count,
-            current: Math.min(
-              counter.count.current + direction,
-              counter.count.target
-            ),
-          },
+            current: Math.min(counter.count.current + direction, counter.count.target)
+          }
         };
       }
       return counter;
@@ -106,12 +103,12 @@ export function useProject(props: UseProjectProps) {
           createdAt: new Date(),
           count: {
             current: 5,
-            target: 50,
+            target: 50
           },
           stepOver: {
             current: 5,
-            target: 50,
-          },
+            target: 50
+          }
         },
         {
           id: "counter2",
@@ -119,17 +116,17 @@ export function useProject(props: UseProjectProps) {
           createdAt: new Date(),
           count: {
             current: 20,
-            target: 200,
+            target: 200
           },
           stepOver: {
             current: 10,
-            target: 100,
-          },
-        },
+            target: 100
+          }
+        }
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
-      url: "https://example.com/project/1",
+      url: "https://example.com/project/1"
     });
     setIsLoading(false);
   };
@@ -145,31 +142,27 @@ export function useProject(props: UseProjectProps) {
       url: update.url ?? project.url,
       counters: update.counters
         ? project.counters.map((counter) => {
-            const updatedCounter = update.counters?.find(
-              (c) => c.id === counter.id
-            );
+            const updatedCounter = update.counters?.find((c) => c.id === counter.id);
             if (updatedCounter) {
               return {
                 ...counter,
                 name: updatedCounter.name ?? counter.name,
                 count: {
                   ...counter.count,
-                  target: updatedCounter.count?.target ?? counter.count.target,
+                  target: updatedCounter.count?.target ?? counter.count.target
                 },
                 stepOver:
                   updatedCounter.stepOver && counter.stepOver
                     ? {
                         current: counter.stepOver.current,
-                        target:
-                          updatedCounter.stepOver.target ??
-                          counter.stepOver.target,
+                        target: updatedCounter.stepOver.target ?? counter.stepOver.target
                       }
-                    : counter.stepOver,
+                    : counter.stepOver
               };
             }
             return counter;
           })
-        : project.counters,
+        : project.counters
     };
     setProject(updatedProject);
     setIsLoading(false);
@@ -183,6 +176,6 @@ export function useProject(props: UseProjectProps) {
     editProject,
     counterStep,
     addCounter,
-    editCounter,
+    editCounter
   };
 }

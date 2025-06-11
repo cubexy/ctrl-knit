@@ -13,7 +13,6 @@
 
 <img width="437" alt="grafik" src="https://github.com/user-attachments/assets/8034be5f-17a6-43d2-861a-e53ac7f5fcb2" />
 
-
 ## Tech Stack
 
 ```

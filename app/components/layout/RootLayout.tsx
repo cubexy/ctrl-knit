@@ -3,11 +3,8 @@ import Header from "./Header";
 
 function RootLayout() {
   return (
-    <div
-      className="flex justify-center w-screen min-h-screen"
-      data-theme="mylight"
-    >
-      <div className="w-5xl max-w-5xl py-4 px-10 flex flex-col gap-4">
+    <div className="flex min-h-screen w-screen justify-center" data-theme="mylight">
+      <div className="flex w-5xl max-w-5xl flex-col gap-4 px-10 py-4">
         <Header />
         <Outlet />
       </div>

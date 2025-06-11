@@ -22,7 +22,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
   return (
     <dialog ref={props.ref} className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg pb-2">Zähler bearbeiten</h3>
+        <h3 className="pb-2 text-lg font-bold">Zähler bearbeiten</h3>
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input
@@ -32,9 +32,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
             value={counterName}
             onChange={(e) => setCounterName(e.target.value)}
           />
-          <legend className="fieldset-legend">
-            Zielwert (Zu strickende Reihen)
-          </legend>
+          <legend className="fieldset-legend">Zielwert (Zu strickende Reihen)</legend>
           <input
             type="number"
             className="input w-full"
