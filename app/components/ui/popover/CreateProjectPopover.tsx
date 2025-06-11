@@ -21,7 +21,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   return (
     <dialog ref={props.ref} className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg pb-2">Projekt erstellen</h3>
+        <h3 className="pb-2 text-lg font-bold">Projekt erstellen</h3>
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input
@@ -49,11 +49,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
             className={canBeSubmitted ? "" : "tooltip"}
             data-tip={canBeSubmitted ? undefined : "Gib einen Namen an!"}
           >
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={!canBeSubmitted}
-            >
+            <button type="submit" className="btn btn-primary" disabled={!canBeSubmitted}>
               Projekt erstellen
             </button>
           </div>

@@ -11,27 +11,27 @@ function ProjectPage() {
         id: "1",
         name: "Oberseite",
         value: 7,
-        stepover: 5,
+        stepover: 5
       },
       {
         id: "2",
         name: "Unterseite",
         value: 2,
-        stepover: null,
-      },
-    ],
+        stepover: null
+      }
+    ]
   };
 
   return (
     <>
-      <div className="card bg-base-200 w-full">
-        <div className="card-body justify-center items-center gap-0">
-          <h2 className="card-title text-xl">{data.name}</h2>
+      <div className="card bg-base-200 from-base-200 to-base-300 shadow-neutral/30 w-full bg-gradient-to-tl shadow-xs">
+        <div className="card-body items-center justify-center gap-0 px-8 py-4">
+          <h2 className="card-title text-center text-4xl text-pretty font-stretch-ultra-expanded">{data.name}</h2>
           <a
             href={data.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="link flex items-center gap-2"
+            className="link flex items-center gap-2 font-mono"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +51,7 @@ function ProjectPage() {
           </a>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 w-full">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
         {data.counters.map((counter) => (
           <CounterDisplay
             key={counter.id}
@@ -59,11 +59,11 @@ function ProjectPage() {
             name={counter.name}
             count={{
               current: counter.value,
-              target: 12,
+              target: 12
             }}
             stepOver={{
               current: 3,
-              target: 5,
+              target: 5
             }}
             onIncrement={() => console.log("Increment")}
             onDecrement={() => console.log("Decrement")}
