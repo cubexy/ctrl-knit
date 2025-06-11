@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import EditCounterPopover from "../popover/EditCounterPopover";
+import SetCounterPopover from "../popover/SetCounterPopover";
 
 type CounterDisplayProps = {
   identifier: string;
@@ -61,8 +61,8 @@ function CounterDisplay(props: CounterDisplayProps) {
       <div className="card-body w-full items-center p-2">
         <div className="flex w-full flex-row items-center justify-between pl-1">
           <p>{props.name}</p>
-          <EditCounterPopover ref={editCounterPopoverRef} onEdit={(name, value, stepOver) => {}} />
-          <button className="btn btn-xs btn-ghost px-1 py-3" onClick={handleShow}>
+          <SetCounterPopover ref={editCounterPopoverRef} onConfirm={(name, value, stepOver) => {}} editMode />
+          <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={handleShow}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
