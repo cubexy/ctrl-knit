@@ -6,12 +6,13 @@
 
 ## Showcase
 
-<img width="444" alt="grafik" src="https://github.com/user-attachments/assets/db39c03a-e14a-4cbc-a460-568f8aa15137" />
-<img width="442" alt="grafik" src="https://github.com/user-attachments/assets/0412ffbf-ad77-4ad3-bb6b-a928b0ff3f7b" />
+<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/db39c03a-e14a-4cbc-a460-568f8aa15137" />
+<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/5031e9d6-ec35-4b3b-8db6-9f59cedcef4d" />
+
 
 `It also supports dark mode! 🌚`
 
-<img width="437" alt="grafik" src="https://github.com/user-attachments/assets/8034be5f-17a6-43d2-861a-e53ac7f5fcb2" />
+<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/8034be5f-17a6-43d2-861a-e53ac7f5fcb2" />
 
 ## Tech Stack
 
