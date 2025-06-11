@@ -3,7 +3,7 @@
 
 @plugin "daisyui/theme" {
   name: "mylight";
-  default: true;
+  default: false;
   prefersdark: false;
   color-scheme: "light";
   --color-base-100: oklch(97% 0.013 236.62);
@@ -33,12 +33,12 @@
   --size-field: 0.1875rem;
   --border: 2px;
   --depth: 1;
-  --noise: 1;
+  --noise: 0;
 }
-/*
+
 @plugin "daisyui/theme" {
   name: "mydark";
-  default: true;
+  default: false;
   prefersdark: true;
   color-scheme: "dark";
   --color-base-100: oklch(28% 0.091 267.935);
@@ -68,6 +68,5 @@
   --size-field: 0.1875rem;
   --border: 2px;
   --depth: 1;
-  --noise: 1;
+  --noise: 0;
 }
-*/
