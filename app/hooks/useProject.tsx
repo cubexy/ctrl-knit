@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CreateCounter, EditCounter } from "~/models/Counter";
 import type { EditProject, Project } from "~/models/Project";
 
@@ -17,7 +17,7 @@ export function useProject(props: UseProjectProps) {
     if (project === null) return;
     setIsLoading(true);
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+
     const newCounter = {
       id: Date.now().toString(),
       createdAt: new Date(),
@@ -44,7 +44,7 @@ export function useProject(props: UseProjectProps) {
     if (project === null) return;
     setIsLoading(true);
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+
     const updatedCounters = project.counters.map((counter) => {
       if (counter.id === update.id) {
         return {
@@ -72,7 +72,6 @@ export function useProject(props: UseProjectProps) {
     if (project === null) return;
     setIsLoading(true);
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 300));
     const updatedCounters = project.counters.map((counter) => {
       if (counter.id === counterId) {
         return {
@@ -92,7 +91,6 @@ export function useProject(props: UseProjectProps) {
   const fetchProject = async () => {
     setIsLoading(true);
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 300));
     setProject({
       id: "1",
       name: "Sample Project",
@@ -135,7 +133,6 @@ export function useProject(props: UseProjectProps) {
     if (project === null) return;
     setIsLoading(true);
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 300));
     const updatedProject = {
       ...project,
       name: update.name ?? project.name,
@@ -167,6 +164,10 @@ export function useProject(props: UseProjectProps) {
     setProject(updatedProject);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchProject();
+  }, []);
 
   return {
     project,
