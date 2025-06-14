@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { CreateCounter } from "~/models/Counter";
 import AddIcon from "../icons/AddIcon";
-import SetCounterPopover from "../popover/SetCounterPopover";
+import CreateCounterPopover from "../popover/CreateCounterPopover";
 
 type AddCounterModalProps = {
   onAddCounter: (counter: CreateCounter) => void;
@@ -27,7 +27,7 @@ function AddCounterModal(props: AddCounterModalProps) {
           </button>
         </div>
       </div>
-      <SetCounterPopover ref={editCounterPopoverRef} onConfirm={(counter) => props.onAddCounter(counter)} />
+      <CreateCounterPopover ref={editCounterPopoverRef} onConfirm={(counter) => props.onAddCounter(counter)} />
     </>
   );
 }

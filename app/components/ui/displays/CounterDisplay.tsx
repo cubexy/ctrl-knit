@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import type { Counter, EditCounter } from "~/models/Counter";
 import SettingsIcon from "../icons/SettingsIcon";
-import SetCounterPopover from "../popover/SetCounterPopover";
+import EditCounterPopover from "../popover/EditCounterPopover";
 
 type CounterDisplayProps = Counter & {
   onIncrement: () => void;
@@ -54,10 +54,10 @@ function CounterDisplay(props: CounterDisplayProps) {
       <div className="card-body w-full items-center p-2">
         <div className="flex w-full flex-row items-center justify-between pl-1">
           <p>{props.name}</p>
-          <SetCounterPopover
+          <EditCounterPopover
             ref={editCounterPopoverRef}
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
-            editMode
+            counter={props}
           />
           <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={handleShow}>
             <SettingsIcon className="size-5" strokeWidth={1} />
