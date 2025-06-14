@@ -5,8 +5,5 @@ import commonjs from "vite-plugin-commonjs";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), commonjs()],
-  optimizeDeps: {
-    exclude: ["pouchdb-browser", "pouchdb-utils"]
-  }
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), commonjs()]
 });
