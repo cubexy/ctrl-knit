@@ -1,16 +1,16 @@
 import { useState, type RefObject } from "react";
 import type { CreateCounter } from "~/models/Counter";
 
-interface SetCounterPopoverProps {
+interface EditCounterPopoverProps {
   ref: RefObject<HTMLDialogElement | null>;
   onConfirm: (counter: CreateCounter) => void;
-  editMode?: true;
+  counter: CreateCounter;
 }
 
-function SetCounterPopover({ ref, onConfirm, editMode }: SetCounterPopoverProps) {
-  const [counterName, setCounterName] = useState("");
-  const [counterValue, setCounterValue] = useState<number | null>(null);
-  const [counterStepOver, setCounterStepOver] = useState<number | null>(null);
+function EditCounterPopover(props: EditCounterPopoverProps) {
+  const [counterName, setCounterName] = useState(props.counter.name);
+  const [counterValue, setCounterValue] = useState<number | null>(props.counter.count.target);
+  const [counterStepOver, setCounterStepOver] = useState<number | null>(props.counter.stepOver?.target ?? null);
 
   const resetFields = () => {
     setCounterName("");
@@ -19,8 +19,8 @@ function SetCounterPopover({ ref, onConfirm, editMode }: SetCounterPopoverProps)
   };
 
   const handleClose = () => {
-    if (ref.current) {
-      ref.current.close();
+    if (props.ref.current) {
+      props.ref.current.close();
       resetFields();
     }
   };
@@ -34,7 +34,7 @@ function SetCounterPopover({ ref, onConfirm, editMode }: SetCounterPopoverProps)
       stepOver: counterStepOver !== null ? { target: counterStepOver } : undefined
     };
 
-    onConfirm(newCounter);
+    props.onConfirm(newCounter);
     handleClose();
   };
 
@@ -54,13 +54,13 @@ function SetCounterPopover({ ref, onConfirm, editMode }: SetCounterPopoverProps)
 
   const setCounterStepOverTargetValue = (value: string) => setCounterStepOver(parseInputValue(value, true));
 
-  const dialogText = editMode ? "Zähler bearbeiten" : "Zähler erstellen";
-  const dialogConfirmText = editMode ? "Bearbeitung abschließen" : "Erstellen";
+  const dialogText = "Zähler bearbeiten";
+  const dialogConfirmText = "Bearbeitung abschließen";
 
   const inputValid = counterName !== "" && counterValue !== null;
 
   return (
-    <dialog ref={ref} className="modal">
+    <dialog ref={props.ref} className="modal">
       <div className="modal-box">
         <h3 className="pb-2 text-xl font-bold font-stretch-expanded">{dialogText}</h3>
         <fieldset className="fieldset">
@@ -107,4 +107,4 @@ function SetCounterPopover({ ref, onConfirm, editMode }: SetCounterPopoverProps)
   );
 }
 
-export default SetCounterPopover;
+export default EditCounterPopover;
