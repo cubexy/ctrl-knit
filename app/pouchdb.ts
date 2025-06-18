@@ -1,0 +1,133 @@
+import PouchDB from "pouchdb";
+import { v4 as uuidv4 } from "uuid";
+import type { CreateCounter, EditCounter } from "./models/Counter";
+import type { CreateProject, EditProject } from "./models/Project";
+
+export class CouchDatabase {
+  private localDb: PouchDB.Database;
+  constructor() {
+    this.localDb = new PouchDB("ctrl-knit");
+  }
+
+  private getIdentifier(type: "project" | "counter") {
+    return `${type}:${uuidv4()}`;
+  }
+
+  public async createProject(project: CreateProject) {
+    return await this.localDb.put({
+      _id: this.getIdentifier("project"),
+      name: project.name,
+      url: project.url,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+  }
+
+  public async updateProject(id: string, project: EditProject) {
+    const existingProject = await this.localDb.get(id);
+    const updatedProject = {
+      ...existingProject,
+      ...project,
+      updatedAt: new Date()
+    };
+    return await this.localDb.put(updatedProject);
+  }
+
+  public async deleteProject(id: string) {
+    const project = await this.localDb.get(id);
+    return await this.localDb.remove(project);
+  }
+
+  public async getProjects() {
+    const result = await this.localDb.allDocs({
+      include_docs: true,
+      startkey: "project:",
+      endkey: "project:\uffff"
+    });
+    return result;
+  }
+
+  public async getProjectById(id: string) {
+    const project = await this.localDb.get(id);
+    return project;
+  }
+
+  public async createCounter(projectId: string, counter: CreateCounter) {
+    const project = await this.getProjectById(projectId);
+    const newCounter = {
+      id: this.getIdentifier("counter"),
+      ...counter,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const updatedProject = {
+      ...project,
+      counters: [...((project as any).counters || []), newCounter],
+      updatedAt: new Date()
+    };
+
+    return await this.localDb.put(updatedProject);
+  }
+
+  public async updateCounter(projectId: string, counterId: string, counter: EditCounter) {
+    const project = await this.getProjectById(projectId);
+    const updatedCounters = (project as any).counters.map((c: any) => {
+      if (c.id === counterId) {
+        return {
+          ...c,
+          ...counter,
+          updatedAt: new Date()
+        };
+      }
+      return c;
+    });
+
+    const updatedProject = {
+      ...project,
+      counters: updatedCounters,
+      updatedAt: new Date()
+    };
+
+    return await this.localDb.put(updatedProject);
+  }
+
+  public async incrementCounter(projectId: string, counterId: string, increment: number) {
+    const project = await this.getProjectById(projectId);
+    const updatedCounters = (project as any).counters.map((c: any) => {
+      if (c.id === counterId) {
+        return {
+          ...c,
+          value: c.value + increment,
+          updatedAt: new Date()
+        };
+      }
+      return c;
+    });
+
+    const updatedProject = {
+      ...project,
+      counters: updatedCounters,
+      updatedAt: new Date()
+    };
+
+    return await this.localDb.put(updatedProject);
+  }
+
+  public async deleteCounter(projectId: string, counterId: string) {
+    const project = await this.getProjectById(projectId);
+    const updatedCounters = (project as any).counters.filter((c: any) => c.id !== counterId);
+
+    const updatedProject = {
+      ...project,
+      counters: updatedCounters,
+      updatedAt: new Date()
+    };
+
+    return await this.localDb.put(updatedProject);
+  }
+
+  public async close() {
+    await this.localDb.close();
+  }
+}
