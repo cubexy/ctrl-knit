@@ -1,7 +1,7 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
-import type { CreateCounter, EditCounter } from "./models/Counter";
-import type { CreateProject, EditProject, Project } from "./models/Project";
+import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
+import type { CreateProject, DatabaseProject, EditProject, Project } from "../../models/Project";
 
 export class CouchDatabase {
   private localDb: PouchDB.Database;
@@ -64,7 +64,7 @@ export class CouchDatabase {
       include_docs: true
     });
     const mappedDocs = result.rows.map((row) => {
-      const doc = row.doc as any;
+      const doc = row.doc as unknown as DatabaseProject;
       return {
         id: doc._id,
         name: doc.name,
@@ -84,11 +84,20 @@ export class CouchDatabase {
 
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
-    const newCounter = {
+    const newCounter: Counter = {
       id: this.generateIdentifier("counter"),
-      ...counter,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      name: counter.name,
+      count: {
+        current: 0,
+        target: counter.count.target
+      },
+      stepOver: counter.stepOver
+        ? {
+            current: 0,
+            target: counter.stepOver.target
+          }
+        : undefined,
+      createdAt: new Date()
     };
 
     const updatedProject = {
@@ -102,12 +111,11 @@ export class CouchDatabase {
 
   public async updateCounter(projectId: string, counterId: string, counter: EditCounter) {
     const project = await this.getProjectById(projectId);
-    const updatedCounters = (project as any).counters.map((c: any) => {
+    const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
         return {
           ...c,
-          ...counter,
-          updatedAt: new Date()
+          ...counter
         };
       }
       return c;
@@ -124,12 +132,14 @@ export class CouchDatabase {
 
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
     const project = await this.getProjectById(projectId);
-    const updatedCounters = (project as any).counters.map((c: any) => {
+    const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
         return {
           ...c,
-          value: c.value + increment,
-          updatedAt: new Date()
+          count: {
+            ...c.count,
+            current: c.count.current + increment
+          }
         };
       }
       return c;
@@ -146,7 +156,7 @@ export class CouchDatabase {
 
   public async deleteCounter(projectId: string, counterId: string) {
     const project = await this.getProjectById(projectId);
-    const updatedCounters = (project as any).counters.filter((c: any) => c.id !== counterId);
+    const updatedCounters = (project as unknown as Project).counters.filter((c: Counter) => c.id !== counterId);
 
     const updatedProject = {
       ...project,
