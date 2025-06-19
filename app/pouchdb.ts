@@ -13,6 +13,27 @@ export class CouchDatabase {
     return `${type}:${uuidv4()}`;
   }
 
+  public onChange(onDelete: (id: string) => void, onUpdate: (doc: any) => void) {
+    this.localDb
+      .changes({
+        live: true,
+        since: "now",
+        include_docs: true
+      })
+      .on("change", (change) => {
+        if (change.deleted) {
+          // Document (project) was deleted
+          const deletedDocumentIdentifier = change.id;
+          onDelete(deletedDocumentIdentifier);
+        } else {
+          // Document (project, counter, ...) was added or updated
+          const updatedDocument = change.doc;
+          onUpdate(updatedDocument);
+        }
+      })
+      .on("error", console.log.bind(console)); // log errors to console for debugging
+  }
+
   public async createProject(project: CreateProject) {
     return await this.localDb.put({
       _id: new Date().toJSON(), // use timestamp as ID for default sorting
