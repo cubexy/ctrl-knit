@@ -14,7 +14,7 @@ export class CouchDatabase {
   }
 
   public onChange(onDelete: (id: string) => void, onUpdate: (doc: any) => void) {
-    this.localDb
+    return this.localDb
       .changes({
         live: true,
         since: "now",
