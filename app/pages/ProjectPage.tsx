@@ -1,23 +1,23 @@
+import { useParams } from "react-router";
 import CounterDisplay from "~/components/ui/displays/CounterDisplay";
 import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay";
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
-import { useProject } from "~/hooks/useProject";
+import { useDatabase } from "~/hooks/useDatabase";
+import type { CreateCounter } from "~/models/Counter";
 
 function ProjectPage() {
-  const { project, isLoading, error, fetchProject, editCounter, editProject, addCounter, counterStep } = useProject({
-    projectId: "12345"
-  });
+  let { id } = useParams();
 
-  if (isLoading) {
-    return <div className="text-center">Loading...</div>;
+  if (!id) {
+    return <div className="text-center">Kein Projekt ausgewählt</div>;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">Error: {error}</div>;
-  }
+  const { getProjectById, incrementCounter, updateCounter, createCounter } = useDatabase();
+
+  const project = getProjectById(id);
 
   if (!project) {
-    return <div className="text-center">Project not found</div>;
+    return <div className="text-center">Projekt nicht gefunden</div>;
   }
 
   return (
@@ -32,12 +32,12 @@ function ProjectPage() {
             createdAt={counter.createdAt}
             count={counter.count}
             stepOver={counter.stepOver}
-            onIncrement={() => counterStep(counter.id, 1)}
-            onDecrement={() => counterStep(counter.id, -1)}
-            onEdit={(update) => editCounter({ ...update, id: counter.id })}
+            onIncrement={() => incrementCounter(id, counter.id, 1)}
+            onDecrement={() => incrementCounter(id, counter.id, -1)}
+            onEdit={(update) => updateCounter(id, counter.id, update)}
           />
         ))}
-        <AddCounterModal onAddCounter={addCounter} />
+        <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(id, counter)} />
       </div>
     </>
   );

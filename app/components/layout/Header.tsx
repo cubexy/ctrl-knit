@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
+import { useDatabase } from "~/hooks/useDatabase";
 import AddIcon from "../ui/icons/AddIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
@@ -9,6 +10,8 @@ function Header() {
   const handleShow = useCallback(() => {
     createProjectModalRef.current?.showModal();
   }, [createProjectModalRef]);
+
+  const { getProjectList } = useDatabase();
 
   return (
     <div className="navbar p-0">
@@ -32,12 +35,19 @@ function Header() {
                 </a>
               </li>
               <hr className="fill-base-content m-2 h-px rounded-none" />
-              <li>
-                <a>Special Sweater</a>
-              </li>
-              <li>
-                <a>Knit Shit</a>
-              </li>
+              {getProjectList().map((project) => (
+                <li key={project.id}>
+                  <Link to={`/project/${project.id}`}>
+                    {project.name}{" "}
+                    <span className="text-xs opacity-50">({new Date(project.updatedAt).toLocaleDateString()})</span>
+                  </Link>
+                </li>
+              ))}
+              {getProjectList().length === 0 && (
+                <li>
+                  <span className="text-sm text-gray-500">Erstelle dein erstes Projekt!</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

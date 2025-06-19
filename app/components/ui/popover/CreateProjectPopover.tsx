@@ -1,4 +1,5 @@
 import { useState, type RefObject } from "react";
+import { useDatabase } from "~/hooks/useDatabase";
 
 type CreateProjectPopoverProps = {
   ref: RefObject<HTMLDialogElement | null>;
@@ -7,6 +8,20 @@ type CreateProjectPopoverProps = {
 function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const [projectName, setProjectName] = useState("");
   const [projectReference, setProjectReference] = useState("");
+
+  const { createProject } = useDatabase();
+
+  const handleSubmit = async () => {
+    if (props.ref.current && projectName.trim().length > 0) {
+      await createProject({
+        name: projectName,
+        url: projectReference
+      });
+      props.ref.current.close();
+      setProjectName("");
+      setProjectReference("");
+    }
+  };
 
   const handleClose = () => {
     if (props.ref.current) {
@@ -49,7 +64,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
             className={canBeSubmitted ? "" : "tooltip"}
             data-tip={canBeSubmitted ? undefined : "Gib einen Namen an!"}
           >
-            <button type="submit" className="btn btn-primary" disabled={!canBeSubmitted}>
+            <button type="submit" className="btn btn-primary" disabled={!canBeSubmitted} onClick={handleSubmit}>
               Projekt erstellen
             </button>
           </div>

@@ -14,7 +14,7 @@ export function useDatabase() {
     };
 
     loadInitialData();
-    db.onChange(
+    const feed = db.onChange(
       (deletedId) => {
         setProjects((prev) => prev.filter((project) => project.id !== deletedId));
       },
@@ -33,10 +33,28 @@ export function useDatabase() {
         });
       }
     );
+
+    return () => {
+      feed.cancel();
+    };
   }, []);
+
+  const getProjectById = (id: string) => {
+    return projects.find((project) => project.id === id);
+  };
+
+  const getProjectList = () => {
+    return projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      updatedAt: project.updatedAt
+    }));
+  };
 
   return {
     projects,
+    getProjectById,
+    getProjectList,
     createProject: db.createProject.bind(db),
     updateProject: db.updateProject.bind(db),
     deleteProject: db.deleteProject.bind(db),
