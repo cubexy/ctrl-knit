@@ -21,7 +21,6 @@ export function useDatabase() {
     updateProject: db.updateProject.bind(db),
     deleteProject: db.deleteProject.bind(db),
     getProjects: db.getProjects.bind(db),
-    getProjectById: db.getProjectById.bind(db),
     createCounter: db.createCounter.bind(db),
     updateCounter: db.updateCounter.bind(db),
     deleteCounter: db.deleteCounter.bind(db)
