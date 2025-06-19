@@ -37,7 +37,7 @@ function Header() {
               <hr className="fill-base-content m-2 h-px rounded-none" />
               {getProjectList().map((project) => (
                 <li key={project.id}>
-                  <Link to={`/project/${project.id}`}>
+                  <Link to={`/projects/${project.id}`}>
                     {project.name}{" "}
                     <span className="text-xs opacity-50">({new Date(project.updatedAt).toLocaleDateString()})</span>
                   </Link>

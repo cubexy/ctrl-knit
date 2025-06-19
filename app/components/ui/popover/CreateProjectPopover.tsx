@@ -1,4 +1,5 @@
 import { useState, type RefObject } from "react";
+import { useNavigate } from "react-router";
 import { useDatabase } from "~/hooks/useDatabase";
 
 type CreateProjectPopoverProps = {
@@ -10,16 +11,21 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const [projectReference, setProjectReference] = useState("");
 
   const { createProject } = useDatabase();
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (props.ref.current && projectName.trim().length > 0) {
-      await createProject({
+      const response = await createProject({
         name: projectName,
         url: projectReference
       });
       props.ref.current.close();
       setProjectName("");
       setProjectReference("");
+
+      if (response.id) {
+        navigate(`/projects/${response.id}`);
+      }
     }
   };
 
