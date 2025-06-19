@@ -1,7 +1,7 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
 import type { CreateCounter, EditCounter } from "./models/Counter";
-import type { CreateProject, EditProject } from "./models/Project";
+import type { CreateProject, EditProject, Project } from "./models/Project";
 
 export class CouchDatabase {
   private localDb: PouchDB.Database;
@@ -9,13 +9,13 @@ export class CouchDatabase {
     this.localDb = new PouchDB("ctrl-knit");
   }
 
-  private getIdentifier(type: "project" | "counter") {
+  private generateIdentifier(type: "project" | "counter") {
     return `${type}:${uuidv4()}`;
   }
 
   public async createProject(project: CreateProject) {
     return await this.localDb.put({
-      _id: this.getIdentifier("project"),
+      _id: new Date().toJSON(), // use timestamp as ID for default sorting
       name: project.name,
       url: project.url,
       createdAt: new Date(),
@@ -38,16 +38,25 @@ export class CouchDatabase {
     return await this.localDb.remove(project);
   }
 
-  public async getProjects() {
+  public async getProjects(): Promise<Array<Project>> {
     const result = await this.localDb.allDocs({
-      include_docs: true,
-      startkey: "project:",
-      endkey: "project:\uffff"
+      include_docs: true
     });
-    return result;
+    const mappedDocs = result.rows.map((row) => {
+      const doc = row.doc as any;
+      return {
+        id: doc._id,
+        name: doc.name,
+        url: doc.url,
+        createdAt: new Date(doc.createdAt),
+        updatedAt: new Date(doc.updatedAt),
+        counters: doc.counters || []
+      };
+    });
+    return mappedDocs;
   }
 
-  public async getProjectById(id: string) {
+  private async getProjectById(id: string) {
     const project = await this.localDb.get(id);
     return project;
   }
@@ -55,7 +64,7 @@ export class CouchDatabase {
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
     const newCounter = {
-      id: this.getIdentifier("counter"),
+      id: this.generateIdentifier("counter"),
       ...counter,
       createdAt: new Date(),
       updatedAt: new Date()
