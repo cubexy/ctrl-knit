@@ -16,6 +16,10 @@ export type Project = {
   counters: Counter[];
 };
 
+export type DatabaseProject = {
+  _id: string;
+} & Omit<Project, "id">;
+
 /**
  * Represents the data structure for creating or updating a project.
  * It includes the project's unique identifier, name, optional URL,

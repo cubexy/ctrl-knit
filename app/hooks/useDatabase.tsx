@@ -1,7 +1,7 @@
 const PouchDB = require("pouchdb");
 import { useEffect, useState } from "react";
+import { CouchDatabase } from "~/hooks/api/PouchDatabase";
 import type { Project } from "~/models/Project";
-import { CouchDatabase } from "~/pouchdb";
 
 const db = new CouchDatabase();
 
@@ -21,14 +21,23 @@ export function useDatabase() {
       (updatedDoc) => {
         setProjects((prev) => {
           const index = prev.findIndex((p) => p.id === updatedDoc._id);
-          if (index === -1) return prev;
-          const updatedProject = {
-            ...prev[index],
-            ...updatedDoc,
-            id: updatedDoc._id
+          const projectFromDoc: Project = {
+            id: updatedDoc._id,
+            name: updatedDoc.name,
+            url: updatedDoc.url,
+            createdAt: new Date(updatedDoc.createdAt),
+            updatedAt: new Date(updatedDoc.updatedAt),
+            counters: updatedDoc.counters || []
           };
+
+          if (index === -1) {
+            // Add new project
+            return [...prev, projectFromDoc];
+          }
+
+          // Update existing project
           const newProjects = [...prev];
-          newProjects[index] = updatedProject;
+          newProjects[index] = projectFromDoc;
           return newProjects;
         });
       }
