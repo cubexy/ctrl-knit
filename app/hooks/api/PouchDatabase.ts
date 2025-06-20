@@ -93,7 +93,6 @@ export class CouchDatabase {
       },
       stepOver: counter.stepOver
         ? {
-            current: 0,
             target: counter.stepOver.target
           }
         : undefined,
@@ -109,13 +108,23 @@ export class CouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
-  public async updateCounter(projectId: string, counterId: string, counter: EditCounter) {
+  public async updateCounter(projectId: string, counterId: string, update: EditCounter) {
     const project = await this.getProjectById(projectId);
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
         return {
-          ...c,
-          ...counter
+          count: {
+            current: c.count.current,
+            target: update.count?.target ?? c.count.target
+          },
+          stepOver: c.stepOver
+            ? {
+                target: update.stepOver?.target ?? c.stepOver.target
+              }
+            : undefined,
+          name: update.name ?? c.name,
+          id: c.id,
+          createdAt: c.createdAt
         };
       }
       return c;
@@ -132,13 +141,17 @@ export class CouchDatabase {
 
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
     const project = await this.getProjectById(projectId);
+
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
+        const incrementedCurrent = c.count.current + increment;
+        const max = c.stepOver ? c.stepOver.target * c.count.target : c.count.target;
+
         return {
           ...c,
           count: {
             ...c.count,
-            current: c.count.current + increment
+            current: Math.min(incrementedCurrent, max)
           }
         };
       }

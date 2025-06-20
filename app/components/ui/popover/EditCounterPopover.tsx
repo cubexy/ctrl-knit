@@ -8,14 +8,20 @@ interface EditCounterPopoverProps {
 }
 
 function EditCounterPopover(props: EditCounterPopoverProps) {
-  const [counterName, setCounterName] = useState(props.counter.name);
-  const [counterValue, setCounterValue] = useState<number | null>(props.counter.count.target);
-  const [counterStepOver, setCounterStepOver] = useState<number | null>(props.counter.stepOver?.target ?? null);
+  const DEFAULTS = {
+    name: props.counter.name,
+    counterTarget: props.counter.count.target,
+    counterStepOver: props.counter.stepOver?.target ?? null
+  };
+
+  const [counterName, setCounterName] = useState(DEFAULTS.name);
+  const [counterValue, setCounterValue] = useState<number | null>(DEFAULTS.counterTarget);
+  const [counterStepOver, setCounterStepOver] = useState<number | null>(DEFAULTS.counterStepOver);
 
   const resetFields = () => {
-    setCounterName("");
-    setCounterValue(null);
-    setCounterStepOver(null);
+    setCounterName(DEFAULTS.name);
+    setCounterValue(DEFAULTS.counterTarget);
+    setCounterStepOver(DEFAULTS.counterStepOver);
   };
 
   const handleClose = () => {

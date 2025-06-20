@@ -7,6 +7,7 @@ type CounterDisplayProps = Counter & {
   onIncrement: () => void;
   onDecrement: () => void;
   onEdit: (update: EditCounter) => void;
+  stepOverCurrent?: number;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
@@ -75,12 +76,12 @@ function CounterDisplay(props: CounterDisplayProps) {
           >
             <p className="grow-0 text-6xl">{props.count.current}</p>
             <p className="text-x grow-0">von {props.count.target}</p>
-            {props.stepOver && (
+            {props.stepOver && props.stepOverCurrent && (
               <div
                 className="tooltip tooltip-bottom"
-                data-tip={`${props.stepOver.current * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
+                data-tip={`${props.stepOverCurrent * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
               >
-                <div className="badge badge-neutral">{`${props.stepOver.current} / ${props.stepOver.target}`}</div>
+                <div className="badge badge-neutral">{`${props.stepOverCurrent} / ${props.stepOver.target}`}</div>
               </div>
             )}
           </div>
