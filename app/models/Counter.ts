@@ -15,7 +15,6 @@ export type Counter = {
     target: number;
   };
   stepOver?: {
-    current: number;
     target: number;
   };
 };

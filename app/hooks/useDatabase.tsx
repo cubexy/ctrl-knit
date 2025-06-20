@@ -61,7 +61,6 @@ export function useDatabase() {
   };
 
   return {
-    projects,
     getProjectById,
     getProjectList,
     createProject: db.createProject.bind(db),
