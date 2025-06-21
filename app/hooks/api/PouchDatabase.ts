@@ -2,7 +2,7 @@ import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
 import { clamp } from "~/utility/clamp";
 import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
-import type { CreateProject, DatabaseProject, EditProject, Project } from "../../models/Project";
+import type { CreateProject, DatabaseProject, Project } from "../../models/Project";
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
@@ -45,7 +45,7 @@ export class PouchDatabase {
     });
   }
 
-  public async updateProject(id: string, project: EditProject) {
+  public async updateProject(id: string, project: CreateProject) {
     const existingProject = await this.localDb.get(id);
     const updatedProject = {
       ...existingProject,

@@ -15,7 +15,7 @@ function Header() {
   const projects = getProjectList();
 
   return (
-    <div className="navbar p-0">
+    <div className="navbar min-h-0 p-0">
       <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
         <kbd className="kbd">ctrl</kbd>
         <p className="font-mono"> + </p>
@@ -51,15 +51,12 @@ function Header() {
         </div>
         <div className="flex items-stretch">
           <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost rounded-field">
-              Account
+            <div tabIndex={0} role="button" className="btn btn-ghost rounded-xl">
+              Optionen
             </div>
             <ul tabIndex={0} className="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow-sm">
               <li>
-                <a>Einstellungen</a>
-              </li>
-              <li>
-                <a>Abmelden</a>
+                <a>Kommt noch™ 🙏</a>
               </li>
             </ul>
           </div>

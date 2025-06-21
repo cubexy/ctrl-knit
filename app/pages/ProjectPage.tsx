@@ -4,6 +4,7 @@ import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay"
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
 import { useDatabase } from "~/hooks/useDatabase";
 import type { CreateCounter } from "~/models/Counter";
+import type { CreateProject } from "~/models/Project";
 
 function ProjectPage() {
   let { id } = useParams();
@@ -12,7 +13,15 @@ function ProjectPage() {
     return <div className="text-center">Kein Projekt ausgewählt</div>;
   }
 
-  const { getProjectById, incrementCounter, updateCounter, createCounter, deleteCounter } = useDatabase();
+  const {
+    getProjectById,
+    incrementCounter,
+    updateCounter,
+    createCounter,
+    deleteCounter,
+    updateProject,
+    deleteProject
+  } = useDatabase();
 
   const project = getProjectById(id);
 
@@ -22,7 +31,11 @@ function ProjectPage() {
 
   return (
     <>
-      <ProjectHeaderDisplay name={project.name} url={project.url} />
+      <ProjectHeaderDisplay
+        project={{ name: project.name, url: project.url }}
+        onConfirmEdit={(project: CreateProject) => updateProject(id, project)}
+        onDelete={() => deleteProject(id)}
+      />
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
         {project.counters.map((counter) => {
           return (
