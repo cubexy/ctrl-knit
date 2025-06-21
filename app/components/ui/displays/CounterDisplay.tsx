@@ -8,6 +8,7 @@ type CounterDisplayProps = CounterPresentation & {
   onIncrement: () => void;
   onDecrement: () => void;
   onEdit: (update: EditCounter) => void;
+  onDelete: () => void;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
@@ -58,6 +59,7 @@ function CounterDisplay(props: CounterDisplayProps) {
           <p>{props.name}</p>
           <EditCounterPopover
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
+            onDelete={props.onDelete}
             counter={props}
             open={popoverOpen}
             setOpen={setPopoverOpen}
@@ -80,7 +82,7 @@ function CounterDisplay(props: CounterDisplayProps) {
               borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
             }}
           >
-            <p className="grow-0 text-6xl">{props.count.current}</p>
+            <p className="swap-flip grow-0 text-6xl">{props.count.current}</p>
             <p className="text-x grow-0">von {props.count.target}</p>
             {props.stepOver && props.stepOver.target > 1 && (
               <div
