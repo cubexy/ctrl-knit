@@ -46,6 +46,11 @@ function CounterDisplay(props: CounterDisplayProps) {
 
   const gradientClasses = getGradientClasses(props.count.current / props.count.target);
 
+  const canDecrement = props.count.current > 0;
+  const canIncrement = props.stepOver
+    ? props.stepOver.current < props.stepOver.target || props.count.current < props.count.target
+    : props.count.current < props.count.target;
+
   return (
     <div key={props.id} className="card card-border shadow-neutral/30 w-full rounded-3xl shadow-xs">
       <div className="card-body w-full items-center p-2">
@@ -62,7 +67,11 @@ function CounterDisplay(props: CounterDisplayProps) {
           </button>
         </div>
         <div className="join w-full">
-          <button className="btn h-full rounded-l-2xl font-mono text-xl" onClick={props.onDecrement}>
+          <button
+            className="btn h-full rounded-l-2xl font-mono text-xl"
+            onClick={props.onDecrement}
+            disabled={!canDecrement}
+          >
             -
           </button>
           <div
@@ -82,7 +91,11 @@ function CounterDisplay(props: CounterDisplayProps) {
               </div>
             )}
           </div>
-          <button className="btn h-full rounded-r-2xl font-mono text-xl" onClick={props.onIncrement}>
+          <button
+            className="btn h-full rounded-r-2xl font-mono text-xl"
+            onClick={props.onIncrement}
+            disabled={!canIncrement}
+          >
             +
           </button>
         </div>
