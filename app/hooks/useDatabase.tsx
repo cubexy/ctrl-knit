@@ -61,7 +61,7 @@ export function useDatabase() {
    * @returns A list of projects with minimal information for display purposes.
    */
   const getProjectList = (): ProjectListItemPresentation[] => {
-    return projects.map((project) => projectListItemPresenter(project));
+    return projects.map((project) => projectListItemPresenter(project)).reverse();
   };
 
   return {

@@ -12,7 +12,7 @@ function ProjectPage() {
     return <div className="text-center">Kein Projekt ausgewählt</div>;
   }
 
-  const { getProjectById, incrementCounter, updateCounter, createCounter } = useDatabase();
+  const { getProjectById, incrementCounter, updateCounter, createCounter, deleteCounter } = useDatabase();
 
   const project = getProjectById(id);
 
@@ -35,6 +35,7 @@ function ProjectPage() {
               onIncrement={() => incrementCounter(id, counter.id, 1)}
               onDecrement={() => incrementCounter(id, counter.id, -1)}
               onEdit={(update) => updateCounter(id, counter.id, update)}
+              onDelete={() => deleteCounter(id, counter.id)}
             />
           );
         })}

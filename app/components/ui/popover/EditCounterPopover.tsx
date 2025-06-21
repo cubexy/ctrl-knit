@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { CreateCounter } from "~/models/Counter";
+import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditCounterPopoverProps {
   onConfirm: (counter: CreateCounter) => void;
+  onDelete: () => void;
   counter: CreateCounter;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -51,6 +53,12 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
     props.setOpen(false);
   };
 
+  const handleDelete = () => {
+    props.onDelete();
+    props.setOpen(false);
+    resetFields();
+  };
+
   const parseInputValue = (value: string, allowZero: boolean = false): number | null => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") return null;
@@ -74,7 +82,25 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
   return (
     <dialog ref={ref} className="modal">
       <div className="modal-box">
-        <h3 className="pb-2 text-xl font-bold font-stretch-expanded">Zähler bearbeiten</h3>
+        <div className="flex flex-row items-start justify-between">
+          <h3 className="pb-2 text-xl font-bold font-stretch-expanded">Zähler bearbeiten</h3>
+
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-xs btn-error btn-ghost mt-0 px-1 py-3">
+              <RemoveIcon strokeWidth={1.5} className="size-4" />
+            </div>
+            <div
+              tabIndex={0}
+              className="dropdown-content menu bg-base-100 rounded-box z-1 flex w-42 flex-col items-center gap-y-0.5 py-4 shadow-sm"
+            >
+              <p>Wirklich löschen?</p>
+              <button className="btn btn-dash btn-error" onClick={handleDelete}>
+                Zähler löschen
+              </button>
+            </div>
+          </div>
+        </div>
+
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input

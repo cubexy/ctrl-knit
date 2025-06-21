@@ -12,6 +12,7 @@ function Header() {
   }, [createProjectModalRef]);
 
   const { getProjectList } = useDatabase();
+  const projects = getProjectList();
 
   return (
     <div className="navbar p-0">
@@ -35,15 +36,12 @@ function Header() {
                 </a>
               </li>
               <hr className="fill-base-content m-2 h-px rounded-none" />
-              {getProjectList().map((project) => (
+              {projects.map((project) => (
                 <li key={project.id}>
-                  <Link to={`/projects/${project.id}`}>
-                    {project.name}{" "}
-                    <span className="text-xs opacity-50">({new Date(project.updatedAt).toLocaleDateString()})</span>
-                  </Link>
+                  <Link to={`/projects/${project.id}`}>{project.name} </Link>
                 </li>
               ))}
-              {getProjectList().length === 0 && (
+              {projects.length === 0 && (
                 <li>
                   <span className="text-sm text-gray-500">Erstelle dein erstes Projekt!</span>
                 </li>
