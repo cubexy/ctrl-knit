@@ -42,7 +42,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   return (
     <dialog ref={props.ref} className="modal">
       <div className="modal-box">
-        <h3 className="pb-2 text-lg font-bold">Projekt erstellen</h3>
+        <h3 className="pb-2 text-xl font-bold">Projekt erstellen</h3>
         <fieldset className="fieldset">
           <legend className="fieldset-legend text-left">Name</legend>
           <input
