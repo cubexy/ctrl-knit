@@ -1,3 +1,4 @@
+import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 import type { EditCounter } from "~/models/Counter";
 import type { CounterPresentation } from "~/models/presenter/CounterPresentation";
@@ -82,14 +83,25 @@ function CounterDisplay(props: CounterDisplayProps) {
               borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
             }}
           >
-            <p className="swap-flip grow-0 text-6xl">{props.count.current}</p>
+            <NumberFlow
+              value={props.count.current}
+              /** @ts-ignore - NumberFlow is a third-party library that does not have types */
+              style={{ fontSize: "60px", fontWeight: "normal", "--number-flow-mask-height": "0em" }}
+            />
             <p className="text-x grow-0">von {props.count.target}</p>
             {props.stepOver && props.stepOver.target > 1 && (
               <div
                 className="tooltip tooltip-bottom"
                 data-tip={`${(props.stepOver.current - 1) * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
               >
-                <div className="badge badge-neutral">{`${props.stepOver.current} / ${props.stepOver.target}`}</div>
+                <div className="badge badge-neutral">
+                  <NumberFlow
+                    value={props.stepOver.current}
+                    /** @ts-ignore - NumberFlow is a third-party library that does not have types */
+                    style={{ fontWeight: "normal", "--number-flow-mask-height": "0em" }}
+                  />
+                  {` / ${props.stepOver.target}`}
+                </div>
               </div>
             )}
           </div>
