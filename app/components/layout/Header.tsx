@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useDatabase } from "~/hooks/useDatabase";
 import AddIcon from "../ui/icons/AddIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 function Header() {
   const createProjectModalRef = useRef<HTMLDialogElement>(null);
@@ -16,11 +17,14 @@ function Header() {
 
   return (
     <div className="navbar min-h-0 p-0">
-      <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
-        <kbd className="kbd">ctrl</kbd>
-        <p className="font-mono"> + </p>
-        <kbd className="kbd">knit</kbd>
-      </Link>
+      <div className="flex grow items-center justify-start gap-2">
+        <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
+          <kbd className="kbd">ctrl</kbd>
+          <p className="font-mono"> + </p>
+          <kbd className="kbd">knit</kbd>
+        </Link>
+        <ThemeToggle />
+      </div>
       <CreateProjectPopover ref={createProjectModalRef} />
       <div className="flex grow items-center justify-end">
         <div className="flex items-stretch">
@@ -28,7 +32,10 @@ function Header() {
             <div tabIndex={0} role="button" className="btn btn-ghost rounded-field">
               Projekte
             </div>
-            <ul tabIndex={0} className="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow-sm">
+            <ul
+              tabIndex={0}
+              className="menu dropdown-content bg-base-200 rounded-box shadow-neutral/15 z-1 mt-4 w-52 p-2 shadow-sm"
+            >
               <li>
                 <a onClick={handleShow}>
                   <AddIcon className="size-5" strokeWidth={2} />
@@ -54,7 +61,10 @@ function Header() {
             <div tabIndex={0} role="button" className="btn btn-ghost rounded-xl">
               Optionen
             </div>
-            <ul tabIndex={0} className="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow-sm">
+            <ul
+              tabIndex={0}
+              className="menu dropdown-content bg-base-200 rounded-box shadow-neutral/15 z-1 mt-4 w-52 p-2 shadow-sm"
+            >
               <li>
                 <a>Kommt noch™ 🙏</a>
               </li>
