@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { EditCounter } from "~/models/Counter";
 import type { CounterPresentation } from "~/models/presenter/CounterPresentation";
 import SettingsIcon from "../icons/SettingsIcon";
@@ -11,8 +11,6 @@ type CounterDisplayProps = CounterPresentation & {
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
-  const editCounterPopoverRef = useRef<HTMLDialogElement>(null);
-
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   // helper function because tailwindcss does not support dynamic classes
