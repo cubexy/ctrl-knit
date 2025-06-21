@@ -26,7 +26,7 @@ function ProjectPage() {
   const project = getProjectById(id);
 
   if (!project) {
-    return <div className="text-center">Projekt nicht gefunden</div>;
+    return <span className="loading loading-spinner loading-xl"></span>;
   }
 
   return (
