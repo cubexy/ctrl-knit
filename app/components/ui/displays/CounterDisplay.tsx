@@ -1,21 +1,19 @@
-import { useCallback, useRef } from "react";
-import type { Counter, EditCounter } from "~/models/Counter";
+import { useRef, useState } from "react";
+import type { EditCounter } from "~/models/Counter";
+import type { CounterPresentation } from "~/models/presenter/CounterPresentation";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditCounterPopover from "../popover/EditCounterPopover";
 
-type CounterDisplayProps = Counter & {
+type CounterDisplayProps = CounterPresentation & {
   onIncrement: () => void;
   onDecrement: () => void;
   onEdit: (update: EditCounter) => void;
-  stepOverCurrent?: number;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
   const editCounterPopoverRef = useRef<HTMLDialogElement>(null);
 
-  const handleShow = useCallback(() => {
-    editCounterPopoverRef.current?.showModal();
-  }, [editCounterPopoverRef]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   // helper function because tailwindcss does not support dynamic classes
   const getGradientClasses = (percentage: number) => {
@@ -56,11 +54,12 @@ function CounterDisplay(props: CounterDisplayProps) {
         <div className="flex w-full flex-row items-center justify-between pl-1">
           <p>{props.name}</p>
           <EditCounterPopover
-            ref={editCounterPopoverRef}
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
             counter={props}
+            open={popoverOpen}
+            setOpen={setPopoverOpen}
           />
-          <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={handleShow}>
+          <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={() => setPopoverOpen(true)}>
             <SettingsIcon className="size-5" strokeWidth={1} />
           </button>
         </div>
@@ -76,12 +75,12 @@ function CounterDisplay(props: CounterDisplayProps) {
           >
             <p className="grow-0 text-6xl">{props.count.current}</p>
             <p className="text-x grow-0">von {props.count.target}</p>
-            {props.stepOver && props.stepOverCurrent && (
+            {props.stepOver && props.stepOver.target > 1 && (
               <div
                 className="tooltip tooltip-bottom"
-                data-tip={`${props.stepOverCurrent * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
+                data-tip={`${(props.stepOver.current - 1) * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
               >
-                <div className="badge badge-neutral">{`${props.stepOverCurrent} / ${props.stepOver.target}`}</div>
+                <div className="badge badge-neutral">{`${props.stepOver.current} / ${props.stepOver.target}`}</div>
               </div>
             )}
           </div>

@@ -1,10 +1,11 @@
-import { useState, type RefObject } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CreateCounter } from "~/models/Counter";
 
 interface EditCounterPopoverProps {
-  ref: RefObject<HTMLDialogElement | null>;
   onConfirm: (counter: CreateCounter) => void;
   counter: CreateCounter;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 function EditCounterPopover(props: EditCounterPopoverProps) {
@@ -24,12 +25,18 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
     setCounterStepOver(DEFAULTS.counterStepOver);
   };
 
-  const handleClose = () => {
-    if (props.ref.current) {
-      props.ref.current.close();
+  useEffect(() => {
+    if (props.open) {
+      if (ref.current) {
+        ref.current.showModal();
+      }
       resetFields();
+    } else {
+      if (ref.current) {
+        ref.current.close();
+      }
     }
-  };
+  }, [props.open]);
 
   const handleConfirm = () => {
     if (!inputValid) return;
@@ -41,7 +48,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
     };
 
     props.onConfirm(newCounter);
-    handleClose();
+    props.setOpen(false);
   };
 
   const parseInputValue = (value: string, allowZero: boolean = false): number | null => {
@@ -60,15 +67,14 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
 
   const setCounterStepOverTargetValue = (value: string) => setCounterStepOver(parseInputValue(value, true));
 
-  const dialogText = "Zähler bearbeiten";
-  const dialogConfirmText = "Bearbeitung abschließen";
-
   const inputValid = counterName !== "" && counterValue !== null;
 
+  const ref = useRef<HTMLDialogElement>(null);
+
   return (
-    <dialog ref={props.ref} className="modal">
+    <dialog ref={ref} className="modal">
       <div className="modal-box">
-        <h3 className="pb-2 text-xl font-bold font-stretch-expanded">{dialogText}</h3>
+        <h3 className="pb-2 text-xl font-bold font-stretch-expanded">Zähler bearbeiten</h3>
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input
@@ -96,7 +102,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
           <p className="label">Optional</p>
         </fieldset>
         <div className="modal-action">
-          <button className="btn" onClick={handleClose}>
+          <button className="btn" onClick={() => props.setOpen(false)}>
             Abbrechen
           </button>
           <div
@@ -104,7 +110,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
             data-tip="Bitte fülle alle erforderlichen Felder aus!"
           >
             <button type="submit" className="btn btn-primary" onClick={handleConfirm} disabled={!inputValid}>
-              {dialogConfirmText}
+              Bearbeitung abschließen
             </button>
           </div>
         </div>

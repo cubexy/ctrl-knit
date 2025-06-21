@@ -28,10 +28,10 @@ export type EditCounter = {
   id: string;
   name?: string;
   count?: {
-    target?: number;
+    target: number;
   };
   stepOver?: {
-    target?: number;
+    target: number;
   };
 };
 

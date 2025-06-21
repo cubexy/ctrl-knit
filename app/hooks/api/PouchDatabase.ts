@@ -1,9 +1,10 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
+import { clamp } from "~/utility/clamp";
 import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
 import type { CreateProject, DatabaseProject, EditProject, Project } from "../../models/Project";
 
-export class CouchDatabase {
+export class PouchDatabase {
   private localDb: PouchDB.Database;
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
@@ -112,19 +113,16 @@ export class CouchDatabase {
     const project = await this.getProjectById(projectId);
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
+        const stepOverMultiplier = update.stepOver ? update.stepOver.target : c.stepOver ? c.stepOver.target : 1;
+        const updatedTarget = update.count?.target ?? c.count.target;
         return {
+          ...c,
           count: {
-            current: c.count.current,
+            current: clamp(c.count.current, 0, updatedTarget * stepOverMultiplier),
             target: update.count?.target ?? c.count.target
           },
-          stepOver: c.stepOver
-            ? {
-                target: update.stepOver?.target ?? c.stepOver.target
-              }
-            : undefined,
-          name: update.name ?? c.name,
-          id: c.id,
-          createdAt: c.createdAt
+          stepOver: update.stepOver ? { target: update.stepOver.target ?? c.stepOver?.target } : undefined,
+          name: update.name ?? c.name
         };
       }
       return c;
@@ -151,7 +149,7 @@ export class CouchDatabase {
           ...c,
           count: {
             ...c.count,
-            current: Math.min(incrementedCurrent, max)
+            current: clamp(incrementedCurrent, 0, max)
           }
         };
       }
