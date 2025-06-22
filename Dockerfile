@@ -13,5 +13,4 @@ COPY --from=builder /app/build ./build
 COPY package.json ./
 RUN npm install --omit=dev
 
-# The command to start the application
 CMD ["npm", "run", "start"]
