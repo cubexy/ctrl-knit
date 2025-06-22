@@ -28,7 +28,7 @@ function Header() {
       <CreateProjectPopover ref={createProjectModalRef} />
       <div className="flex grow items-center justify-end">
         <div className="flex items-stretch">
-          <div className="dropdown dropdown-bottom dropdown-center">
+          <div className="dropdown dropdown-bottom dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost rounded-field">
               Projekte
             </div>
@@ -53,21 +53,6 @@ function Header() {
                   <span className="text-sm text-gray-500">Erstelle dein erstes Projekt!</span>
                 </li>
               )}
-            </ul>
-          </div>
-        </div>
-        <div className="flex items-stretch">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost rounded-xl">
-              Optionen
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content bg-base-200 rounded-box shadow-neutral/15 z-1 mt-4 w-52 p-2 shadow-sm"
-            >
-              <li>
-                <a>Kommt noch™ 🙏</a>
-              </li>
             </ul>
           </div>
         </div>

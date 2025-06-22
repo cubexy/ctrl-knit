@@ -4,11 +4,13 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const blockingScript = `(function() { const theme = window.localStorage.getItem('theme') || 'mylight'; document.documentElement.setAttribute('data-theme', theme); })();`;
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script dangerouslySetInnerHTML={{ __html: blockingScript }} />
         <Meta />
         <Links />
         <link rel="icon" href="/favicon.ico" />

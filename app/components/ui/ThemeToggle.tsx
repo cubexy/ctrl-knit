@@ -1,18 +1,27 @@
 import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState("mylight");
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") {
+      return "mylight";
+    }
+    return window.localStorage.getItem("theme") || "mylight";
+  });
+
   const toggleTheme = () => {
-    setTheme(theme === "mydark" ? "mylight" : "mydark");
+    setTheme((currentTheme) => (currentTheme === "mydark" ? "mylight" : "mydark"));
   };
-  // initially set the theme and "listen" for changes to apply them to the HTML tag
+
+  // listen for theme changes and apply them to the HTML tag and localStorage
   useEffect(() => {
-    document?.querySelector("html")?.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    window.localStorage.setItem("theme", theme);
   }, [theme]);
+
   return (
     <label className="swap swap-rotate">
       {/* this hidden checkbox controls the state */}
-      <input type="checkbox" className="theme-controller" value="synthwave" onClick={toggleTheme} />
+      <input type="checkbox" onChange={toggleTheme} checked={theme === "mydark"} />
 
       {/* sun icon */}
       <svg className="swap-off size-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

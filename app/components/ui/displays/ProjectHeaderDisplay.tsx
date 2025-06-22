@@ -12,6 +12,15 @@ type ProjectHeaderDisplayProps = {
 
 function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const fetchShortenedUrl = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch (error) {
+      return url;
+    }
+  };
+
   return (
     <>
       <EditProjectPopover
@@ -35,7 +44,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
                 className="link wrap flex items-center gap-2"
               >
                 <LinkIcon className="size-4" strokeWidth={1} />
-                {props.project.url}
+                <p className="break-all">{fetchShortenedUrl(props.project.url)}</p>
               </a>
             )}
             <button className="btn btn-ghost px-1 py-3 font-medium" onClick={() => setPopoverOpen(true)}>
