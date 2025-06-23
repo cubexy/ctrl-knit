@@ -67,7 +67,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
     <dialog ref={ref} className="modal">
       <div className="modal-box">
         <div className="flex flex-row items-start justify-between">
-          <h3 className="pb-2 text-xl font-bold font-stretch-expanded">Projekt bearbeiten</h3>
+          <h3 className="pb-2 text-xl font-bold">Projekt bearbeiten</h3>
 
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-xs btn-error btn-ghost mt-0 px-1 py-3">
@@ -75,7 +75,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
             </div>
             <div
               tabIndex={0}
-              className="dropdown-content menu bg-base-100 rounded-box shadow-neutral/15 z-1 flex w-42 flex-col items-center gap-y-0.5 py-4 shadow-sm"
+              className="dropdown-content menu bg-base-100 rounded-box shadow-neutral/15 z-1 flex w-46 flex-col items-center gap-y-0.5 py-4 shadow-sm"
             >
               <p>Wirklich löschen?</p>
               <button className="btn btn-dash btn-error" onClick={handleDelete}>
