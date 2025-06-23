@@ -1,18 +1,14 @@
 # `ctrl` + `knit`
 
-`⚠️ WORK IN PROGRESS! 🙏`
-
 `ctrl` + `knit` is a simple, mobile-first row counter web app for tracking your knitting. It is implemented as a PWA, letting it work offline and across devices.
 
 ## Showcase
 
-<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/db39c03a-e14a-4cbc-a460-568f8aa15137" />
-<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/5031e9d6-ec35-4b3b-8db6-9f59cedcef4d" />
-
+<img width="900" alt="grafik" src="https://github.com/user-attachments/assets/3af845d9-1d4e-4914-b700-78f3671b6403" />
 
 `It also supports dark mode! 🌚`
 
-<img width="450" alt="grafik" src="https://github.com/user-attachments/assets/8034be5f-17a6-43d2-861a-e53ac7f5fcb2" />
+<img width="900" alt="grafik" src="https://github.com/user-attachments/assets/2a84ed99-e5c1-4051-948a-8602d846e0c1" />
 
 ## Tech Stack
 
@@ -25,5 +21,5 @@
   - DB:     PouchDB
 
 - Database
-  - CouchDB
+  - CouchDB (Soon!)
 ```
