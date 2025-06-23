@@ -20,13 +20,18 @@ function Header() {
       <div className="flex grow items-center justify-start gap-2">
         <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
           <kbd className="kbd">ctrl</kbd>
-          <p className="font-mono"> + </p>
+          <p> + </p>
           <kbd className="kbd">knit</kbd>
         </Link>
-        <ThemeToggle />
+        <span className="inline-block lg:hidden">
+          <ThemeToggle />
+        </span>
       </div>
+      <span className="hidden pr-2 lg:inline-block">
+        <ThemeToggle />
+      </span>
       <CreateProjectPopover ref={createProjectModalRef} />
-      <div className="flex grow items-center justify-end">
+      <div className="flex grow items-center justify-end lg:hidden">
         <div className="flex items-stretch">
           <div className="dropdown dropdown-bottom dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost rounded-field">

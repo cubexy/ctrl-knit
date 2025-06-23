@@ -70,15 +70,11 @@ function CounterDisplay(props: CounterDisplayProps) {
           </button>
         </div>
         <div className="join w-full">
-          <button
-            className="btn h-full rounded-l-2xl font-mono text-xl"
-            onClick={props.onDecrement}
-            disabled={!canDecrement}
-          >
+          <button className="btn h-full rounded-l-2xl text-xl" onClick={props.onDecrement} disabled={!canDecrement}>
             -
           </button>
           <div
-            className={`input input-neutral from-base-300 to-base-100 flex min-h-36 w-full flex-col items-center justify-center gap-0 border-[1px] border-b-[2px] bg-gradient-to-r font-mono ${gradientClasses} rounded-none`}
+            className={`input input-neutral from-base-300 to-base-100 flex min-h-36 w-full flex-col items-center justify-center gap-0 border-[1px] border-b-[2px] bg-gradient-to-r ${gradientClasses} rounded-none`}
             style={{
               borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
             }}
@@ -105,11 +101,7 @@ function CounterDisplay(props: CounterDisplayProps) {
               </div>
             )}
           </div>
-          <button
-            className="btn h-full rounded-r-2xl font-mono text-xl"
-            onClick={props.onIncrement}
-            disabled={!canIncrement}
-          >
+          <button className="btn h-full rounded-r-2xl text-xl" onClick={props.onIncrement} disabled={!canIncrement}>
             +
           </button>
         </div>

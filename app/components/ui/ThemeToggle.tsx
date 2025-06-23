@@ -19,7 +19,7 @@ export function ThemeToggle() {
   }, [theme]);
 
   return (
-    <label className="swap swap-rotate">
+    <label className="swap swap-rotate w-fit">
       {/* this hidden checkbox controls the state */}
       <input type="checkbox" onChange={toggleTheme} checked={theme === "mydark"} />
 
