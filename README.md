@@ -1,5 +1,7 @@
 # `ctrl` + `knit`
 
+[![Release & Deploy](https://github.com/cubexy/ctrl-knit/actions/workflows/release.yml/badge.svg)](https://github.com/cubexy/ctrl-knit/actions/workflows/release.yml)
+
 `ctrl` + `knit` is a simple, mobile-first row counter web app for tracking your knitting. It is implemented as a PWA, letting it work offline and across devices.
 
 ## Showcase
