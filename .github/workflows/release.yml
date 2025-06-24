@@ -44,5 +44,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /data/docker/ctrl-knit
-            echo "test" > myfile.txt
+            cd data/docker
+            docker compose pull ctrl-knit
+            docker compose up -d ctrl-knit
