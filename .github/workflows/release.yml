@@ -7,6 +7,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: mwae_cloud
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +28,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: mwae_cloud
     steps:
       - name: SSH to server and update
         uses: appleboy/ssh-action@v1.0.3
@@ -36,5 +38,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /data/docker/ctrl-knit
-            docker-compose pull ctrl-knit
-            docker-compose up -d ctrl-knit
+            echo "test" > myfile.txt
