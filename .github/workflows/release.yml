@@ -24,7 +24,13 @@ jobs:
           context: .
           push: true
           provenance: false
-          tags: ghcr.io/cubexy/ctrl-knit:${{ github.event.release.tag_name }}
+          tags: |
+            ghcr.io/cubexy/ctrl-knit:${{ github.event.release.tag_name }}
+            ghcr.io/cubexy/ctrl-knit:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=ctrl-knit container image
+            org.opencontainers.image.licenses=MIT
 
   deploy:
     needs: build-and-push
