@@ -1,6 +1,7 @@
 name: Release & Deploy
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
