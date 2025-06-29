@@ -24,10 +24,12 @@ function Header() {
           <kbd className="kbd">knit</kbd>
         </Link>
         <span className="inline-block lg:hidden">
+          {/* Only displayed on mobile */}
           <ThemeToggle />
         </span>
       </div>
       <span className="hidden pr-2 lg:inline-block">
+        {/* Only displayed on large screens */}
         <ThemeToggle />
       </span>
       <CreateProjectPopover ref={createProjectModalRef} />
