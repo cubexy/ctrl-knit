@@ -6,8 +6,41 @@ import type { CreateProject, DatabaseProject, Project } from "../../models/Proje
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
+  private remoteDb: PouchDB.Database | null = null;
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
+  }
+
+  public initializeRemoteDb(
+    username: string,
+    password: string,
+    url: string,
+    onChange: (change: PouchDB.Replication.SyncResult<{}>) => void,
+    onPaused: (info: any) => void,
+    onError: (err: any) => void
+  ) {
+    this.remoteDb = new PouchDB(`https://${username}:${password}@${url}`, {
+      skip_setup: true
+    });
+    this.sync(onChange, onPaused, onError);
+  }
+
+  private async sync(
+    onChange: (change: PouchDB.Replication.SyncResult<{}>) => void,
+    onPaused: (info: any) => void,
+    onError: (err: any) => void
+  ) {
+    if (!this.remoteDb) {
+      throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
+    }
+    this.localDb
+      .sync(this.remoteDb, {
+        live: true,
+        retry: true
+      })
+      .on("change", onChange)
+      .on("paused", onPaused)
+      .on("error", onError);
   }
 
   private generateIdentifier(type: "project" | "counter") {
