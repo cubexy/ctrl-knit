@@ -24,7 +24,9 @@ function Sidebar() {
           <Link to="/" className="w-fit">
             <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
           </Link>
-          <AuthButton />
+          <span className="text-neutral">
+            <AuthButton />
+          </span>
         </div>
         <div className="flex flex-col gap-4 px-0.5">
           <button className="btn btn-dash w-full" onClick={handleShow}>
