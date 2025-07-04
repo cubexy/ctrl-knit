@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
 import { useDatabase } from "~/hooks/useDatabase";
+import { AuthButton } from "../ui/AuthButton";
 import AddIcon from "../ui/icons/AddIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -16,7 +17,7 @@ function Header() {
   const projects = getProjectList();
 
   return (
-    <div className="navbar min-h-10 p-0">
+    <div className="navbar min-h-10 p-0 pr-1.5">
       <div className="flex grow items-center justify-start gap-2">
         <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
           <kbd className="kbd">ctrl</kbd>
@@ -64,6 +65,9 @@ function Header() {
           </div>
         </div>
       </div>
+      <span className="lg:hidden">
+        <AuthButton />
+      </span>
     </div>
   );
 }

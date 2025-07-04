@@ -1,9 +1,9 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
 import { useDatabase } from "~/hooks/useDatabase";
+import { AuthButton } from "../ui/AuthButton";
 import AddIcon from "../ui/icons/AddIcon";
 import GithubIcon from "../ui/icons/GithubIcon";
-import UserIcon from "../ui/icons/UserIcon";
 import WoolIcon from "../ui/icons/WoolIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
@@ -24,10 +24,7 @@ function Sidebar() {
           <Link to="/" className="w-fit">
             <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
           </Link>
-          <button className="btn">
-            Login
-            <UserIcon className="size-5" strokeWidth={1.5} />
-          </button>
+          <AuthButton />
         </div>
         <div className="flex flex-col gap-4 px-0.5">
           <button className="btn btn-dash w-full" onClick={handleShow}>
