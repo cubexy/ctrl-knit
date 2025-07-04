@@ -16,7 +16,7 @@ function Header() {
   const projects = getProjectList();
 
   return (
-    <div className="navbar min-h-0 p-0">
+    <div className="navbar min-h-10 p-0">
       <div className="flex grow items-center justify-start gap-2">
         <Link to="/" className="flex flex-row flex-wrap items-center justify-center gap-x-1.5">
           <kbd className="kbd">ctrl</kbd>

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useDatabase } from "~/hooks/useDatabase";
 import AddIcon from "../ui/icons/AddIcon";
 import GithubIcon from "../ui/icons/GithubIcon";
+import UserIcon from "../ui/icons/UserIcon";
 import WoolIcon from "../ui/icons/WoolIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
@@ -19,9 +20,15 @@ function Sidebar() {
     <>
       <CreateProjectPopover ref={createProjectModalRef} />
       <div className="bg-neutral text-neutral-content hidden min-h-full flex-col gap-6 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
-        <Link to="/" className="w-fit">
-          <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
-        </Link>
+        <div className="flex flex-row items-center justify-between">
+          <Link to="/" className="w-fit">
+            <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
+          </Link>
+          <button className="btn">
+            Login
+            <UserIcon className="size-5" strokeWidth={1.5} />
+          </button>
+        </div>
         <div className="flex flex-col gap-4 px-0.5">
           <button className="btn btn-dash w-full" onClick={handleShow}>
             <AddIcon className="size-4" strokeWidth={1.5} />
