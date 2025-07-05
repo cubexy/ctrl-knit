@@ -9,9 +9,23 @@ export class PouchDatabase {
   private remoteDb: PouchDB.Database | null = null;
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
+    this.initializeRemoteDb(
+      "knit-mary",
+      "T$i7j3lvxI$grH!6Vd8t",
+      "cloud.mwae.de/obsidian",
+      (change) => {
+        console.log("Change detected:", change);
+      },
+      (info) => {
+        console.log("Replication paused:", info);
+      },
+      (err) => {
+        console.error("Replication error:", err);
+      }
+    );
   }
 
-  public initializeRemoteDb(
+  public async initializeRemoteDb(
     username: string,
     password: string,
     url: string,
@@ -19,7 +33,20 @@ export class PouchDatabase {
     onPaused: (info: any) => void,
     onError: (err: any) => void
   ) {
-    this.remoteDb = new PouchDB(`https://${username}:${password}@${url}`, {
+    const response = await fetch(`https://${url}/_session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name: username, password: password }),
+      credentials: "include"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Authentication failed: ${response.statusText}`);
+    }
+
+    this.remoteDb = new PouchDB(`https://${url}`, {
       skip_setup: true
     });
     this.sync(onChange, onPaused, onError);
