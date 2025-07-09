@@ -1,6 +1,6 @@
 import { useState, type RefObject } from "react";
 import { useNavigate } from "react-router";
-import { useDatabase } from "~/hooks/useDatabase";
+import { useDatabase } from "~/contexts/DatabaseContext";
 
 type CreateProjectPopoverProps = {
   ref: RefObject<HTMLDialogElement | null>;

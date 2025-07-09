@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
-import { useDatabase } from "~/hooks/useDatabase";
-import { AuthButton } from "../ui/AuthButton";
+import { useDatabase } from "~/contexts/DatabaseContext";
+import { SyncButton } from "../ui/SyncButton";
 import AddIcon from "../ui/icons/AddIcon";
 import GithubIcon from "../ui/icons/GithubIcon";
 import WoolIcon from "../ui/icons/WoolIcon";
@@ -25,7 +25,7 @@ function Sidebar() {
             <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
           </Link>
           <span className="text-neutral">
-            <AuthButton />
+            <SyncButton />
           </span>
         </div>
         <div className="flex flex-col gap-4 px-0.5">

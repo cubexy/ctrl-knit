@@ -18,8 +18,6 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
   const currentCount = currentCountMod === 0 ? counter.count.target : currentCountMod;
   const isZero = counter.count.current === 0;
 
-  console.log(JSON.stringify(counter));
-
   return {
     id: counter.id,
     name: counter.name,

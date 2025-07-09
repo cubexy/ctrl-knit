@@ -3,77 +3,90 @@ import { v4 as uuidv4 } from "uuid";
 import { clamp } from "~/utility/clamp";
 import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
 import type { CreateProject, DatabaseProject, Project } from "../../models/Project";
+import { AuthenticationError, ConnectionError } from "./ConnectionError";
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
   private remoteDb: PouchDB.Database | null = null;
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
-    this.initializeRemoteDb(
-      "SAMPLE USERNAME",
-      "SAMPLE PASSWORD",
-      "cloud.mwae.de/obsidian",
-      (change) => {
-        console.log("Change detected:", change);
-      },
-      (info) => {
-        console.log("Replication paused:", info);
-      },
-      (err) => {
-        console.error("Replication error:", err);
-      }
-    );
   }
 
-  public async initializeRemoteDb(
-    username: string,
-    password: string,
-    url: string,
-    onChange: (change: PouchDB.Replication.SyncResult<{}>) => void,
-    onPaused: (info: any) => void,
-    onError: (err: any) => void
-  ) {
-    const response = await fetch(`https://${url}/_session`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name: username, password: password }),
-      credentials: "include"
-    });
-
-    if (!response.ok) {
-      throw new Error(`Authentication failed: ${response.statusText}`);
+  /**
+   * Authenticates with remote CouchDB server using session-based auth.
+   * Throws AuthenticationError or ConnectionError on failure.
+   */
+  private async authenticateRemote(username: string, password: string, url: string) {
+    let response: Response;
+    try {
+      response = await fetch(`https://${url}/_session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: username, password: password }),
+        credentials: "include"
+      });
+    } catch (error) {
+      throw new ConnectionError(
+        `Failed to reach remote database at ${url}. Please check your connection and try again.`
+      );
     }
-
-    this.remoteDb = new PouchDB(`https://${url}`, {
-      skip_setup: true
-    });
-    this.sync(onChange, onPaused, onError);
+    if (!response.ok) {
+      throw new AuthenticationError(
+        `Authentication failed for user ${username} at ${url}. Please check your credentials and try again. Response: ${response.statusText}`
+      );
+    }
   }
 
-  private async sync(
-    onChange: (change: PouchDB.Replication.SyncResult<{}>) => void,
-    onPaused: (info: any) => void,
-    onError: (err: any) => void
-  ) {
+  /**
+   * Initializes connection to remote CouchDB and starts syncing.
+   * Returns sync promise after successful authentication.
+   */
+  public async initializeRemoteDb(username: string, password: string, url: string, dbName: string) {
+    try {
+      await this.authenticateRemote(username, password, url);
+    } catch (error) {
+      if (error instanceof AuthenticationError || error instanceof ConnectionError) {
+        throw error; // Re-throw known errors
+      }
+      throw new Error(`Unexpected error`);
+    }
+    this.remoteDb = new PouchDB(`https://${url}/${dbName}`);
+    try {
+      this.remoteDb.info();
+    } catch (error) {
+      throw new ConnectionError(
+        `Failed to connect to remote database at ${url}/${dbName}. Please check your connection and try again.`
+      );
+    }
+    return this.sync();
+  }
+
+  /**
+   * Starts live bidirectional sync between local and remote databases.
+   */
+  private async sync() {
     if (!this.remoteDb) {
       throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
     }
-    this.localDb
-      .sync(this.remoteDb, {
-        live: true,
-        retry: true
-      })
-      .on("change", onChange)
-      .on("paused", onPaused)
-      .on("error", onError);
+    this.localDb.sync(this.remoteDb, {
+      live: true,
+      retry: true
+    });
   }
 
+  /**
+   * Generates unique identifier with type prefix and UUID.
+   */
   private generateIdentifier(type: "project" | "counter") {
     return `${type}:${uuidv4()}`;
   }
 
+  /**
+   * Sets up live change listener for database updates and deletions.
+   * Returns change listener instance.
+   */
   public onChange(onDelete: (id: string) => void, onUpdate: (doc: any) => void) {
     return this.localDb
       .changes({
@@ -95,6 +108,9 @@ export class PouchDatabase {
       .on("error", console.log.bind(console)); // log errors to console for debugging
   }
 
+  /**
+   * Creates new project with timestamp ID and initial metadata.
+   */
   public async createProject(project: CreateProject) {
     return await this.localDb.put({
       _id: new Date().toJSON(), // use timestamp as ID for default sorting
@@ -105,6 +121,9 @@ export class PouchDatabase {
     });
   }
 
+  /**
+   * Updates existing project with new data and timestamp.
+   */
   public async updateProject(id: string, project: CreateProject) {
     const existingProject = await this.localDb.get(id);
     const updatedProject = {
@@ -115,11 +134,17 @@ export class PouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
+  /**
+   * Deletes project from database.
+   */
   public async deleteProject(id: string) {
     const project = await this.localDb.get(id);
     return await this.localDb.remove(project);
   }
 
+  /**
+   * Retrieves all projects with proper date conversion and mapping.
+   */
   public async getProjects(): Promise<Array<Project>> {
     const result = await this.localDb.allDocs({
       include_docs: true
@@ -138,11 +163,17 @@ export class PouchDatabase {
     return mappedDocs;
   }
 
+  /**
+   * Internal helper to fetch project document by ID.
+   */
   private async getProjectById(id: string) {
     const project = await this.localDb.get(id);
     return project;
   }
 
+  /**
+   * Creates new counter and adds it to specified project.
+   */
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
     const newCounter: Counter = {
@@ -169,6 +200,9 @@ export class PouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
+  /**
+   * Updates counter properties and clamps current value within limits.
+   */
   public async updateCounter(projectId: string, counterId: string, update: EditCounter) {
     const project = await this.getProjectById(projectId);
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
@@ -197,6 +231,9 @@ export class PouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
+  /**
+   * Increments counter value with clamping to valid range.
+   */
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
     const project = await this.getProjectById(projectId);
 
@@ -225,6 +262,9 @@ export class PouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
+  /**
+   * Removes counter from project by filtering out the specified ID.
+   */
   public async deleteCounter(projectId: string, counterId: string) {
     const project = await this.getProjectById(projectId);
     const updatedCounters = (project as unknown as Project).counters.filter((c: Counter) => c.id !== counterId);
@@ -238,7 +278,23 @@ export class PouchDatabase {
     return await this.localDb.put(updatedProject);
   }
 
+  /**
+   * Disconnects from remote database and cleans up connection.
+   */
+  public async disconnectRemote() {
+    if (!this.remoteDb) {
+      throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
+    }
+    this.remoteDb.close();
+    this.remoteDb = null;
+  }
+
+  /**
+   * Closes both local and remote database connections.
+   */
   public async close() {
     await this.localDb.close();
+    await this.remoteDb?.close();
+    this.remoteDb = null;
   }
 }
