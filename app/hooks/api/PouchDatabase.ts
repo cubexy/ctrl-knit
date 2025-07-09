@@ -54,7 +54,7 @@ export class PouchDatabase {
     }
     this.remoteDb = new PouchDB(`https://${url}/${dbName}`);
     try {
-      this.remoteDb.info();
+      await this.remoteDb.info();
     } catch (error) {
       throw new ConnectionError(
         `Failed to connect to remote database at ${url}/${dbName}. Please check your connection and try again.`
