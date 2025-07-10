@@ -1,9 +1,10 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
+import type { CouchDbSession } from "~/models/CouchDbSession";
 import { clamp } from "~/utility/clamp";
 import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
 import type { CreateProject, DatabaseProject, Project } from "../../models/Project";
-import { AuthenticationError, ConnectionError } from "./ConnectionError";
+import { AuthenticationError, ConnectionError, ForbiddenError } from "../../models/error/ConnectionError";
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
@@ -74,6 +75,31 @@ export class PouchDatabase {
       live: true,
       retry: true
     });
+  }
+
+  public async getSession(baseUrl: string, dbName: string): Promise<CouchDbSession> {
+    let response: Response;
+    try {
+      response = await fetch(`https://${baseUrl}/_session`, {
+        method: "GET",
+        credentials: "include"
+      });
+    } catch (error) {
+      throw new ConnectionError(`Failed to connect to remote database at ${baseUrl}. Please check your connection.`);
+    }
+
+    if (response.status === 401) {
+      throw new AuthenticationError(`Authentication failed. Please check your credentials and try again.`);
+    }
+
+    if (response.status === 403) {
+      throw new ForbiddenError(`Access denied. You do not have permission to access this resource.`);
+    }
+
+    this.remoteDb = new PouchDB(`https://${baseUrl}/${dbName}`);
+    this.sync();
+
+    return (await response.json()) as CouchDbSession;
   }
 
   /**

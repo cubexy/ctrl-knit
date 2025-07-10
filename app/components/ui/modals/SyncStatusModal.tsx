@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LocalStorageController } from "~/hooks/api/LocalStorageController";
 import type { DatabaseConnectionPresentation } from "~/models/presenter/DatabaseConnectionPresentation";
 import CloudIcon from "../icons/CloudIcon";
 
@@ -15,11 +16,16 @@ type SyncStatusModalProps = {
   onLogout: () => void;
 };
 
+let remoteDbHostInfo: { hostname: string; dbName: string } | null = null;
+
+if (typeof window !== "undefined") {
+  remoteDbHostInfo = LocalStorageController.getRemoteDb();
+}
 function SyncStatusModal(props: SyncStatusModalProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [hostname, setHostname] = useState("");
-  const [dbName, setDbName] = useState("");
+  const [hostname, setHostname] = useState(remoteDbHostInfo?.hostname || "");
+  const [dbName, setDbName] = useState(remoteDbHostInfo?.dbName || "");
 
   const onLogin = () => {
     props.onLogin({ username, password, hostname, dbName });

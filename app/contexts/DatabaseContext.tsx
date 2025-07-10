@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { LoginParameters } from "~/components/ui/modals/SyncStatusModal";
-import { AuthenticationError, ConnectionError } from "~/hooks/api/ConnectionError";
+import { LocalStorageController } from "~/hooks/api/LocalStorageController";
 import { PouchDatabase } from "~/hooks/api/PouchDatabase";
 import type { CreateCounter, EditCounter } from "~/models/Counter";
+import { AuthenticationError, ConnectionError } from "~/models/error/ConnectionError";
 import {
   DEFAULT_DATABASE_CONNECTION_PRESENTATION,
   type DatabaseConnectionPresentation
@@ -31,9 +32,11 @@ interface DatabaseContextType {
 const DatabaseContext = createContext<DatabaseContextType | null>(null);
 
 let db: PouchDatabase | null = null;
+let remoteDbHostInfo: { hostname: string; dbName: string } | null = null;
 
 if (typeof window !== "undefined") {
   db = new PouchDatabase();
+  remoteDbHostInfo = LocalStorageController.getRemoteDb();
 }
 
 interface DatabaseProviderProps {
@@ -50,13 +53,73 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     const loadInitialData = async () => {
       if (!db) {
         setProjects([]);
-        console.error("Database is not initialized.");
+        console.error("error: db is not initialized. is this being called on the server?");
         return;
       }
       setProjects(await db.getProjects());
     };
     loadInitialData();
     const feed = db?.onChange(onProjectDelete, onProjectUpsert);
+
+    const checkSession = async () => {
+      if (!db || !remoteDbHostInfo) {
+        console.error("Database or remote DB host info is not available.");
+        return;
+      }
+      try {
+        const session = await db.getSession(remoteDbHostInfo.hostname, remoteDbHostInfo.dbName);
+        setAuthStatus((_) => ({
+          username: session.userCtx.name,
+          dbString: `${remoteDbHostInfo.hostname}/${remoteDbHostInfo.dbName}`,
+          hostname: remoteDbHostInfo.hostname,
+          status: {
+            type: "status-success",
+            message: "Erfolgreich angemeldet.",
+            loading: false
+          },
+          loggedIn: true,
+          disabled: false
+        }));
+      } catch (error) {
+        console.error("Error checking remote database session:", error);
+        if (error instanceof AuthenticationError) {
+          setAuthStatus((_) => ({
+            status: {
+              type: "status-error",
+              message: "Anmeldung fehlgeschlagen. Bitte überprüfe deine Anmeldedaten.",
+              loading: false
+            },
+            loggedIn: false,
+            disabled: false
+          }));
+          return;
+        }
+        if (error instanceof ConnectionError) {
+          setAuthStatus((_) => ({
+            status: {
+              type: "status-warning",
+              message: "Keine Verbindung zum Server möglich.",
+              loading: false
+            },
+            loggedIn: false,
+            disabled: false
+          }));
+          return;
+        }
+        console.error("Unexpected error during session check:", error);
+        setAuthStatus((_) => ({
+          status: {
+            type: "status-error",
+            message: "Unerwarteter Fehler beim Überprüfen der Verbindung.",
+            loading: false
+          },
+          loggedIn: false,
+          disabled: false
+        }));
+      }
+    };
+
+    checkSession();
 
     return () => {
       feed?.cancel();
@@ -66,6 +129,10 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
 
   const onProjectDelete = (deletedId: string) => {
     setProjects((prev) => prev.filter((project) => project.id !== deletedId));
+  };
+
+  const storeRemoteInLocalStorage = (hostname: string, dbName: string) => {
+    LocalStorageController.setRemoteDb(hostname, dbName);
   };
 
   const onProjectUpsert = (updatedDoc: any) => {
@@ -123,8 +190,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
       if (error instanceof ConnectionError) {
         setAuthStatus((_) => ({
           status: {
-            type: "status-error",
-            message: "Anmeldung fehlgeschlagen. Keine Verbindung zum Server möglich.",
+            type: "status-warning",
+            message: "Keine Verbindung zum Server möglich.",
             loading: false
           },
           loggedIn: false,
@@ -148,6 +215,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     setAuthStatus((_) => ({
       username: login.username,
       dbString: `${login.hostname}/${login.dbName}`,
+      hostname: login.hostname,
       status: {
         type: "status-success",
         message: "Erfolgreich angemeldet.",
@@ -156,6 +224,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
       loggedIn: true,
       disabled: false
     }));
+    storeRemoteInLocalStorage(login.hostname, login.dbName);
   };
 
   const getProjectById = (id: string) => {

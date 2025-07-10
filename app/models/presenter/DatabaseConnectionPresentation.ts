@@ -10,6 +10,7 @@ export type DatabaseConnectionPresentation =
     }
   | {
       username: string;
+      hostname: string;
       dbString: string;
       status: {
         type: "status-error" | "status-warning" | "status-success";

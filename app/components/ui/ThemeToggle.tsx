@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
+import { LocalStorageController } from "~/hooks/api/LocalStorageController";
 import MoonIcon from "./icons/MoonIcon";
 import SunIcon from "./icons/SunIcon";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") {
-      return "mylight";
-    }
-    return window.localStorage.getItem("theme") || "mylight";
+    return LocalStorageController.getTheme("mylight");
   });
 
   const toggleTheme = () => {
@@ -17,7 +15,7 @@ export function ThemeToggle() {
   // listen for theme changes and apply them to the HTML tag and localStorage
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    window.localStorage.setItem("theme", theme);
+    LocalStorageController.setTheme(theme);
   }, [theme]);
 
   return (
