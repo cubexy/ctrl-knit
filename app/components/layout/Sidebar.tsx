@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import { Link } from "react-router";
-import { useDatabase } from "~/hooks/useDatabase";
+import { useDatabase } from "~/contexts/DatabaseContext";
+import { SyncButton } from "../ui/SyncButton";
 import AddIcon from "../ui/icons/AddIcon";
 import GithubIcon from "../ui/icons/GithubIcon";
 import WoolIcon from "../ui/icons/WoolIcon";
@@ -19,9 +20,14 @@ function Sidebar() {
     <>
       <CreateProjectPopover ref={createProjectModalRef} />
       <div className="bg-neutral text-neutral-content hidden min-h-full flex-col gap-6 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
-        <Link to="/" className="w-fit">
-          <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
-        </Link>
+        <div className="flex flex-row items-center justify-between">
+          <Link to="/" className="w-fit">
+            <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
+          </Link>
+          <span className="text-neutral">
+            <SyncButton />
+          </span>
+        </div>
         <div className="flex flex-col gap-4 px-0.5">
           <button className="btn btn-dash w-full" onClick={handleShow}>
             <AddIcon className="size-4" strokeWidth={1.5} />

@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import CounterDisplay from "~/components/ui/displays/CounterDisplay";
 import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay";
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
-import { useDatabase } from "~/hooks/useDatabase";
+import { useDatabase } from "~/contexts/DatabaseContext";
 import type { CreateCounter } from "~/models/Counter";
 import type { CreateProject } from "~/models/Project";
 
