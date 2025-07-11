@@ -86,7 +86,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
           setAuthStatus((_) => ({
             status: {
               type: "status-error",
-              message: "Anmeldung fehlgeschlagen. Bitte überprüfe deine Anmeldedaten.",
+              message: "Automatische Anmeldung fehlgeschlagen. Bitte melde dich erneut an.",
               loading: false
             },
             loggedIn: false,

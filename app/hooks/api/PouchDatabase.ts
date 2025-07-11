@@ -131,7 +131,7 @@ export class PouchDatabase {
           onUpdate(updatedDocument);
         }
       })
-      .on("error", console.log.bind(console)); // log errors to console for debugging
+      .on("error", console.log.bind(console));
   }
 
   /**
