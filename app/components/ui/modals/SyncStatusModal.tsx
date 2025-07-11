@@ -101,9 +101,9 @@ function SyncStatusModal(props: SyncStatusModalProps) {
           )}
           {props.connection.loggedIn && (
             <>
-              <div className="label text-wrap break-all">
+              <div className="label text-wrap break-normal">
                 <p>
-                  Angemeldet als {props.connection.username}@{props.connection.dbString}!
+                  Angemeldet als {props.connection.username}@{props.connection.dbString}
                 </p>
               </div>
               <button className="btn btn-neutral mt-4" disabled={props.connection.disabled} onClick={onLogout}>
