@@ -11,5 +11,7 @@ To access CouchDB and to use the tool correctly, you might need to change some s
     - Original value: `Basic realm="couchdb"`
 
 - `chttpd_auth`
-  - `allow_persistent_cookies``
+  - `allow_persistent_cookies`
     - Set this value to `true` to persist cookies in the browser even after a restart.
+  - `timeout`
+    - Sets the timeout until the user needs to reauthenticate after not using the app. (I chose 86400 = 24h.)
