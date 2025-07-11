@@ -21,7 +21,7 @@ export type DatabaseConnectionPresentation =
       disabled: boolean;
     };
 
-export const DEFAULT_DATABASE_CONNECTION_PRESENTATION: DatabaseConnectionPresentation = {
+export const DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION: DatabaseConnectionPresentation = {
   status: {
     type: "status-warning",
     message: "Prüfe Verbindung zum Server...",
@@ -29,4 +29,14 @@ export const DEFAULT_DATABASE_CONNECTION_PRESENTATION: DatabaseConnectionPresent
   },
   loggedIn: false,
   disabled: true
+};
+
+export const DEFAULT_DATABASE_CONNECTION_PRESENTATION: DatabaseConnectionPresentation = {
+  status: {
+    type: "status-error",
+    message: "Nicht verbunden",
+    loading: false
+  },
+  loggedIn: false,
+  disabled: false
 };

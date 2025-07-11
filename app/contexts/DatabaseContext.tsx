@@ -6,6 +6,7 @@ import type { CreateCounter, EditCounter } from "~/models/Counter";
 import { AuthenticationError, ConnectionError } from "~/models/error/ConnectionError";
 import {
   DEFAULT_DATABASE_CONNECTION_PRESENTATION,
+  DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION,
   type DatabaseConnectionPresentation
 } from "~/models/presenter/DatabaseConnectionPresentation";
 import {
@@ -47,7 +48,7 @@ interface DatabaseProviderProps {
 export function DatabaseProvider({ children }: DatabaseProviderProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [authStatus, setAuthStatus] = useState<DatabaseConnectionPresentation>(
-    DEFAULT_DATABASE_CONNECTION_PRESENTATION
+    DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION
   );
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
 
     const checkSession = async () => {
       if (!db || !remoteDbHostInfo) {
-        console.error("Database or remote DB host info is not available.");
+        setAuthStatus((_) => DEFAULT_DATABASE_CONNECTION_PRESENTATION);
         return;
       }
       try {
@@ -143,9 +144,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
       return;
     }
     db.signOut();
-    setAuthStatus((_) => ({
-      ...DEFAULT_DATABASE_CONNECTION_PRESENTATION
-    }));
+    setAuthStatus((_) => DEFAULT_DATABASE_CONNECTION_PRESENTATION);
   };
 
   const onProjectUpsert = (updatedDoc: any) => {
