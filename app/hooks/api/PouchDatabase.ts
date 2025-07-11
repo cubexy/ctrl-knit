@@ -86,9 +86,7 @@ export class PouchDatabase {
         method: "GET",
         credentials: "include"
       });
-      console.log("response:", response);
     } catch (error) {
-      console.error("Error fetching session:", error);
       throw new ConnectionError(`Failed to connect to remote database at ${baseUrl}. Please check your connection.`);
     }
 
@@ -115,7 +113,6 @@ export class PouchDatabase {
         credentials: "include"
       });
     } catch (error) {
-      console.error("Error signing out:", error);
       throw new ConnectionError(
         `Failed to sign out from remote database at ${this.remoteDbBaseUrl}. Please check your connection.`
       );

@@ -70,7 +70,6 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
       }
       try {
         const session = await db.getSession(remoteDbHostInfo.hostname, remoteDbHostInfo.dbName);
-        console.log("Remote database session:", session);
         setAuthStatus((_) => ({
           username: session.userCtx.name,
           dbString: `${remoteDbHostInfo.hostname}/${remoteDbHostInfo.dbName}`,
@@ -84,7 +83,6 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
           disabled: false
         }));
       } catch (error) {
-        console.error("Error checking remote database session:", error);
         if (error instanceof AuthenticationError) {
           setAuthStatus((_) => ({
             status: {
@@ -140,7 +138,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
 
   const signOut = () => {
     if (!db) {
-      console.error("Database is not initialized.");
+      console.error("error: db is not initialized. is this being called on the server?");
       return;
     }
     db.signOut();
@@ -171,7 +169,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
 
   const remoteLogin = async (login: LoginParameters) => {
     if (!db) {
-      console.error("Database is not initialized.");
+      console.error("error: db is not initialized. is this being called on the server?");
       return;
     }
     try {
