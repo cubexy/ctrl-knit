@@ -9,6 +9,7 @@ import { AuthenticationError, ConnectionError, ForbiddenError } from "../../mode
 export class PouchDatabase {
   private localDb: PouchDB.Database;
   private remoteDb: PouchDB.Database | null = null;
+  private remoteDbBaseUrl: string | null = null;
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
   }
@@ -61,6 +62,7 @@ export class PouchDatabase {
         `Failed to connect to remote database at ${url}/${dbName}. Please check your connection and try again.`
       );
     }
+    this.remoteDbBaseUrl = url;
     return this.sync();
   }
 
@@ -80,12 +82,13 @@ export class PouchDatabase {
   public async getSession(baseUrl: string, dbName: string): Promise<CouchDbSession> {
     let response: Response;
     try {
-      response = await fetch(`https://${baseUrl}/_session`, {
+      response = await fetch(`https://${baseUrl}/_session?basic=false`, {
         method: "GET",
         credentials: "include"
       });
       console.log("response:", response);
     } catch (error) {
+      console.error("Error fetching session:", error);
       throw new ConnectionError(`Failed to connect to remote database at ${baseUrl}. Please check your connection.`);
     }
 
@@ -98,9 +101,30 @@ export class PouchDatabase {
     }
 
     this.remoteDb = new PouchDB(`https://${baseUrl}/${dbName}`);
+    this.remoteDbBaseUrl = baseUrl;
     this.sync();
 
     return (await response.json()) as CouchDbSession;
+  }
+
+  public async signOut() {
+    let response: Response;
+    try {
+      response = await fetch(`https://${this.remoteDbBaseUrl}/_session`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw new ConnectionError(
+        `Failed to sign out from remote database at ${this.remoteDbBaseUrl}. Please check your connection.`
+      );
+    }
+    if (!response.ok) {
+      throw new AuthenticationError(`Failed to sign out. Response: ${response.statusText}`);
+    }
+    this.remoteDb = null; // Clear remote database reference
+    return response.json();
   }
 
   /**

@@ -27,6 +27,7 @@ interface DatabaseContextType {
   incrementCounter: (projectId: string, counterId: string, step: number) => Promise<any>;
   remoteLogin: (login: LoginParameters) => Promise<void>;
   authStatus: DatabaseConnectionPresentation;
+  signOut: () => void;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | null>(null);
@@ -134,6 +135,17 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
 
   const storeRemoteInLocalStorage = (hostname: string, dbName: string) => {
     LocalStorageController.setRemoteDb(hostname, dbName);
+  };
+
+  const signOut = () => {
+    if (!db) {
+      console.error("Database is not initialized.");
+      return;
+    }
+    db.signOut();
+    setAuthStatus((_) => ({
+      ...DEFAULT_DATABASE_CONNECTION_PRESENTATION
+    }));
   };
 
   const onProjectUpsert = (updatedDoc: any) => {
@@ -280,7 +292,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     deleteCounter,
     incrementCounter,
     remoteLogin,
-    authStatus
+    authStatus,
+    signOut
   };
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
