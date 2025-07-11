@@ -68,6 +68,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
       }
       try {
         const session = await db.getSession(remoteDbHostInfo.hostname, remoteDbHostInfo.dbName);
+        console.log("Remote database session:", session);
         setAuthStatus((_) => ({
           username: session.userCtx.name,
           dbString: `${remoteDbHostInfo.hostname}/${remoteDbHostInfo.dbName}`,

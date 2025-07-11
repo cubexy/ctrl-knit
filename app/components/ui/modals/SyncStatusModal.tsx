@@ -48,7 +48,7 @@ function SyncStatusModal(props: SyncStatusModalProps) {
       <div className="flex flex-col items-center justify-center">
         <fieldset className="fieldset bg-base-200 border-base-300 rounded-box shadow-base-200 w-full max-w-xl gap-0 border p-4 pt-2 shadow-lg">
           <legend className="fieldset-legend text-lg">
-            <CloudIcon strokeWidth={2} className="fill-neutral-content mr-1 size-5" /> Bei CouchDB anmelden
+            <CloudIcon strokeWidth={2} className="fill-neutral-content mr-0.5 size-5" /> Bei CouchDB anmelden
           </legend>
           {!props.connection.loggedIn && (
             <>
