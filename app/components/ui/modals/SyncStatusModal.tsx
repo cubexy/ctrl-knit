@@ -21,11 +21,14 @@ let remoteDbHostInfo: { hostname: string; dbName: string } | null = null;
 if (typeof window !== "undefined") {
   remoteDbHostInfo = LocalStorageController.getRemoteDb();
 }
+
+const DEFAULT_HOSTNAME = remoteDbHostInfo?.hostname || "";
+const DEFAULT_DB_NAME = remoteDbHostInfo?.dbName || "";
 function SyncStatusModal(props: SyncStatusModalProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [hostname, setHostname] = useState(remoteDbHostInfo?.hostname || "");
-  const [dbName, setDbName] = useState(remoteDbHostInfo?.dbName || "");
+  const [hostname, setHostname] = useState(DEFAULT_HOSTNAME);
+  const [dbName, setDbName] = useState(DEFAULT_DB_NAME);
 
   const onLogin = () => {
     props.onLogin({ username, password, hostname, dbName });
@@ -39,8 +42,8 @@ function SyncStatusModal(props: SyncStatusModalProps) {
   const resetCredentials = () => {
     setUsername((_) => "");
     setPassword((_) => "");
-    setHostname((_) => "");
-    setDbName((_) => "");
+    setHostname((_) => DEFAULT_HOSTNAME);
+    setDbName((_) => DEFAULT_DB_NAME);
   };
 
   return (
@@ -111,24 +114,10 @@ function SyncStatusModal(props: SyncStatusModalProps) {
           <div className="divider my-2 w-full">STATUS</div>
           <div className="flex w-full flex-row items-center justify-between">
             <div className="flex w-full flex-row items-center justify-start gap-2 px-1">
-              {props.connection.status.type === "status-success" && (
-                <div className="inline-grid pb-0.5 *:[grid-area:1/1]">
-                  <div className="status status-success animate-ping"></div>
-                  <div className="status status-success"></div>
-                </div>
-              )}
-              {props.connection.status.type === "status-warning" && (
-                <div className="inline-grid pb-0.5 *:[grid-area:1/1]">
-                  <div className="status status-warning animate-ping"></div>
-                  <div className="status status-warning"></div>
-                </div>
-              )}
-              {props.connection.status.type === "status-error" && (
-                <div className="inline-grid pb-0.5 *:[grid-area:1/1]">
-                  <div className="status status-error animate-ping"></div>
-                  <div className="status status-error"></div>
-                </div>
-              )}
+              <div className="inline-grid pb-0.5 *:[grid-area:1/1]">
+                <div className={`status ${props.connection.status.type} animate-ping`}></div>
+                <div className={`status ${props.connection.status.type}`}></div>
+              </div>
               <p>{props.connection.status.message}</p>
             </div>
             {props.connection.status.loading && <span className="loading loading-spinner loading-xs"></span>}

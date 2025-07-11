@@ -23,10 +23,10 @@ export type DatabaseConnectionPresentation =
 
 export const DEFAULT_DATABASE_CONNECTION_PRESENTATION: DatabaseConnectionPresentation = {
   status: {
-    type: "status-error",
-    message: "Nicht verbunden",
-    loading: false
+    type: "status-warning",
+    message: "Prüfe Verbindung zum Server...",
+    loading: true
   },
   loggedIn: false,
-  disabled: false
+  disabled: true
 };
