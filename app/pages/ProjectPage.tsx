@@ -3,6 +3,7 @@ import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay"
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 
 type ProjectPageProps = {
@@ -44,7 +45,7 @@ function ProjectPage(props: ProjectPageProps) {
               stepOver={counter.stepOver}
               onIncrement={() => incrementCounter(props.id, counter.id, 1)}
               onDecrement={() => incrementCounter(props.id, counter.id, -1)}
-              onEdit={(update) => updateCounter(props.id, counter.id, update)}
+              onEdit={(update: EditCounter) => updateCounter(props.id, counter.id, update)}
               onDelete={() => deleteCounter(props.id, counter.id)}
             />
           );

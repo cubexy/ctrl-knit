@@ -1,5 +1,5 @@
-import type { Project } from "../entities/project/Project";
-import { counterPresenter, type CounterPresentation } from "./CounterPresentation";
+import { type CounterPresentation, counterPresenter } from "../counter/CounterPresentation";
+import type { Project } from "./Project";
 
 export type ProjectListItemPresentation = {
   id: string;

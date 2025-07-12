@@ -5,6 +5,11 @@ import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { Project } from "~/models/entities/project/Project";
+import {
+  projectListItemPresenter,
+  projectPresenter,
+  type ProjectListItemPresentation
+} from "~/models/entities/project/ProjectPresentation";
 import { AuthenticationError, ConnectionError } from "~/models/error/ConnectionError";
 import type { LoginParameters } from "~/models/LoginParameters";
 import {
@@ -12,11 +17,6 @@ import {
   DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION,
   type DatabaseConnectionPresentation
 } from "~/models/presenter/DatabaseConnectionPresentation";
-import {
-  projectListItemPresenter,
-  projectPresenter,
-  type ProjectListItemPresentation
-} from "~/models/presenter/ProjectPresentation";
 
 interface DatabaseContextType {
   getProjectById: (id: string) => ReturnType<typeof projectPresenter>;

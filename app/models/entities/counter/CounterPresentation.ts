@@ -1,4 +1,4 @@
-import type { Counter } from "../entities/counter/Counter";
+import type { Counter } from "./Counter";
 
 export type CounterPresentation = {
   id: string;
