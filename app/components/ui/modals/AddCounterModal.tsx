@@ -23,7 +23,7 @@ function AddCounterModal(props: AddCounterModalProps) {
             onClick={handleShow}
           >
             <p className="grow-0 font-normal">Zähler hinzufügen</p>
-            <AddIcon className="size-5" strokeWidth={1.5} />
+            <AddIcon className="size-5 stroke-current" strokeWidth={1.5} />
           </button>
         </div>
       </div>

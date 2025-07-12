@@ -66,7 +66,7 @@ function CounterDisplay(props: CounterDisplayProps) {
             setOpen={setPopoverOpen}
           />
           <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={() => setPopoverOpen(true)}>
-            <SettingsIcon className="size-5" strokeWidth={1} />
+            <SettingsIcon className="size-5 stroke-current" strokeWidth={1} />
           </button>
         </div>
         <div className="join w-full">

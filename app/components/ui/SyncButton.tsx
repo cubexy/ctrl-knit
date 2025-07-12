@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
-import CloudIconFilled from "./icons/CloudIconFilled";
+import CloudIcon from "./icons/CloudIcon";
 import LocalIconFilled from "./icons/LocalIconFilled";
 
 export function SyncButton() {
@@ -14,7 +14,7 @@ export function SyncButton() {
         <span className="flex flex-row items-center gap-1">
           <label className="swap">
             <input type="checkbox" checked={authStatus.loggedIn} readOnly />
-            <CloudIconFilled className="swap-on size-3 fill-current" />
+            <CloudIcon className="swap-on size-3 fill-current" strokeWidth={2} />
             <LocalIconFilled className="swap-off size-3 fill-current" />
           </label>
           {authStatus.loggedIn ? "Sync" : "Lokal"}

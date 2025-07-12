@@ -71,7 +71,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
 
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-xs btn-error btn-ghost mt-0 px-1 py-3">
-              <RemoveIcon strokeWidth={1.5} className="size-4" />
+              <RemoveIcon strokeWidth={1.5} className="size-4 stroke-current" />
             </div>
             <div
               tabIndex={0}

@@ -46,7 +46,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
                 rel="noopener noreferrer"
                 className="link wrap flex items-center gap-2"
               >
-                <LinkIcon className="size-4" strokeWidth={1} />
+                <LinkIcon className="size-4 stroke-current" strokeWidth={1} />
                 <p className="break-all">{fetchShortenedUrl(props.project.url)}</p>
               </a>
             )}
