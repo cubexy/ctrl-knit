@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
+import ConnectionStatusDisplay from "./displays/ConnectionStatusDisplay";
 import CloudIcon from "./icons/CloudIcon";
 import LocalIconFilled from "./icons/LocalIconFilled";
 
@@ -19,13 +20,7 @@ export function SyncButton() {
           </label>
           {authStatus.loggedIn ? "Sync" : "Lokal"}
         </span>
-        {authStatus.status.loading ? (
-          <span className="loading loading-spinner loading-xs"></span>
-        ) : (
-          <div className="inline-grid *:[grid-area:1/1]">
-            <div className={`status ${authStatus.status.type} transition-colors duration-500`}></div>
-          </div>
-        )}
+        <ConnectionStatusDisplay displayStatusText={false} pingAnimation={false} />
       </button>
     </Link>
   );

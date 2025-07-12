@@ -1,3 +1,5 @@
+import { useParams } from "react-router";
+import NoProjectPage from "~/pages/NoProjectPage";
 import ProjectPage from "~/pages/ProjectPage";
 import type { Route } from "../+types/root";
 
@@ -6,5 +8,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Project() {
-  return <ProjectPage />;
+  let { id } = useParams();
+
+  if (!id) {
+    return <NoProjectPage />;
+  }
+
+  return <ProjectPage id={id} />;
 }

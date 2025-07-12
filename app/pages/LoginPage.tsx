@@ -1,13 +1,12 @@
 import SyncStatusModal from "~/components/ui/modals/SyncStatusModal";
-import { useDatabase } from "~/contexts/DatabaseContext";
 
 function LoginPage() {
-  const { authStatus, remoteLogin, signOut } = useDatabase();
-
   return (
-    <>
-      <SyncStatusModal connection={authStatus} onLogin={remoteLogin} onLogout={signOut} />
-    </>
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
+        <SyncStatusModal />
+      </div>
+    </div>
   );
 }
 
