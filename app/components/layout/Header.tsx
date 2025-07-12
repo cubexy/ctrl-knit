@@ -22,11 +22,15 @@ function Header() {
       <div className="flex grow items-center justify-start gap-2 sm:gap-3">
         <Link
           to="/"
-          className="flex flex-row items-center justify-center gap-x-0.5 transition-normal duration-300 ease-in-out hover:scale-105 sm:gap-x-1.5"
+          className="flex flex-row items-center justify-center gap-x-0.5 transition-normal duration-200 ease-out hover:scale-105 sm:gap-x-1.5"
         >
-          <kbd className="kbd">ctrl</kbd>
+          <kbd className="kbd shadow-base-300 transition-normal duration-150 ease-out hover:py-3 hover:shadow-lg">
+            ctrl
+          </kbd>
           <p> + </p>
-          <kbd className="kbd">knit</kbd>
+          <kbd className="kbd shadow-base-300 transition-normal duration-150 ease-out hover:py-3 hover:shadow-lg">
+            knit
+          </kbd>
         </Link>
         <span className="inline-block lg:hidden">
           <ThemeToggle />
