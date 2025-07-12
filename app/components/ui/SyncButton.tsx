@@ -13,7 +13,7 @@ export function SyncButton() {
       >
         <span className="flex flex-row items-center gap-1">
           <label className="swap">
-            <input type="checkbox" checked={authStatus.loggedIn} />
+            <input type="checkbox" checked={authStatus.loggedIn} readOnly />
             <CloudIconFilled className="swap-on size-3 fill-current" />
             <LocalIconFilled className="swap-off size-3 fill-current" />
           </label>
