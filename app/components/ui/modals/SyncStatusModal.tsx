@@ -1,14 +1,8 @@
 import { useState } from "react";
-import { LocalStorageController } from "~/hooks/api/LocalStorageController";
+import { LocalStorageController, type RemoteDbHostInfo } from "~/hooks/api/LocalStorageController";
+import type { LoginParameters } from "~/models/LoginParameters";
 import type { DatabaseConnectionPresentation } from "~/models/presenter/DatabaseConnectionPresentation";
 import CloudIcon from "../icons/CloudIcon";
-
-export type LoginParameters = {
-  username: string;
-  password: string;
-  hostname: string;
-  dbName: string;
-};
 
 type SyncStatusModalProps = {
   connection: DatabaseConnectionPresentation;
@@ -16,17 +10,19 @@ type SyncStatusModalProps = {
   onLogout: () => void;
 };
 
-let remoteDbHostInfo: { hostname: string; dbName: string } | null = null;
-
+let remoteDbHostInfo: RemoteDbHostInfo = null;
 if (typeof window !== "undefined") {
   remoteDbHostInfo = LocalStorageController.getRemoteDb();
 }
 
-const DEFAULT_HOSTNAME = remoteDbHostInfo?.hostname || "";
-const DEFAULT_DB_NAME = remoteDbHostInfo?.dbName || "";
 function SyncStatusModal(props: SyncStatusModalProps) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const DEFAULT_HOSTNAME = remoteDbHostInfo?.hostname || "";
+  const DEFAULT_DB_NAME = remoteDbHostInfo?.dbName || "";
+  const DEFAULT_USERNAME = "";
+  const DEFAULT_PASSWORD = "";
+
+  const [username, setUsername] = useState(DEFAULT_USERNAME);
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [hostname, setHostname] = useState(DEFAULT_HOSTNAME);
   const [dbName, setDbName] = useState(DEFAULT_DB_NAME);
 
@@ -40,8 +36,8 @@ function SyncStatusModal(props: SyncStatusModalProps) {
   };
 
   const resetCredentials = () => {
-    setUsername((_) => "");
-    setPassword((_) => "");
+    setUsername((_) => DEFAULT_USERNAME);
+    setPassword((_) => DEFAULT_PASSWORD);
     setHostname((_) => DEFAULT_HOSTNAME);
     setDbName((_) => DEFAULT_DB_NAME);
   };
@@ -51,7 +47,7 @@ function SyncStatusModal(props: SyncStatusModalProps) {
       <div className="flex flex-col items-center justify-center">
         <fieldset className="fieldset bg-base-200 border-base-300 rounded-box shadow-base-200 w-full max-w-xl gap-0 border p-4 pt-2 shadow-lg">
           <legend className="fieldset-legend text-lg">
-            <CloudIcon strokeWidth={2} className="fill-neutral-content mr-0.5 size-5" /> Bei CouchDB anmelden
+            <CloudIcon strokeWidth={2} className="size-5 fill-current" /> Bei CouchDB anmelden
           </legend>
           {!props.connection.loggedIn && (
             <>

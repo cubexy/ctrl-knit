@@ -44,7 +44,7 @@ function Header() {
             >
               <li>
                 <a onClick={handleShow}>
-                  <AddIcon className="size-5" strokeWidth={2} />
+                  <AddIcon className="size-5 stroke-current" strokeWidth={2} />
                   Neues Projekt erstellen
                 </a>
               </li>

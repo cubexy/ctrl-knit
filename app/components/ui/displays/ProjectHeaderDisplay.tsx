@@ -51,7 +51,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
               </a>
             )}
             <button className="btn btn-ghost px-1 py-3 font-medium" onClick={() => setPopoverOpen(true)}>
-              <SettingsIcon className="size-4" strokeWidth={1} />
+              <SettingsIcon className="size-4 stroke-current" strokeWidth={1.5} />
               Verwalten
             </button>
           </div>

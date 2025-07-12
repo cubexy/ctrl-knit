@@ -4,7 +4,7 @@ const LOCAL_STORAGE_KEYS = {
   THEME: "theme"
 };
 
-type RemoteDbHostInfo = {
+export type RemoteDbHostInfo = {
   hostname: string;
   dbName: string;
 } | null;
