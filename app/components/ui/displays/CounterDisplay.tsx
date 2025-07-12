@@ -1,6 +1,6 @@
 import NumberFlow from "@number-flow/react";
 import { useState } from "react";
-import type { EditCounter } from "~/models/Counter";
+import type { EditCounter } from "~/models/entities/counter/Counter";
 import type { CounterPresentation } from "~/models/presenter/CounterPresentation";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditCounterPopover from "../popover/EditCounterPopover";

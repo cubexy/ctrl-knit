@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CreateCounter } from "~/models/Counter";
+import type { CreateCounter } from "~/models/entities/counter/Counter";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditCounterPopoverProps {

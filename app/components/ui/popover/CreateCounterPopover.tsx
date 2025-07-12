@@ -1,5 +1,5 @@
 import { useState, type RefObject } from "react";
-import type { CreateCounter } from "~/models/Counter";
+import type { CreateCounter } from "~/models/entities/counter/Counter";
 
 interface CreateCounterPopoverProps {
   ref: RefObject<HTMLDialogElement | null>;

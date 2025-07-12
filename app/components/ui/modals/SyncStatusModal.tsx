@@ -45,8 +45,9 @@ function SyncStatusModal() {
       </legend>
       {!authStatus.loggedIn && (
         <>
-          <p className="label text-wrap break-all">
-            Melde dich direkt mit deinen Anmeldedaten an (d)einem CouchDB-Server an!
+          <p className="label break-word text-wrap">
+            Melde dich direkt mit deinen Anmeldedaten an einem CouchDB-Server an, um deine Projekte mit mehreren Geräten
+            zu synchronisieren!
           </p>
           <legend className="fieldset-legend">Nutzername</legend>
           <input

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import type { CreateProject } from "~/models/Project";
+import type { CreateProject } from "~/models/entities/project/CreateProject";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditProjectPopoverProps {

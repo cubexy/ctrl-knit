@@ -1,9 +1,13 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
 import type { CouchDbSession } from "~/models/CouchDbSession";
+import type { Counter } from "~/models/entities/counter/Counter";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import type { EditCounter } from "~/models/entities/counter/EditCounter";
+import type { CreateProject } from "~/models/entities/project/CreateProject";
+import type { DatabaseProject } from "~/models/entities/project/DatabaseProject";
+import type { Project } from "~/models/entities/project/Project";
 import { clamp } from "~/utility/clamp";
-import type { Counter, CreateCounter, EditCounter } from "../../models/Counter";
-import type { CreateProject, DatabaseProject, Project } from "../../models/Project";
 import { AuthenticationError, ConnectionError, ForbiddenError } from "../../models/error/ConnectionError";
 
 export class PouchDatabase {

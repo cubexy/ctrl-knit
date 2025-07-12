@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { CreateCounter } from "~/models/Counter";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import AddIcon from "../icons/AddIcon";
 import CreateCounterPopover from "../popover/CreateCounterPopover";
 

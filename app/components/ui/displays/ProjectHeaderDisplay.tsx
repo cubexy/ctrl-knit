@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CreateProject } from "~/models/Project";
+import type { CreateProject } from "~/models/entities/project/CreateProject";
 import LinkIcon from "../icons/LinkIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditProjectPopover from "../popover/EditProjectPopover";
