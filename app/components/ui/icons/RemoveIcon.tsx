@@ -1,3 +1,5 @@
+import type { IconProps } from "~/components/models/IconProps";
+
 function RemoveIcon(props: IconProps) {
   return (
     <svg

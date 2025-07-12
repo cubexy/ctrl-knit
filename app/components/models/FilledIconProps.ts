@@ -1,3 +1,3 @@
-type FilledIconProps = {
+export type FilledIconProps = {
   className?: string;
 };

@@ -1,3 +1,5 @@
+import type { IconProps } from "~/components/models/IconProps";
+
 function MoonIcon(props: IconProps) {
   return (
     <svg

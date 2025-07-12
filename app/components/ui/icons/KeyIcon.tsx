@@ -1,3 +1,5 @@
+import type { IconProps } from "~/components/models/IconProps";
+
 function KeyIcon(props: IconProps) {
   return (
     <svg

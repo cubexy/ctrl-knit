@@ -1,3 +1,5 @@
+import type { FilledIconProps } from "~/components/models/FilledIconProps";
+
 function GithubIcon(props: FilledIconProps) {
   return (
     <svg aria-label="GitHub logo" className={props.className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

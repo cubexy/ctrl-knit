@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { LoginParameters } from "~/components/ui/modals/SyncStatusModal";
 import { LocalStorageController } from "~/hooks/api/LocalStorageController";
 import { PouchDatabase } from "~/hooks/api/PouchDatabase";
 import type { CreateCounter, EditCounter } from "~/models/Counter";
 import { AuthenticationError, ConnectionError } from "~/models/error/ConnectionError";
+import type { LoginParameters } from "~/models/LoginParameters";
 import {
   DEFAULT_DATABASE_CONNECTION_PRESENTATION,
   DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION,

@@ -1,9 +1,6 @@
-type SettingsIconProps = {
-  className?: string;
-  strokeWidth: number;
-};
+import type { IconProps } from "~/components/models/IconProps";
 
-function SettingsIcon(props: SettingsIconProps) {
+function SettingsIcon(props: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
