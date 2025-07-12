@@ -1,0 +1,3 @@
+type FilledIconProps = {
+  className?: string;
+};

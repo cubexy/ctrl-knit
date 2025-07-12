@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import { SyncButton } from "../ui/SyncButton";
 import AddIcon from "../ui/icons/AddIcon";
-import GithubIcon from "../ui/icons/GithubIcon";
+import GithubIcon from "../ui/icons/GithubIconFilled";
 import WoolIcon from "../ui/icons/WoolIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 

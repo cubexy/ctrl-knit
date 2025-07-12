@@ -10,7 +10,6 @@ function SettingsIcon(props: SettingsIconProps) {
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={props.strokeWidth}
-      stroke="currentColor"
       className={props.className}
     >
       <path
