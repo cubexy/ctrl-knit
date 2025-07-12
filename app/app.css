@@ -71,3 +71,7 @@
   --depth: 1;
   --noise: 0;
 }
+
+@theme {
+  --breakpoint-xs: 25rem;
+}

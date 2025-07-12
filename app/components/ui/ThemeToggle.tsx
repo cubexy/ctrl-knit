@@ -19,11 +19,11 @@ export function ThemeToggle() {
   }, [theme]);
 
   return (
-    <label className="swap swap-rotate mb-0.5 w-fit">
+    <label className="swap swap-rotate mb-1 w-fit">
       {/* this hidden checkbox controls the state */}
       <input type="checkbox" onChange={toggleTheme} checked={theme === "mydark"} />
-      <SunIcon className="swap-off size-5 fill-current" strokeWidth={2} />
-      <MoonIcon className="swap-on size-5 fill-current" strokeWidth={2} />
+      <SunIcon className="swap-off size-4 fill-current lg:size-5" strokeWidth={2} />
+      <MoonIcon className="swap-on size-4 fill-current lg:size-5" strokeWidth={2} />
     </label>
   );
 }
