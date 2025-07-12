@@ -12,7 +12,7 @@ export type Counter = {
   createdAt: Date;
   count: {
     current: number;
-    target: number;
+    target?: number;
   };
   stepOver?: {
     target: number;

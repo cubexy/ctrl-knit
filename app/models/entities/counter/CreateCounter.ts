@@ -4,7 +4,7 @@
  */
 export type CreateCounter = {
   name: string;
-  count: {
+  count?: {
     target: number;
   };
   stepOver?: {

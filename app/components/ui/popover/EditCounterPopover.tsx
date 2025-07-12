@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CreateCounter } from "~/models/entities/counter/Counter";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditCounterPopoverProps {
@@ -13,7 +13,7 @@ interface EditCounterPopoverProps {
 function EditCounterPopover(props: EditCounterPopoverProps) {
   const DEFAULTS = {
     name: props.counter.name,
-    counterTarget: props.counter.count.target,
+    counterTarget: props.counter.count?.target ?? null,
     counterStepOver: props.counter.stepOver?.target ?? null
   };
 
@@ -45,7 +45,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
 
     const newCounter: CreateCounter = {
       name: counterName,
-      count: { target: counterValue },
+      count: counterValue !== null ? { target: counterValue } : undefined,
       stepOver: counterStepOver !== null ? { target: counterStepOver } : undefined
     };
 
@@ -75,7 +75,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
 
   const setCounterStepOverTargetValue = (value: string) => setCounterStepOver(parseInputValue(value, true));
 
-  const inputValid = counterName !== "" && counterValue !== null;
+  const inputValid = counterName !== "" && !(counterStepOver !== null && counterValue === null);
 
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -118,10 +118,12 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
             value={counterValue ?? ""}
             onChange={(e) => setCounterTargetValue(e.target.value)}
           />
+          <p className="label">Optional</p>
           <legend className="fieldset-legend">Wiederholungen</legend>
           <input
             type="number"
-            className="input w-full"
+            className="input w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            placeholder="3"
             value={counterStepOver ?? ""}
             onChange={(e) => setCounterStepOverTargetValue(e.target.value)}
           />

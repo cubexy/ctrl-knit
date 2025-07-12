@@ -1,5 +1,5 @@
 import { useState, type RefObject } from "react";
-import type { CreateCounter } from "~/models/entities/counter/Counter";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 
 interface CreateCounterPopoverProps {
   ref: RefObject<HTMLDialogElement | null>;
@@ -7,14 +7,14 @@ interface CreateCounterPopoverProps {
 }
 
 function CreateCounterPopover(props: CreateCounterPopoverProps) {
-  const [counterName, setCounterName] = useState("");
-  const [counterValue, setCounterValue] = useState<number | null>(null);
-  const [counterStepOver, setCounterStepOver] = useState<number | null>(null);
+  const [name, setName] = useState("");
+  const [targetValue, setTargetValue] = useState<number | null>(null);
+  const [stepOver, setStepOver] = useState<number | null>(null);
 
   const resetFields = () => {
-    setCounterName("");
-    setCounterValue(null);
-    setCounterStepOver(null);
+    setName("");
+    setTargetValue(null);
+    setStepOver(null);
   };
 
   const handleClose = () => {
@@ -28,9 +28,9 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
     if (!inputValid) return;
 
     const newCounter: CreateCounter = {
-      name: counterName,
-      count: { target: counterValue },
-      stepOver: counterStepOver !== null ? { target: counterStepOver } : undefined
+      name: name,
+      count: targetValue !== null ? { target: targetValue } : undefined,
+      stepOver: stepOver !== null ? { target: stepOver } : undefined
     };
 
     props.onConfirm(newCounter);
@@ -49,14 +49,14 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
     return null;
   };
 
-  const setCounterTargetValue = (value: string) => setCounterValue(parseInputValue(value));
+  const setCounterTargetValue = (value: string) => setTargetValue(parseInputValue(value, true));
 
-  const setCounterStepOverTargetValue = (value: string) => setCounterStepOver(parseInputValue(value, true));
+  const setCounterStepOverTargetValue = (value: string) => setStepOver(parseInputValue(value, true));
 
   const dialogText = "Zähler erstellen";
   const dialogConfirmText = "Erstellen";
 
-  const inputValid = counterName !== "" && counterValue !== null;
+  const inputValid = name !== "" && !(stepOver !== null && targetValue === null);
 
   return (
     <dialog ref={props.ref} className="modal">
@@ -68,22 +68,24 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
             type="text"
             className="input w-full"
             placeholder="Hauptreihe"
-            value={counterName}
-            onChange={(e) => setCounterName(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
           <legend className="fieldset-legend">Zielwert (Zu strickende Reihen)</legend>
           <input
             type="number"
             className="input w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             placeholder="12"
-            value={counterValue ?? ""}
+            value={targetValue ?? ""}
             onChange={(e) => setCounterTargetValue(e.target.value)}
           />
+          <p className="label">Optional</p>
           <legend className="fieldset-legend">Wiederholungen</legend>
           <input
             type="number"
-            className="input w-full"
-            value={counterStepOver ?? ""}
+            placeholder="3"
+            className="input w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            value={stepOver ?? ""}
             onChange={(e) => setCounterStepOverTargetValue(e.target.value)}
           />
           <p className="label">Optional</p>

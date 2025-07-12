@@ -1,6 +1,7 @@
 import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 import type { CounterPresentation } from "~/models/entities/counter/CounterPresentation";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditCounterPopover from "../popover/EditCounterPopover";
@@ -46,12 +47,20 @@ function CounterDisplay(props: CounterDisplayProps) {
     return percentageMap[p as keyof typeof percentageMap] || "from-50% to-50%";
   };
 
-  const gradientClasses = getGradientClasses(props.count.current / props.count.target);
+  const gradientClasses = props.count.target ? getGradientClasses(props.count.current / props.count.target) : "";
 
   const canDecrement = props.count.current > 0;
-  const canIncrement = props.stepOver
-    ? props.stepOver.current < props.stepOver.target || props.count.current < props.count.target
-    : props.count.current < props.count.target;
+  const canIncrement =
+    !props.count.target ||
+    (props.stepOver
+      ? props.stepOver.current < props.stepOver.target || props.count.current < props.count.target
+      : props.count.current < props.count.target);
+
+  const passedCounter: CreateCounter = {
+    name: props.name,
+    count: props.count.target ? { target: props.count.target } : undefined,
+    stepOver: props.stepOver ? { target: props.stepOver.target } : undefined
+  };
 
   return (
     <div key={props.id} className="card card-border shadow-neutral/30 bg-base-100 w-full rounded-3xl shadow-xs">
@@ -61,7 +70,7 @@ function CounterDisplay(props: CounterDisplayProps) {
           <EditCounterPopover
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
             onDelete={props.onDelete}
-            counter={props}
+            counter={passedCounter}
             open={popoverOpen}
             setOpen={setPopoverOpen}
           />
@@ -84,8 +93,8 @@ function CounterDisplay(props: CounterDisplayProps) {
               /** @ts-ignore - NumberFlow is a third-party library that does not have types */
               style={{ fontSize: "60px", fontWeight: "normal", "--number-flow-mask-height": "0em" }}
             />
-            <p className="text-x grow-0">von {props.count.target}</p>
-            {props.stepOver && props.stepOver.target > 1 && (
+            {props.count.target && <p className="text-x grow-0">von {props.count.target}</p>}
+            {props.stepOver && props.stepOver.target > 1 && props.count.target && (
               <div
                 className="tooltip tooltip-bottom"
                 data-tip={`${(props.stepOver.current - 1) * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}

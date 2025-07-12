@@ -233,7 +233,7 @@ export class PouchDatabase {
       name: counter.name,
       count: {
         current: 0,
-        target: counter.count.target
+        target: counter.count ? counter.count.target : undefined
       },
       stepOver: counter.stepOver
         ? {
@@ -259,12 +259,13 @@ export class PouchDatabase {
     const project = await this.getProjectById(projectId);
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
-        const stepOverMultiplier = update.stepOver ? update.stepOver.target : c.stepOver ? c.stepOver.target : 1;
+        const stepOverMultiplier = update.stepOver?.target ?? c.stepOver?.target ?? 1;
         const updatedTarget = update.count?.target ?? c.count.target;
+        const clampMax = updatedTarget ? updatedTarget * stepOverMultiplier : Number.MAX_VALUE;
         return {
           ...c,
           count: {
-            current: clamp(c.count.current, 0, updatedTarget * stepOverMultiplier),
+            current: clamp(c.count.current, 0, clampMax),
             target: update.count?.target ?? c.count.target
           },
           stepOver: update.stepOver ? { target: update.stepOver.target ?? c.stepOver?.target } : undefined,
@@ -292,8 +293,17 @@ export class PouchDatabase {
     const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
       if (c.id === counterId) {
         const incrementedCurrent = c.count.current + increment;
+        if (c.count.target === undefined) {
+          return {
+            ...c,
+            count: {
+              ...c.count,
+              current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
+            }
+          };
+        }
+        // If stepOver is defined, calculate max based on target
         const max = c.stepOver ? c.stepOver.target * c.count.target : c.count.target;
-
         return {
           ...c,
           count: {
