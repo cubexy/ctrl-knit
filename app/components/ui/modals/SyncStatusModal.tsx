@@ -39,10 +39,7 @@ function SyncStatusModal() {
   };
 
   return (
-    <fieldset
-      className="fieldset bg-base-200 border-base-300 rounded-box shadow-base-200 w-full max-w-xl gap-0 border p-4 pt-2 shadow-lg"
-      disabled={true}
-    >
+    <fieldset className="fieldset bg-base-200 border-base-300 rounded-box shadow-base-200 w-full max-w-xl gap-0 border p-4 pt-2 shadow-lg">
       <legend className="fieldset-legend text-lg">
         <CloudIcon strokeWidth={2} className="size-5 stroke-current" /> Bei CouchDB anmelden
       </legend>
