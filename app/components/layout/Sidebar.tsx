@@ -1,17 +1,16 @@
 import { useCallback, useRef } from "react";
-import { Link } from "react-router";
-import { useDatabase } from "~/contexts/DatabaseContext";
+import { Link, useParams } from "react-router";
 import { SyncButton } from "../ui/SyncButton";
+import ProjectListDisplay from "../ui/displays/ProjectListDisplay";
 import AddIcon from "../ui/icons/AddIcon";
 import GithubIcon from "../ui/icons/GithubIconFilled";
 import WoolIcon from "../ui/icons/WoolIcon";
 import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 
 function Sidebar() {
-  const { getProjectList } = useDatabase();
-  const projects = getProjectList();
-
   const createProjectModalRef = useRef<HTMLDialogElement>(null);
+
+  let { id } = useParams();
 
   const handleShow = useCallback(() => {
     createProjectModalRef.current?.showModal();
@@ -34,20 +33,7 @@ function Sidebar() {
             Projekt erstellen
           </button>
           <hr className="divider divider-primary text-neutral-content/50 fill-base-content m-0 h-px rounded-none" />
-          <ul className="flex h-[calc(100dvh-236px)] w-full flex-col gap-3 overflow-y-auto">
-            {projects.map((project) => (
-              <li key={project.id} className="w-full">
-                <Link to={`/projects/${project.id}`} className="w-full font-normal hover:font-bold">
-                  <p>{project.name}</p>
-                </Link>
-              </li>
-            ))}
-            {projects.length === 0 && (
-              <li>
-                <span className="text-neutral-content/50 w-full text-sm">Erstelle dein erstes Projekt!</span>
-              </li>
-            )}
-          </ul>
+          <ProjectListDisplay currentProjectId={id} />
           <hr className="divider divider-primary text-neutral-content/50 fill-base-content m-0 h-px rounded-none" />
           <div className="flex flex-row items-center justify-between">
             <a href="https://github.com/cubexy/ctrl-knit" target="_blank" rel="noopener noreferrer">

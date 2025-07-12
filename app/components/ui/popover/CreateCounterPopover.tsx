@@ -73,7 +73,7 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
           />
           <legend className="fieldset-legend">Zielwert (Zu strickende Reihen)</legend>
           <input
-            type="text"
+            type="number"
             className="input w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             placeholder="12"
             value={counterValue ?? ""}
@@ -81,7 +81,7 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
           />
           <legend className="fieldset-legend">Wiederholungen</legend>
           <input
-            type="text"
+            type="number"
             className="input w-full"
             value={counterStepOver ?? ""}
             onChange={(e) => setCounterStepOverTargetValue(e.target.value)}

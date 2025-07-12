@@ -10,7 +10,7 @@ export function SyncButton() {
   return (
     <Link to={`/sync`}>
       <button
-        className={`btn ${authStatus.loggedIn ? "hover:btn-success" : "hover:btn-error"} flex flex-row items-center justify-between px-3`}
+        className={`btn ${authStatus.loggedIn ? "hover:btn-success" : "hover:btn-error"} flex flex-row items-center justify-between px-3 sm:w-26`}
       >
         <span className="flex w-full flex-row items-center gap-1">
           <label className="swap">
