@@ -2,24 +2,27 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import Provider from "./components/layout/Provider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const blockingScript = `(function() { const theme = window.localStorage.getItem('theme') || 'mylight'; document.documentElement.setAttribute('data-theme', theme); })();`;
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script>{blockingScript}</script>
-        <Meta />
-        <Links />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
+      <Provider>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <script>{blockingScript}</script>
+          <Meta />
+          <Links />
+          <link rel="icon" href="/favicon.ico" />
+        </head>
+        <body>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </Provider>
     </html>
   );
 }

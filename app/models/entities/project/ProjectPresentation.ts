@@ -1,3 +1,4 @@
+import { formatDate } from "~/utility/formatDate";
 import { type CounterPresentation, counterPresenter } from "../counter/CounterPresentation";
 import type { Project } from "./Project";
 
@@ -11,7 +12,7 @@ export const projectListItemPresenter = (project: Project): ProjectListItemPrese
   return {
     id: project.id,
     name: project.name,
-    updatedAt: project.updatedAt.toISOString()
+    updatedAt: formatDate(project.updatedAt)
   };
 };
 
@@ -31,8 +32,8 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
     id: project.id,
     name: project.name,
     url: project.url,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
+    createdAt: formatDate(project.createdAt),
+    updatedAt: formatDate(project.updatedAt),
     counters: project.counters.map((counter) => counterPresenter(counter))
   };
 };

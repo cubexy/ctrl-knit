@@ -35,7 +35,7 @@ export function ProjectPopoverProvider({ children }: ProjectPopoverProviderProps
 export function useProjectPopover(): ProjectPopoverType {
   const context = useContext(ProjectPopoverContext);
   if (!context) {
-    throw new Error("my mom");
+    throw new Error("useProjectPopover must be used within a ProjectPopoverProvider");
   }
   return context;
 }
