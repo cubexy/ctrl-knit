@@ -14,7 +14,7 @@ function RootLayout() {
           className="flex max-h-screen flex-grow flex-col items-center gap-5 overflow-auto p-5"
           style={{ scrollbarGutter: "stable" }}
         >
-          <header className="card card-border shadow-neutral/15 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 shadow-sm inset-shadow-xs backdrop-blur-sm">
+          <header className="card card-border shadow-neutral/10 bg-base-300/30 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 shadow-sm inset-shadow-xs backdrop-blur-sm">
             <Header />
           </header>
           <Outlet />
