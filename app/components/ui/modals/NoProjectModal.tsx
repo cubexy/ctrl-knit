@@ -1,21 +1,18 @@
-import { useCallback, useRef } from "react";
+import { useProjectPopover } from "~/contexts/ProjectPopoverContext";
 import WoolIcon from "../icons/WoolIcon";
-import CreateProjectPopover from "../popover/CreateProjectPopover";
 
 function NoProjectModal() {
-  const createProjectModalRef = useRef<HTMLDialogElement>(null);
-
-  const handleShow = useCallback(() => {
-    createProjectModalRef.current?.showModal();
-  }, [createProjectModalRef]);
+  const { handleShow } = useProjectPopover();
 
   return (
     <div className="hero h-full">
       <div className="hero-content text-center">
-        <div className="flex max-w-lg flex-col items-center">
+        <div className="flex max-w-md flex-col items-center">
           <WoolIcon className="fill-base-300 size-36" strokeWidth={1} />
-          <h1 className="text-4xl font-bold">Kein offenes Projekt</h1>
-          <p className="text-md pt-2 pb-3">
+          <p className="text-6xl font-bold" style={{ fontFamily: "Le Murmure_Regular" }}>
+            Kein offenes Projekt
+          </p>
+          <p className="text-base-content/70 pt-1 pb-2 text-sm">
             Du hast gerade noch kein Projekt geöffnet. Öffne oben über "Projekte" ein schon erstelltes Projekt oder fang
             hier ein neues an!
           </p>
@@ -25,7 +22,6 @@ function NoProjectModal() {
           >
             Loslegen
           </button>
-          <CreateProjectPopover ref={createProjectModalRef} />
         </div>
       </div>
     </div>

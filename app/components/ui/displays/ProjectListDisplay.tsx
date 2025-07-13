@@ -10,14 +10,17 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
   const projects = getProjectList();
 
   return (
-    <ul className="flex h-[calc(100dvh-236px)] w-full flex-col gap-3 overflow-y-auto">
+    <ul className="flex h-[calc(100dvh-236px)] w-full flex-col overflow-y-auto">
       {projects.map((project) => (
-        <li key={project.id} className="w-full">
+        <li
+          key={project.id}
+          className="hover:bg-base-200/15 flex w-full items-start justify-between rounded-xl p-1 transition-normal duration-200 ease-in-out"
+        >
           <Link
             to={`/projects/${project.id}`}
             className={`w-full ${props.currentProjectId === project.id && "font-black underline"}`}
           >
-            <p>{project.name}</p>
+            <p className="break-all">{project.name}</p>
           </Link>
         </li>
       ))}

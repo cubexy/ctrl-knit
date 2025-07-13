@@ -1,17 +1,11 @@
-import { useCallback } from "react";
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
+import { useProjectPopover } from "~/contexts/ProjectPopoverContext";
 import AddIcon from "./icons/AddIcon";
 import DatabaseIcon from "./icons/DatabaseIcon";
 
-type ProjectListButtonProps = {
-  createProjectModalRef: React.RefObject<HTMLDialogElement | null>;
-};
-
-function ProjectListButton(props: ProjectListButtonProps) {
-  const handleShow = useCallback(() => {
-    props.createProjectModalRef.current?.showModal();
-  }, [props.createProjectModalRef]);
+function ProjectListButton() {
+  const { handleShow } = useProjectPopover();
 
   const { getProjectList } = useDatabase();
   const projects = getProjectList();

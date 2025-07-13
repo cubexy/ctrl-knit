@@ -33,7 +33,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
       <div className="w-full bg-gradient-to-tl">
         <div className="card-body items-center justify-center gap-0.5 px-8 py-2">
           <h2
-            className="card-title hover:to-base-300 pb-2 text-center text-6xl text-pretty transition-all duration-300 ease-in-out hover:scale-105 sm:text-7xl md:text-8xl"
+            className="card-title hover:to-base-300 pb-2 text-center text-6xl break-all transition-all duration-300 ease-in-out hover:scale-105 sm:text-7xl md:text-8xl"
             style={{ fontFamily: "Le Murmure_Regular" }}
           >
             {props.project.name}
