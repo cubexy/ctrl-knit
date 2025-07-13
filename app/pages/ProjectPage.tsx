@@ -34,7 +34,7 @@ function ProjectPage(props: ProjectPageProps) {
         onConfirmEdit={(project: CreateProject) => updateProject(props.id, project)}
         onDelete={() => deleteProject(props.id)}
       />
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
         {project.counters.map((counter) => {
           return (
             <CounterDisplay
