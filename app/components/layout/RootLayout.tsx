@@ -1,9 +1,12 @@
+import { useRef } from "react";
 import { Outlet } from "react-router";
 import { DatabaseProvider } from "~/contexts/DatabaseContext";
+import CreateProjectPopover from "../ui/popover/CreateProjectPopover";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
 function RootLayout() {
+  const createProjectModalRef = useRef<HTMLDialogElement>(null);
   return (
     <DatabaseProvider>
       <div className="flex min-h-screen w-screen flex-row justify-center font-mono">
@@ -14,8 +17,9 @@ function RootLayout() {
           className="flex max-h-screen flex-grow flex-col items-center gap-5 overflow-auto p-5"
           style={{ scrollbarGutter: "stable" }}
         >
+          <CreateProjectPopover ref={createProjectModalRef} />
           <header className="card card-border shadow-neutral/10 bg-base-300/30 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 shadow-sm inset-shadow-xs backdrop-blur-sm">
-            <Header />
+            <Header createProjectModalRef={createProjectModalRef} />
           </header>
           <Outlet />
         </div>
