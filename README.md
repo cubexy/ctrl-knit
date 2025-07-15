@@ -10,11 +10,13 @@
 
 ## Showcase
 
-<img width="900" alt="Darstellung der Anwendung mit verschiedenen Zählern" src="https://github.com/user-attachments/assets/3af845d9-1d4e-4914-b700-78f3671b6403" />
+<img width="900" alt="Darstellung der Anwendung mit verschiedenen Zählern" src="https://github.com/user-attachments/assets/c81a0c87-6982-4b3a-8702-f2280927b0b3" />
+<img width="450" alt="Mobile Darstellung im Light Mode" src="https://github.com/user-attachments/assets/b1b6f5f5-7d20-4765-8dc4-91554c96d628" />
 
 `It also supports dark mode! 🌚`
 
-<img width="900" alt="Darstellung im Dark Mode" src="https://github.com/user-attachments/assets/2a84ed99-e5c1-4051-948a-8602d846e0c1" />
+<img width="900" alt="Darstellung im Dark Mode" src="https://github.com/user-attachments/assets/c2cc8b6d-f08a-4bac-a4ee-12dad89623bb" />
+<img width="450" alt="Mobile Darstellung im Dark Mode" src="https://github.com/user-attachments/assets/653a9a04-c684-4a0e-9fa2-44e90aa6bfb3" />
 
 ## Tech Stack
 
