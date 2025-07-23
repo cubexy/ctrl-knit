@@ -24,7 +24,7 @@ function ProjectPage(props: ProjectPageProps) {
   const project = getProjectById(props.id);
 
   if (!project) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <span className="text-error">Das Projekt konnte nicht gefunden werden!</span>;
   }
 
   return (

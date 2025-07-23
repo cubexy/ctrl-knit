@@ -25,8 +25,8 @@ export type ProjectPresentation = {
   counters: CounterPresentation[];
 };
 
-export const projectPresenter = (project: Project | undefined): ProjectPresentation | undefined => {
-  if (!project) return undefined;
+export const projectPresenter = (project: Project | undefined): ProjectPresentation | null => {
+  if (!project) return null;
 
   return {
     id: project.id,
