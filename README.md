@@ -23,10 +23,9 @@
 ```
 - Frontend
   - Router: React Router
-  - UI:     DaisyUI
+  - UI:     DaisyUI / React
   - Build:  Vite // Node.JS
-  - PWA:    vite-pwa (Soon!)
-  - DB:     PouchDB
+  - "DB":   PouchDB (IndexedDB)
 
 - Database
   - CouchDB
