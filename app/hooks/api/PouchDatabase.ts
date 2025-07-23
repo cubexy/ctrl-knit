@@ -8,7 +8,14 @@ import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { DatabaseProject } from "~/models/entities/project/DatabaseProject";
 import type { Project } from "~/models/entities/project/Project";
 import { clamp } from "~/utility/clamp";
-import { AuthenticationError, ConnectionError, ForbiddenError } from "../../models/error/ConnectionError";
+import {
+  AuthenticationError,
+  ConnectionError,
+  ForbiddenError,
+  UnexpectedError
+} from "../../models/error/ConnectionError";
+
+const ctrlKnitDocumentPrefix = "knit-project:";
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
@@ -137,14 +144,17 @@ export class PouchDatabase {
 
   /**
    * Sets up live change listener for database updates and deletions.
-   * Returns change listener instance.
+   * @param onDelete - Callback for document deletion
+   * @param onUpdate - Callback for document update or addition
+   * @return PouchDB changes listener instance.
    */
   public onChange(onDelete: (id: string) => void, onUpdate: (doc: any) => void) {
     return this.localDb
       .changes({
         live: true,
         since: "now",
-        include_docs: true
+        include_docs: true,
+        conflicts: true
       })
       .on("change", (change) => {
         if (change.deleted) {
@@ -162,19 +172,34 @@ export class PouchDatabase {
 
   /**
    * Creates new project with timestamp ID and initial metadata.
+   * @param project - Project creation data
+   * @return PouchDB response with created project document.
+   * @throws UnexpectedError if project creation fails for unknown reasons.
    */
   public async createProject(project: CreateProject) {
-    return await this.localDb.put({
-      _id: new Date().toJSON(), // use timestamp as ID for default sorting
-      name: project.name,
-      url: project.url,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    try {
+      return await this.localDb.put({
+        _id: `${ctrlKnitDocumentPrefix}${new Date().toJSON()}`, // use timestamp as ID for default sorting
+        name: project.name,
+        url: project.url,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to create project: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Updates existing project with new data and timestamp.
+   * @param id - Project ID to update
+   * @param project - Updated project data
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if update fails for unknown reasons.
    */
   public async updateProject(id: string, project: CreateProject) {
     const existingProject = await this.localDb.get(id);
@@ -183,23 +208,45 @@ export class PouchDatabase {
       ...project,
       updatedAt: new Date()
     };
-    return await this.localDb.put(updatedProject);
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to update project: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Deletes project from database.
+   * @param id - Project ID to delete
+   * @return PouchDB response with deletion result.
+   * @throws UnexpectedError if deletion fails for unknown reasons.
    */
   public async deleteProject(id: string) {
     const project = await this.localDb.get(id);
-    return await this.localDb.remove(project);
+    try {
+      return await this.localDb.remove(project);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to delete project: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Retrieves all projects with proper date conversion and mapping.
+   * @return Array of Project objects with metadata.
    */
   public async getProjects(): Promise<Array<Project>> {
     const result = await this.localDb.allDocs({
-      include_docs: true
+      include_docs: true,
+      startkey: ctrlKnitDocumentPrefix,
+      endkey: `${ctrlKnitDocumentPrefix}\ufff0`
     });
     const mappedDocs = result.rows.map((row) => {
       const doc = row.doc as unknown as DatabaseProject;
@@ -225,6 +272,10 @@ export class PouchDatabase {
 
   /**
    * Creates new counter and adds it to specified project.
+   * @param projectId - ID of the project to add counter to
+   * @param counter - Counter creation data
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if counter creation fails for unknown reasons.
    */
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
@@ -248,12 +299,24 @@ export class PouchDatabase {
       counters: [...((project as any).counters || []), newCounter],
       updatedAt: new Date()
     };
-
-    return await this.localDb.put(updatedProject);
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to create counter: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Updates counter properties and clamps current value within limits.
+   * @param projectId - ID of the project containing the counter
+   * @param counterId - ID of the counter to update
+   * @param update - Partial counter data to update
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if update fails for unknown reasons.
    */
   public async updateCounter(projectId: string, counterId: string, update: EditCounter) {
     const project = await this.getProjectById(projectId);
@@ -280,12 +343,24 @@ export class PouchDatabase {
       counters: updatedCounters,
       updatedAt: new Date()
     };
-
-    return await this.localDb.put(updatedProject);
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to update counter: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Increments counter value with clamping to valid range.
+   * @param projectId - ID of the project containing the counter
+   * @param counterId - ID of the counter to increment
+   * @param increment - Amount to increment the counter by
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if increment fails for unknown reasons.
    */
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
     const project = await this.getProjectById(projectId);
@@ -321,11 +396,23 @@ export class PouchDatabase {
       updatedAt: new Date()
     };
 
-    return await this.localDb.put(updatedProject);
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to increment counter: ${error.message}`);
+      }
+    }
   }
 
   /**
    * Removes counter from project by filtering out the specified ID.
+   * @param projectId - ID of the project containing the counter
+   * @param counterId - ID of the counter to delete
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if deletion fails for unknown reasons.
    */
   public async deleteCounter(projectId: string, counterId: string) {
     const project = await this.getProjectById(projectId);
@@ -336,8 +423,15 @@ export class PouchDatabase {
       counters: updatedCounters,
       updatedAt: new Date()
     };
-
-    return await this.localDb.put(updatedProject);
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to delete counter: ${error.message}`);
+      }
+    }
   }
 
   /**
