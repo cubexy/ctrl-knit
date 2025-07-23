@@ -5,7 +5,7 @@ import type { Counter } from "~/models/entities/counter/Counter";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
-import type { DatabaseProject } from "~/models/entities/project/DatabaseProject";
+import type { CouchDbProject, DatabaseProject } from "~/models/entities/project/DatabaseProject";
 import type { Project } from "~/models/entities/project/Project";
 import { clamp } from "~/utility/clamp";
 import {
@@ -157,6 +157,10 @@ export class PouchDatabase {
         conflicts: true
       })
       .on("change", (change) => {
+        if (change.doc?._conflicts) {
+          // Conflict detected, handle it
+          this.handleConflict(change.doc);
+        }
         if (change.deleted) {
           // Document (project) was deleted
           const deletedDocumentIdentifier = change.id;
@@ -168,6 +172,38 @@ export class PouchDatabase {
         }
       })
       .on("error", console.log.bind(console));
+  }
+
+  /**
+   * Handles conflicts for a single document.
+   * @param changedDoc Conflicted document
+   * @returns void (clears conflict(s))
+   */
+  private async handleConflict(changedDoc: PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta>) {
+    if (!changedDoc._conflicts || changedDoc._conflicts.length === 0 || this.remoteDb === null) {
+      throw new UnexpectedError(
+        `No conflicts found for document ${changedDoc._id} or remote database is not initialized.`
+      );
+    }
+
+    const conflictedDocuments = (await Promise.all(
+      changedDoc._conflicts.map(async (conflictId) => await this.remoteDb!.get(changedDoc._id, { rev: conflictId }))
+    )) as CouchDbProject[];
+
+    let initialDoc = changedDoc as CouchDbProject;
+    for (const doc of conflictedDocuments) {
+      const initialDocUpdatedAt = new Date(initialDoc.updatedAt);
+      const docUpdatedAt = new Date(doc.updatedAt);
+
+      if (docUpdatedAt > initialDocUpdatedAt) {
+        // If the current document is newer, replace the initial document
+        initialDoc = doc;
+        await this.remoteDb!.remove(initialDoc._id, initialDoc._rev);
+        continue;
+      }
+      // If the initial document is newer, remove the current document
+      await this.remoteDb!.remove(doc._id, doc._rev);
+    }
   }
 
   /**

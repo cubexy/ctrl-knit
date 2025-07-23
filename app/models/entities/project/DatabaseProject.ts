@@ -8,3 +8,5 @@ import type { Project } from "./Project";
 export type DatabaseProject = {
   _id: string;
 } & Omit<Project, "id">;
+
+export type CouchDbProject = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & DatabaseProject;

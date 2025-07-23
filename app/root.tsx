@@ -3,6 +3,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from "./+types/root";
 import "./app.css";
 import Provider from "./components/layout/Provider";
+import UIProvider from "./components/layout/UIProvider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const blockingScript = `(function() { const theme = window.localStorage.getItem('theme') || 'mylight'; document.documentElement.setAttribute('data-theme', theme); })();`;
@@ -18,9 +19,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <link rel="icon" href="/favicon.ico" />
         </head>
         <body>
-          {children}
-          <ScrollRestoration />
-          <Scripts />
+          <UIProvider>
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </UIProvider>
         </body>
       </Provider>
     </html>
