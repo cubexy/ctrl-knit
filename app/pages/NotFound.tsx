@@ -8,7 +8,7 @@ function NotFoundPage() {
           404
         </p>
         <p className="text-center">Wir haben überall gesucht, konnten die Seite aber nicht finden! 🥲</p>
-        <Link to="/" className="text-base-300 hover:underline">
+        <Link to="/" className="text-base-300 hover:underline" viewTransition>
           <button className="btn btn-primary">Zurück zur Startseite</button>
         </Link>
       </div>

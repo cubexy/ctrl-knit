@@ -56,7 +56,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
     props.onDelete();
     props.setOpen(false);
     resetFields();
-    navigate("/");
+    navigate("/", { viewTransition: true });
   };
 
   const inputValid = name !== "";

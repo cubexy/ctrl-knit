@@ -8,7 +8,7 @@ export function SyncButton() {
   const { authStatus } = useDatabase();
 
   return (
-    <Link to={`/sync`}>
+    <Link to={`/sync`} viewTransition>
       <button
         className={`btn ${authStatus.loggedIn ? "hover:btn-success" : "hover:btn-error"} flex flex-row items-center justify-between px-3 sm:w-26`}
       >

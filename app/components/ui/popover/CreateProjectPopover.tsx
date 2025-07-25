@@ -24,7 +24,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
       setProjectReference("");
 
       if (response.id) {
-        navigate(`/projects/${response.id}`);
+        navigate(`/projects/${response.id}`, { viewTransition: true });
       }
     }
   };

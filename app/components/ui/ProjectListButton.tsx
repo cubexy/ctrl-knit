@@ -28,7 +28,9 @@ function ProjectListButton() {
         <hr className="fill-base-content m-2 h-px rounded-none" />
         {projects.map((project) => (
           <li key={project.id}>
-            <Link to={`/projects/${project.id}`}>{project.name} </Link>
+            <Link to={`/projects/${project.id}`} viewTransition>
+              {project.name}{" "}
+            </Link>
           </li>
         ))}
         {projects.length === 0 && (
