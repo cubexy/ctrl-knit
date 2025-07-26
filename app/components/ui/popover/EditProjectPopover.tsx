@@ -112,7 +112,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
             data-tip="Bitte fülle alle erforderlichen Felder aus!"
           >
             <button type="submit" className="btn btn-primary" onClick={handleConfirm} disabled={!inputValid}>
-              Bearbeitung abschließen
+              Speichern
             </button>
           </div>
         </div>

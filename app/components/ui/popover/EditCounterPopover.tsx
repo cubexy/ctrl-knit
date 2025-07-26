@@ -138,7 +138,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
             data-tip="Bitte fülle alle erforderlichen Felder aus!"
           >
             <button type="submit" className="btn btn-primary" onClick={handleConfirm} disabled={!inputValid}>
-              Bearbeitung abschließen
+              Speichern
             </button>
           </div>
         </div>
