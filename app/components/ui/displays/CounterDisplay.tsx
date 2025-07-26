@@ -11,6 +11,7 @@ type CounterDisplayProps = CounterPresentation & {
   onDecrement: () => void;
   onEdit: (update: EditCounter) => void;
   onDelete: () => void;
+  ref?: React.Ref<HTMLDivElement>;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
@@ -63,7 +64,11 @@ function CounterDisplay(props: CounterDisplayProps) {
   };
 
   return (
-    <div key={props.id} className="card card-border shadow-neutral/30 bg-base-100 w-full rounded-3xl shadow-xs">
+    <div
+      key={props.id}
+      className="card card-border shadow-neutral/30 bg-base-100 w-full rounded-3xl shadow-xs"
+      ref={props.ref}
+    >
       <div className="card-body w-full items-center p-2">
         <div className="flex w-full flex-row items-center justify-between pl-1">
           <p>{props.name}</p>
