@@ -184,7 +184,12 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
         loggedIn: false,
         disabled: true
       }));
-      await db.initializeRemoteDb(login.username, login.password, login.hostname, login.dbName);
+      await db.initializeRemoteDb(
+        login.username.trim(),
+        login.password.trim(),
+        login.hostname.trim(),
+        login.dbName.trim()
+      );
     } catch (error) {
       if (error instanceof AuthenticationError) {
         setAuthStatus((_) => ({

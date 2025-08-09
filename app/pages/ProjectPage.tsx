@@ -1,11 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import CounterDisplay from "~/components/ui/displays/CounterDisplay";
 import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay";
+import ProjectLoadingDisplay from "~/components/ui/displays/ProjectLoadingDisplay";
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
+import type { ProjectPresentation } from "~/models/entities/project/ProjectPresentation";
 
 type ProjectPageProps = {
   id: string;
@@ -22,9 +24,10 @@ function ProjectPage(props: ProjectPageProps) {
     deleteProject
   } = useDatabase();
 
-  const project = getProjectById(props.id);
+  const [project, setProject] = useState<ProjectPresentation | null>(null);
   const targetRef = useRef<HTMLDivElement>(null);
   const hasScrolled = useRef(false);
+  const [loading, setLoading] = useState(true);
 
   const firstIncrementableId = project?.counters.find((counter) => {
     const hasTarget = counter.count.target !== null && counter.count.target !== undefined;
@@ -44,8 +47,21 @@ function ProjectPage(props: ProjectPageProps) {
     }
   }, [firstIncrementableId]);
 
-  if (!project) {
-    return <span className="text-error">Das Projekt konnte nicht gefunden werden!</span>;
+  useEffect(() => {
+    setProject(getProjectById(props.id));
+    setLoading(false);
+    return () => {
+      setLoading(true);
+    };
+  }, [setProject, setLoading, getProjectById]);
+
+  if (loading) {
+    return <ProjectLoadingDisplay />;
+  } else {
+    // weird structure needed because ts flags project in last return as "could be nullable".
+    if (!project) {
+      return <span className="text-error">Das Projekt konnte nicht gefunden werden!</span>;
+    }
   }
 
   return (
