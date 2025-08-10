@@ -48,7 +48,7 @@ function ProjectPage(props: ProjectPageProps) {
   }, [firstIncrementableId]);
 
   useEffect(() => {
-    setProject(getProjectById(props.id));
+    setProject((_) => getProjectById(props.id));
     setLoading(false);
     return () => {
       setLoading(true);
