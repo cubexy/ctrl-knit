@@ -53,7 +53,7 @@ function ProjectPage(props: ProjectPageProps) {
     return () => {
       setLoading(true);
     };
-  }, [setProject, setLoading, getProjectById]);
+  }, [setProject, setLoading, getProjectById, props.id]);
 
   if (loading) {
     return <ProjectLoadingDisplay />;
