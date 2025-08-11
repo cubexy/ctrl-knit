@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag for the image (e.g., v1.2.3)'
+        description: "Version tag for the image (e.g., 0.2.0)"
         required: true
-        default: 'latest'
+        default: "latest"
 
 jobs:
   build-and-push:
