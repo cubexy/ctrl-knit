@@ -7,7 +7,7 @@ import HamburgerIcon from "./icons/HamburgerIcon";
 function ProjectListButton() {
   const { handleShow } = useProjectPopover();
 
-  const { getProjectList } = useDatabase();
+  const { getProjectList, initialLoadingDone } = useDatabase();
   const projects = getProjectList();
 
   return (
@@ -27,14 +27,16 @@ function ProjectListButton() {
           </a>
         </li>
         <hr className="fill-base-content m-2 h-px rounded-none" />
-        {projects.map((project) => (
-          <li key={project.id}>
-            <Link to={`/projects/${project.id}`} viewTransition>
-              {project.name}{" "}
-            </Link>
-          </li>
-        ))}
-        {projects.length === 0 && (
+        {!initialLoadingDone && <span className="loading loading-spinner loading-xl" />}
+        {initialLoadingDone &&
+          projects.map((project) => (
+            <li key={project.id}>
+              <Link to={`/projects/${project.id}`} viewTransition>
+                {project.name}{" "}
+              </Link>
+            </li>
+          ))}
+        {initialLoadingDone && projects.length === 0 && (
           <li>
             <span className="text-sm text-gray-500">Erstelle dein erstes Projekt!</span>
           </li>

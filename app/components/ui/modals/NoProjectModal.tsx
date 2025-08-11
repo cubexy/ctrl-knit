@@ -5,7 +5,7 @@ import NoProjectMobileDisplay from "../displays/NoProjectMobileDisplay";
 import WoolIcon from "../icons/WoolIcon";
 
 function NoProjectModal() {
-  const { getProjectList } = useDatabase();
+  const { getProjectList, initialLoadingDone } = useDatabase();
 
   const projects = getProjectList();
 
@@ -15,8 +15,13 @@ function NoProjectModal() {
         <NoProjectDesktopDisplay />
       </span>
       <span className="block h-full w-full lg:hidden">
-        {projects.length === 0 && <NoProjectMobileDisplay />}
-        {projects.length > 0 && (
+        {!initialLoadingDone && (
+          <div className="flex h-full w-full items-center-safe justify-center-safe">
+            <span className="loading loading-spinner loading-xl" />
+          </div>
+        )}
+        {initialLoadingDone && projects.length === 0 && <NoProjectMobileDisplay />}
+        {initialLoadingDone && projects.length > 0 && (
           <div className="flex h-full flex-col items-center-safe justify-center-safe">
             <WoolIcon className="fill-base-300 mb-6 size-16" strokeWidth={1} />
             <p className="max-w-full pb-2 text-center text-xl/5">Willkommen zurück!</p>

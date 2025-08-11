@@ -31,6 +31,7 @@ interface DatabaseContextType {
   remoteLogin: (login: LoginParameters) => Promise<void>;
   authStatus: DatabaseConnectionPresentation;
   signOut: () => void;
+  initialLoadingDone: boolean;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | null>(null);
@@ -52,6 +53,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
   const [authStatus, setAuthStatus] = useState<DatabaseConnectionPresentation>(
     DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION
   );
+  const [initialLoadingDone, setInitialLoadingDone] = useState(false);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -61,6 +63,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
         return;
       }
       setProjects(await db.getProjects());
+      setInitialLoadingDone(true);
     };
     loadInitialData();
     const feed = db?.onChange(onProjectDelete, onProjectUpsert);
@@ -127,6 +130,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return () => {
       feed?.cancel();
       feed?.removeAllListeners();
+      setInitialLoadingDone(false);
     };
   }, []);
 
@@ -297,7 +301,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     incrementCounter,
     remoteLogin,
     authStatus,
-    signOut
+    signOut,
+    initialLoadingDone
   };
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
