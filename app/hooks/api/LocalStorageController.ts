@@ -1,7 +1,8 @@
 const LOCAL_STORAGE_KEYS = {
   REMOTE_DB_HOSTNAME: "remoteDbHostname",
   REMOTE_DB_NAME: "remoteDbName",
-  THEME: "theme"
+  THEME: "theme",
+  VISITED: "hello"
 };
 
 export type RemoteDbHostInfo = {
@@ -39,5 +40,17 @@ export class LocalStorageController {
     }
     const theme = localStorage.getItem(LOCAL_STORAGE_KEYS.THEME);
     return (theme as ThemeIdentifier) || fallback;
+  }
+
+  static setIntroCompleted() {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.VISITED, "1");
+  }
+
+  static getIntroCompleted() {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    const visited = localStorage.getItem(LOCAL_STORAGE_KEYS.VISITED);
+    return visited === "1";
   }
 }
