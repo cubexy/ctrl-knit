@@ -2,17 +2,18 @@ import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import { useProjectPopover } from "~/contexts/ProjectPopoverContext";
 import AddIcon from "./icons/AddIcon";
-import DatabaseIcon from "./icons/DatabaseIcon";
+import HamburgerIcon from "./icons/HamburgerIcon";
 
 function ProjectListButton() {
   const { handleShow } = useProjectPopover();
 
   const { getProjectList } = useDatabase();
   const projects = getProjectList();
+
   return (
     <div className="dropdown dropdown-bottom dropdown-end">
       <div tabIndex={0} role="button" className="btn btn-ghost rounded-field px-2 sm:px-4">
-        <DatabaseIcon className="size-4 stroke-current sm:hidden" strokeWidth={1.5} />
+        <HamburgerIcon className="size-4 stroke-current sm:hidden" strokeWidth={1.5} />
         <p className="hidden sm:block">Projekte</p>
       </div>
       <ul

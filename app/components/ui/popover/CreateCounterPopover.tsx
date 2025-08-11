@@ -59,7 +59,7 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
   const inputValid = name !== "" && !(stepOver !== null && targetValue === null);
 
   return (
-    <dialog ref={props.ref} className="modal">
+    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box">
         <h3 className="pb-2 text-xl font-bold font-stretch-expanded">{dialogText}</h3>
         <fieldset className="fieldset">

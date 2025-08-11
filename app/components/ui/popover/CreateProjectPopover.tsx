@@ -40,7 +40,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const canBeSubmitted = projectName.trim().length > 0;
 
   return (
-    <dialog ref={props.ref} className="modal font-mono">
+    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle font-mono">
       <div className="modal-box">
         <h3 className="pb-2 text-left text-xl font-bold">Projekt erstellen</h3>
         <fieldset className="fieldset">

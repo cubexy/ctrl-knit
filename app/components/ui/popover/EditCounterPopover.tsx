@@ -80,7 +80,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   return (
-    <dialog ref={ref} className="modal">
+    <dialog ref={ref} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box">
         <div className="flex flex-row items-start justify-between">
           <h3 className="pb-2 text-xl font-bold">Zähler bearbeiten</h3>

@@ -64,7 +64,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   return (
-    <dialog ref={ref} className="modal">
+    <dialog ref={ref} className="modal-bottom sm:modal-middle">
       <div className="modal-box">
         <div className="flex flex-row items-start justify-between">
           <h3 className="pb-2 text-xl font-bold">Projekt bearbeiten</h3>
