@@ -23,6 +23,7 @@ export type ProjectPresentation = {
   createdAt: string;
   updatedAt: string;
   counters: CounterPresentation[];
+  lastUpdatedCounter?: string;
 };
 
 export const projectPresenter = (project: Project | undefined): ProjectPresentation | null => {
@@ -34,6 +35,7 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
     url: project.url,
     createdAt: formatDate(project.createdAt),
     updatedAt: formatDate(project.updatedAt),
-    counters: project.counters.map((counter) => counterPresenter(counter))
+    counters: project.counters.map((counter) => counterPresenter(counter)),
+    lastUpdatedCounter: undefined
   };
 };

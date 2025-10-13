@@ -160,7 +160,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
         url: updatedDoc.url,
         createdAt: new Date(updatedDoc.createdAt),
         updatedAt: new Date(updatedDoc.updatedAt),
-        counters: updatedDoc.counters || []
+        counters: updatedDoc.counters || [],
+        lastUpdatedCounter: updatedDoc.lastUpdatedCounter
       };
 
       if (index === -1) {

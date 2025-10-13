@@ -10,6 +10,7 @@ export type Counter = {
   id: string;
   name: string;
   createdAt: Date;
+  editedAt: Date;
   count: {
     current: number;
     target?: number;
