@@ -1,6 +1,4 @@
 name: Release & Deploy
-permissions:
-  contents: read
 
 on:
   release:
