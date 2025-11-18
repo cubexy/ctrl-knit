@@ -13,7 +13,7 @@ function RootLayout() {
         <Sidebar />
       </div>
       <div
-        className="flex max-h-screen flex-grow flex-col items-center gap-5 overflow-auto p-5"
+        className="flex max-h-screen grow flex-col items-center gap-5 overflow-auto p-5"
         style={{ scrollbarGutter: "stable" }}
       >
         <Header />
