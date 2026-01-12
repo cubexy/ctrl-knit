@@ -1,3 +1,4 @@
+import { formatDate } from "~/utility/formatDate";
 import type { Counter } from "./Counter";
 
 export type CounterPresentation = {
@@ -11,6 +12,8 @@ export type CounterPresentation = {
     current: number;
     target: number;
   };
+  createdAt: string;
+  editedAt: string;
 };
 
 export const counterPresenter = (counter: Counter): CounterPresentation => {
@@ -21,7 +24,13 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
       count: {
         current: counter.count.current
       },
-      stepOver: undefined
+      stepOver: undefined,
+      createdAt: counter.createdAt
+        ? formatDate(new Date(counter.createdAt))
+        : "Nach erneuter Änderung des Zählerwertes wird der Zeitstempel hier angezeigt.",
+      editedAt: counter.editedAt
+        ? formatDate(new Date(counter.editedAt))
+        : "Nach erneuter Änderung des Zählerwertes wird der Zeitstempel hier angezeigt."
     };
   }
 
@@ -36,6 +45,8 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
       current: isZero ? 0 : currentCount,
       target: counter.count.target
     },
+    createdAt: formatDate(new Date(counter.createdAt)),
+    editedAt: formatDate(new Date(counter.editedAt)),
     stepOver: counter.stepOver
       ? {
           current: Math.max(1, Math.ceil(counter.count.current / counter.count.target)),

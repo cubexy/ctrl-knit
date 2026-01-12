@@ -413,7 +413,8 @@ export class PouchDatabase {
             count: {
               ...c.count,
               current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
-            }
+            },
+            editedAt: new Date()
           };
         }
         // If stepOver is defined, calculate max based on target
@@ -423,7 +424,8 @@ export class PouchDatabase {
           count: {
             ...c.count,
             current: clamp(incrementedCurrent, 0, max)
-          }
+          },
+          editedAt: new Date()
         };
       }
       return c;

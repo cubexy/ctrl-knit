@@ -21,7 +21,7 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
             <Link to={`/projects/${project.id}`} viewTransition className="w-full">
               <p className="break-all">{project.name}</p>
               {props.currentProjectId === project.id && (
-                <p className="text-base-300/50 text-xs">letzte Änderung: {project.updatedAt}</p>
+                <p className="text-base-300/50 text-xs">zuletzt am {project.updatedAt} geändert</p>
               )}
             </Link>
           </li>

@@ -7,6 +7,7 @@ export function formatDate(date: Date) {
 
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
 
-  return `${day}.${month}.${year} ${hours}:${minutes}`;
+  return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
 }

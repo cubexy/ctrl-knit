@@ -19,3 +19,15 @@ export type Counter = {
     target: number;
   };
 };
+
+export type CounterUIRepresentation = {
+  name: string;
+  count?: {
+    target: number;
+  };
+  stepOver?: {
+    target: number;
+  };
+  createdAt: string;
+  editedAt: string;
+};

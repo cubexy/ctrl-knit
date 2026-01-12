@@ -84,6 +84,8 @@ function ProjectPage(props: ProjectPageProps) {
             onDecrement={() => incrementCounter(props.id, counter.id, -1)}
             onEdit={(update: EditCounter) => updateCounter(props.id, counter.id, update)}
             onDelete={() => deleteCounter(props.id, counter.id)}
+            createdAt={counter.createdAt}
+            editedAt={counter.editedAt}
           />
         ))}
         <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />
