@@ -45,8 +45,12 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
       current: isZero ? 0 : currentCount,
       target: counter.count.target
     },
-    createdAt: formatDate(new Date(counter.createdAt)),
-    editedAt: formatDate(new Date(counter.editedAt)),
+    createdAt: counter.createdAt
+      ? formatDate(new Date(counter.createdAt))
+      : "Nach erneuter Änderung des Zählerwertes wird der Zeitstempel hier angezeigt.",
+    editedAt: counter.editedAt
+      ? formatDate(new Date(counter.editedAt))
+      : "Nach erneuter Änderung des Zählerwertes wird der Zeitstempel hier angezeigt.",
     stepOver: counter.stepOver
       ? {
           current: Math.max(1, Math.ceil(counter.count.current / counter.count.target)),
