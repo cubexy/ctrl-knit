@@ -36,6 +36,6 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
     createdAt: formatDate(project.createdAt),
     updatedAt: formatDate(project.updatedAt),
     counters: project.counters.map((counter) => counterPresenter(counter)),
-    lastUpdatedCounter: undefined
+    lastUpdatedCounter: project.lastUpdatedCounter
   };
 };

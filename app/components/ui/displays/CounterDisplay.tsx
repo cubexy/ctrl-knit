@@ -60,8 +60,6 @@ function CounterDisplay(props: CounterDisplayProps) {
       ? props.stepOver.current < props.stepOver.target || props.count.current < props.count.target
       : props.count.current < props.count.target);
 
-  console.log(props);
-
   const passedCounter: CounterUIRepresentation = {
     name: props.name,
     count: props.count.target ? { target: props.count.target } : undefined,

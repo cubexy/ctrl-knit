@@ -29,16 +29,18 @@ function ProjectPage(props: ProjectPageProps) {
   const hasScrolled = useRef(false);
   const [loading, setLoading] = useState(true);
 
-  const firstIncrementableId = project?.counters.find((counter) => {
-    const hasTarget = counter.count.target !== null && counter.count.target !== undefined;
-    if (!hasTarget) return true;
-    const isBelowCountTarget = counter.count.current < counter.count.target!;
-    if (counter.stepOver) {
-      const isBelowStepOverTarget = counter.stepOver.current < counter.stepOver.target;
-      return isBelowStepOverTarget || isBelowCountTarget;
-    }
-    return isBelowCountTarget;
-  })?.id;
+  const firstIncrementableId =
+    project?.lastUpdatedCounter ??
+    project?.counters.find((counter) => {
+      const hasTarget = counter.count.target !== null && counter.count.target !== undefined;
+      if (!hasTarget) return true;
+      const isBelowCountTarget = counter.count.current < counter.count.target!;
+      if (counter.stepOver) {
+        const isBelowStepOverTarget = counter.stepOver.current < counter.stepOver.target;
+        return isBelowStepOverTarget || isBelowCountTarget;
+      }
+      return isBelowCountTarget;
+    })?.id;
 
   useEffect(() => {
     if (firstIncrementableId && targetRef.current && !hasScrolled.current) {
