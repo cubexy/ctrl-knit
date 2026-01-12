@@ -317,8 +317,9 @@ export class PouchDatabase {
    */
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
+    const counterId = this.generateIdentifier("counter");
     const newCounter: Counter = {
-      id: this.generateIdentifier("counter"),
+      id: counterId,
       name: counter.name,
       count: {
         current: 0,
@@ -336,7 +337,8 @@ export class PouchDatabase {
     const updatedProject = {
       ...project,
       counters: [...((project as any).counters || []), newCounter],
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      lastUpdatedCounter: counterId
     };
     try {
       return await this.localDb.put(updatedProject);
