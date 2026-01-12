@@ -70,8 +70,8 @@ function CounterDisplay(props: CounterDisplayProps) {
       ref={props.ref}
     >
       <div className="card-body w-full items-center p-2">
-        <div className="flex w-full flex-row items-center justify-between pl-1">
-          <p>{props.name}</p>
+        <div className="flex w-full flex-row items-center justify-between gap-1 pl-1">
+          <p className="break-all">{props.name}</p>
           <EditCounterPopover
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
             onDelete={props.onDelete}
@@ -79,7 +79,7 @@ function CounterDisplay(props: CounterDisplayProps) {
             open={popoverOpen}
             setOpen={setPopoverOpen}
           />
-          <button className="btn btn-xs btn-ghost rounded-tr-2xl px-1 py-3" onClick={() => setPopoverOpen(true)}>
+          <button className="btn btn-xs btn-ghost h-full rounded-tr-2xl px-1 py-3" onClick={() => setPopoverOpen(true)}>
             <SettingsIcon className="size-5 stroke-current" strokeWidth={1} />
           </button>
         </div>
@@ -88,7 +88,7 @@ function CounterDisplay(props: CounterDisplayProps) {
             -
           </button>
           <div
-            className={`input input-neutral from-base-300 to-base-100 flex min-h-36 w-full flex-col items-center justify-center gap-0 border-[1px] border-b-[2px] bg-gradient-to-r ${gradientClasses} rounded-none`}
+            className={`input input-neutral from-base-300 to-base-100 flex min-h-36 w-full flex-col items-center justify-center gap-0 border border-b-2 bg-linear-to-r ${gradientClasses} rounded-none`}
             style={{
               borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
             }}

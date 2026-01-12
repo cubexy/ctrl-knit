@@ -22,7 +22,7 @@ function Sidebar() {
       <div className="flex flex-col gap-4 px-0.5">
         <button className="btn btn-dash w-full" onClick={handleShow}>
           <AddIcon className="size-4 stroke-current" strokeWidth={1.5} />
-          Projekt erstellen
+          <p className="text-nowrap">Projekt erstellen</p>
         </button>
         <hr className="divider divider-primary text-neutral-content/50 fill-base-content m-0 h-px rounded-none" />
         <ProjectListDisplay currentProjectId={id} />
