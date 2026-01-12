@@ -161,7 +161,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
         createdAt: new Date(updatedDoc.createdAt),
         updatedAt: new Date(updatedDoc.updatedAt),
         counters: updatedDoc.counters || [],
-        lastUpdatedCounter: updatedDoc.lastUpdatedCounter
+        lastUpdatedCounter: updatedDoc.lastUpdatedCounter,
+        trackedTime: updatedDoc.trackedTime ?? 0
       };
 
       if (index === -1) {
