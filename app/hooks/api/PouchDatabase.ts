@@ -220,7 +220,9 @@ export class PouchDatabase {
         url: project.url,
         createdAt: new Date(),
         updatedAt: new Date(),
-        lastUpdatedCounter: undefined
+        lastUpdatedCounter: undefined,
+        trackedTime: 0,
+        counters: []
       });
     } catch (error: any) {
       if (error.name === "conflict") {
@@ -294,7 +296,8 @@ export class PouchDatabase {
         createdAt: new Date(doc.createdAt),
         updatedAt: new Date(doc.updatedAt),
         counters: doc.counters || [],
-        lastUpdatedCounter: doc.lastUpdatedCounter
+        lastUpdatedCounter: doc.lastUpdatedCounter,
+        trackedTime: doc.trackedTime
       };
     });
     return mappedDocs;

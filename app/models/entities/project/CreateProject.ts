@@ -5,4 +5,5 @@
 export type CreateProject = {
   name: string;
   url: string | undefined;
+  trackedTime?: number;
 };

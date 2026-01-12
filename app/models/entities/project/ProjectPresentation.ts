@@ -24,6 +24,7 @@ export type ProjectPresentation = {
   updatedAt: string;
   counters: CounterPresentation[];
   lastUpdatedCounter?: string;
+  trackedTime: number;
 };
 
 export const projectPresenter = (project: Project | undefined): ProjectPresentation | null => {
@@ -36,6 +37,7 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
     createdAt: formatDate(project.createdAt),
     updatedAt: formatDate(project.updatedAt),
     counters: project.counters.map((counter) => counterPresenter(counter)),
-    lastUpdatedCounter: project.lastUpdatedCounter
+    lastUpdatedCounter: project.lastUpdatedCounter,
+    trackedTime: project.trackedTime ?? 0
   };
 };

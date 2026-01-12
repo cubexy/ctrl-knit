@@ -69,7 +69,7 @@ function ProjectPage(props: ProjectPageProps) {
   return (
     <>
       <ProjectHeaderDisplay
-        project={{ name: project.name, url: project.url }}
+        project={{ name: project.name, url: project.url, trackedTime: project.trackedTime }}
         onConfirmEdit={(project: CreateProject) => updateProject(props.id, project)}
         onDelete={() => deleteProject(props.id)}
       />
