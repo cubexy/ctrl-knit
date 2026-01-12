@@ -29,16 +29,18 @@ function ProjectPage(props: ProjectPageProps) {
   const hasScrolled = useRef(false);
   const [loading, setLoading] = useState(true);
 
-  const firstIncrementableId = project?.counters.find((counter) => {
-    const hasTarget = counter.count.target !== null && counter.count.target !== undefined;
-    if (!hasTarget) return true;
-    const isBelowCountTarget = counter.count.current < counter.count.target!;
-    if (counter.stepOver) {
-      const isBelowStepOverTarget = counter.stepOver.current < counter.stepOver.target;
-      return isBelowStepOverTarget || isBelowCountTarget;
-    }
-    return isBelowCountTarget;
-  })?.id;
+  const firstIncrementableId =
+    project?.lastUpdatedCounter ??
+    project?.counters.find((counter) => {
+      const hasTarget = counter.count.target !== null && counter.count.target !== undefined;
+      if (!hasTarget) return true;
+      const isBelowCountTarget = counter.count.current < counter.count.target!;
+      if (counter.stepOver) {
+        const isBelowStepOverTarget = counter.stepOver.current < counter.stepOver.target;
+        return isBelowStepOverTarget || isBelowCountTarget;
+      }
+      return isBelowCountTarget;
+    })?.id;
 
   useEffect(() => {
     if (firstIncrementableId && targetRef.current && !hasScrolled.current) {
@@ -67,7 +69,7 @@ function ProjectPage(props: ProjectPageProps) {
   return (
     <>
       <ProjectHeaderDisplay
-        project={{ name: project.name, url: project.url }}
+        project={{ name: project.name, url: project.url, trackedTime: project.trackedTime }}
         onConfirmEdit={(project: CreateProject) => updateProject(props.id, project)}
         onDelete={() => deleteProject(props.id)}
       />
@@ -84,6 +86,8 @@ function ProjectPage(props: ProjectPageProps) {
             onDecrement={() => incrementCounter(props.id, counter.id, -1)}
             onEdit={(update: EditCounter) => updateCounter(props.id, counter.id, update)}
             onDelete={() => deleteCounter(props.id, counter.id)}
+            createdAt={counter.createdAt}
+            editedAt={counter.editedAt}
           />
         ))}
         <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />

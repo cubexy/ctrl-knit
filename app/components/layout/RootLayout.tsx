@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Outlet } from "react-router";
 import WelcomePopover from "../ui/popover/WelcomePopover";
 import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Sidebar from "./sidebar/Sidebar";
 
 function RootLayout() {
   const welcomePopoverRef = useRef<HTMLDialogElement>(null);

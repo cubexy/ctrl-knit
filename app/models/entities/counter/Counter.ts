@@ -10,6 +10,7 @@ export type Counter = {
   id: string;
   name: string;
   createdAt: Date;
+  editedAt: Date;
   count: {
     current: number;
     target?: number;
@@ -17,4 +18,16 @@ export type Counter = {
   stepOver?: {
     target: number;
   };
+};
+
+export type CounterUIRepresentation = {
+  name: string;
+  count?: {
+    target: number;
+  };
+  stepOver?: {
+    target: number;
+  };
+  createdAt: string;
+  editedAt: string;
 };

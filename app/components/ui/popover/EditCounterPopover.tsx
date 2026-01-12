@@ -85,20 +85,17 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
         <div className="flex flex-row items-start justify-between">
           <h3 className="pb-2 text-xl font-bold">Zähler bearbeiten</h3>
 
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-xs btn-error btn-ghost mt-0 px-1 py-3">
+          <details className="dropdown dropdown-end">
+            <summary className="btn btn-xs btn-error btn-ghost mt-0 px-1 py-3">
               <RemoveIcon strokeWidth={1.5} className="size-4 stroke-current" />
-            </div>
-            <div
-              tabIndex={0}
-              className="dropdown-content menu bg-base-100 rounded-box shadow-neutral/15 z-1 flex w-46 flex-col items-center gap-y-0.5 py-4 shadow-sm"
-            >
+            </summary>
+            <div className="dropdown-content menu bg-base-100 rounded-box shadow-neutral/15 z-1 flex w-46 flex-col items-center gap-y-0.5 py-4 shadow-sm">
               <p>Wirklich löschen?</p>
               <button className="btn btn-dash btn-error" onClick={handleDelete}>
                 Zähler löschen
               </button>
             </div>
-          </div>
+          </details>
         </div>
 
         <fieldset className="fieldset">

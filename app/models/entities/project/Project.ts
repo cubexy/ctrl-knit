@@ -14,4 +14,6 @@ export type Project = {
   createdAt: Date;
   updatedAt: Date;
   counters: Counter[];
+  lastUpdatedCounter: string | undefined;
+  trackedTime: number;
 };

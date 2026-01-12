@@ -219,7 +219,10 @@ export class PouchDatabase {
         name: project.name,
         url: project.url,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        lastUpdatedCounter: undefined,
+        trackedTime: 0,
+        counters: []
       });
     } catch (error: any) {
       if (error.name === "conflict") {
@@ -292,7 +295,9 @@ export class PouchDatabase {
         url: doc.url,
         createdAt: new Date(doc.createdAt),
         updatedAt: new Date(doc.updatedAt),
-        counters: doc.counters || []
+        counters: doc.counters || [],
+        lastUpdatedCounter: doc.lastUpdatedCounter,
+        trackedTime: doc.trackedTime
       };
     });
     return mappedDocs;
@@ -315,8 +320,9 @@ export class PouchDatabase {
    */
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
+    const counterId = this.generateIdentifier("counter");
     const newCounter: Counter = {
-      id: this.generateIdentifier("counter"),
+      id: counterId,
       name: counter.name,
       count: {
         current: 0,
@@ -327,13 +333,15 @@ export class PouchDatabase {
             target: counter.stepOver.target
           }
         : undefined,
-      createdAt: new Date()
+      createdAt: new Date(),
+      editedAt: new Date()
     };
 
     const updatedProject = {
       ...project,
       counters: [...((project as any).counters || []), newCounter],
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      lastUpdatedCounter: counterId
     };
     try {
       return await this.localDb.put(updatedProject);
@@ -410,7 +418,8 @@ export class PouchDatabase {
             count: {
               ...c.count,
               current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
-            }
+            },
+            editedAt: new Date()
           };
         }
         // If stepOver is defined, calculate max based on target
@@ -420,7 +429,8 @@ export class PouchDatabase {
           count: {
             ...c.count,
             current: clamp(incrementedCurrent, 0, max)
-          }
+          },
+          editedAt: new Date()
         };
       }
       return c;
@@ -429,7 +439,8 @@ export class PouchDatabase {
     const updatedProject = {
       ...project,
       counters: updatedCounters,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      lastUpdatedCounter: counterId
     };
 
     try {
@@ -451,13 +462,18 @@ export class PouchDatabase {
    * @throws UnexpectedError if deletion fails for unknown reasons.
    */
   public async deleteCounter(projectId: string, counterId: string) {
-    const project = await this.getProjectById(projectId);
-    const updatedCounters = (project as unknown as Project).counters.filter((c: Counter) => c.id !== counterId);
+    const project = (await this.getProjectById(projectId)) as unknown as Project;
+    const updatedCounters = project.counters.filter((c: Counter) => c.id !== counterId);
+    const updatedLastEditedCounterId =
+      project.lastUpdatedCounter !== counterId
+        ? project.lastUpdatedCounter
+        : this.findLastIncrementedCounter(updatedCounters);
 
     const updatedProject = {
       ...project,
       counters: updatedCounters,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      lastUpdatedCounter: updatedLastEditedCounterId
     };
     try {
       return await this.localDb.put(updatedProject);
@@ -488,5 +504,23 @@ export class PouchDatabase {
     await this.localDb.close();
     await this.remoteDb?.close();
     this.remoteDb = null;
+  }
+
+  private findLastIncrementedCounter(counters: Counter[]) {
+    if (counters.length === 0) {
+      return undefined;
+    }
+    if (counters.length === 1) {
+      return counters[0].id;
+    }
+    let lastIncrementedCounterId = counters[0].id;
+    let lastIncrementedTimestamp = counters[0].editedAt.getTime();
+    for (const counter of counters.slice(1)) {
+      if (counter.editedAt.getTime() > lastIncrementedTimestamp) {
+        lastIncrementedCounterId = counter.id;
+        lastIncrementedTimestamp = counter.editedAt.getTime();
+      }
+    }
+    return lastIncrementedCounterId;
   }
 }

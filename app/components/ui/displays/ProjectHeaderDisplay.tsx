@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
+import ClockIcon from "../icons/ClockIcon";
 import LinkIcon from "../icons/LinkIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditProjectPopover from "../popover/EditProjectPopover";
@@ -12,6 +13,69 @@ type ProjectHeaderDisplayProps = {
 
 function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(props.project.trackedTime ?? 0);
+
+  const timeRef = useRef(time);
+  const projectRef = useRef(props.project);
+  const onConfirmEditRef = useRef(props.onConfirmEdit);
+
+  useEffect(() => {
+    timeRef.current = time;
+  }, [time]);
+
+  useEffect(() => {
+    projectRef.current = props.project;
+  }, [props.project]);
+
+  useEffect(() => {
+    onConfirmEditRef.current = props.onConfirmEdit;
+  }, [props.onConfirmEdit]);
+
+  useEffect(() => {
+    if (!isRunning) {
+      setTime(props.project.trackedTime ?? 0);
+    }
+  }, [props.project.trackedTime, isRunning]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRunning) {
+      interval = setInterval(() => {
+        setTime((prevTime) => prevTime + 1000);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  useEffect(() => {
+    let saveInterval: NodeJS.Timeout;
+    if (isRunning) {
+      saveInterval = setInterval(() => {
+        onConfirmEditRef.current({ ...projectRef.current, trackedTime: timeRef.current });
+      }, 60000);
+    }
+    return () => clearInterval(saveInterval);
+  }, [isRunning]);
+
+  const toggleTimer = () => {
+    if (isRunning) {
+      props.onConfirmEdit({ ...props.project, trackedTime: time });
+    }
+    setIsRunning(!isRunning);
+  };
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    if (hours > 0) return `${hours} h ${pad(minutes)} min`;
+    if (minutes > 0) return `${pad(minutes)} min`;
+    if (ms > 0) return `${pad(seconds)} s`;
+    return "Zeit erfassen";
+  };
 
   const fetchShortenedUrl = (url: string) => {
     try {
@@ -50,6 +114,13 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
                 <p className="break-all">{fetchShortenedUrl(props.project.url)}</p>
               </a>
             )}
+            <button
+              className={`btn btn-ghost px-1 py-3 font-medium ${isRunning ? "text-primary" : ""}`}
+              onClick={toggleTimer}
+            >
+              <ClockIcon className="size-4 stroke-current" strokeWidth={1.5} />
+              {formatTime(time)}
+            </button>
             <button className="btn btn-ghost px-1 py-3 font-medium" onClick={() => setPopoverOpen(true)}>
               <SettingsIcon className="size-4 stroke-current" strokeWidth={1.5} />
               Verwalten

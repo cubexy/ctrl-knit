@@ -17,9 +17,9 @@ function AddCounterModal(props: AddCounterModalProps) {
   return (
     <>
       <div className="card card-dash border-base-300 w-full rounded-3xl">
-        <div className="card-body w-full items-center p-1">
+        <div className="card-body w-full items-center p-2">
           <button
-            className="btn btn-ghost flex w-full flex-row items-center justify-between rounded-full px-2"
+            className="btn btn-ghost flex w-full flex-row items-center justify-between rounded-full px-0.5"
             onClick={handleShow}
           >
             <p className="grow-0 font-normal">Zähler hinzufügen</p>
