@@ -1,4 +1,4 @@
-<img width="64" alt="Logo" src="public/android-chrome-192x192.png" />
+<img width="64" alt="Logo" src="public/favicon-96x96.png" />
 
 # `ctrl` + `knit`
 
