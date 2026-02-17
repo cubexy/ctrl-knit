@@ -80,7 +80,7 @@ function CounterDisplay(props: CounterDisplayProps) {
               className="bg-base-300 absolute inset-y-0 left-0 transition-all duration-300 ease-in-out"
               style={{ width: `${percentage}%` }}
             />
-            <div className="relative z-10 flex h-full w-full flex-col items-center justify-center">
+            <div className="relative z-5 flex h-full w-full flex-col items-center justify-center">
               <NumberFlow
                 value={props.count.current}
                 /** @ts-ignore - NumberFlow is a third-party library that does not have types */
