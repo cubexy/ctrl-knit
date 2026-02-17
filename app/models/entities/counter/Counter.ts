@@ -11,6 +11,7 @@ export type Counter = {
   name: string;
   createdAt: Date;
   editedAt: Date;
+  order: number;
   count: {
     current: number;
     target?: number;

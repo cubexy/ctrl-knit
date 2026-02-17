@@ -321,9 +321,11 @@ export class PouchDatabase {
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
     const counterId = this.generateIdentifier("counter");
+    const existingCounters = (project as any).counters || [];
     const newCounter: Counter = {
       id: counterId,
       name: counter.name,
+      order: existingCounters.length,
       count: {
         current: 0,
         target: counter.count ? counter.count.target : undefined
@@ -339,7 +341,7 @@ export class PouchDatabase {
 
     const updatedProject = {
       ...project,
-      counters: [...((project as any).counters || []), newCounter],
+      counters: [...existingCounters, newCounter],
       updatedAt: new Date(),
       lastUpdatedCounter: counterId
     };
@@ -482,6 +484,39 @@ export class PouchDatabase {
         console.log(error);
       } else {
         throw new UnexpectedError(`Failed to delete counter: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * Reorders counters within a project by assigning new order values.
+   * @param projectId - ID of the project containing the counters
+   * @param orderedIds - Array of counter IDs in the desired new order
+   * @return PouchDB response with updated project document.
+   * @throws UnexpectedError if reorder fails for unknown reasons.
+   */
+  public async reorderCounters(projectId: string, orderedIds: string[]) {
+    const project = (await this.getProjectById(projectId)) as unknown as Project;
+    const updatedCounters = project.counters.map((c: Counter) => {
+      const newOrder = orderedIds.indexOf(c.id);
+      return {
+        ...c,
+        order: newOrder !== -1 ? newOrder : c.order ?? 0
+      };
+    });
+
+    const updatedProject = {
+      ...project,
+      counters: updatedCounters,
+      updatedAt: new Date()
+    };
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to reorder counters: ${error.message}`);
       }
     }
   }

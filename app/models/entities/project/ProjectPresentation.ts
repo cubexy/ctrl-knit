@@ -36,7 +36,9 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
     url: project.url,
     createdAt: formatDate(project.createdAt),
     updatedAt: formatDate(project.updatedAt),
-    counters: project.counters.map((counter) => counterPresenter(counter)),
+    counters: project.counters
+      .map((counter, index) => counterPresenter({ ...counter, order: counter.order ?? index }))
+      .sort((a, b) => a.order - b.order),
     lastUpdatedCounter: project.lastUpdatedCounter,
     trackedTime: project.trackedTime ?? 0
   };

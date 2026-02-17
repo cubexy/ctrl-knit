@@ -28,6 +28,7 @@ interface DatabaseContextType {
   updateCounter: (projectId: string, counterId: string, update: EditCounter) => Promise<any>;
   deleteCounter: (projectId: string, counterId: string) => Promise<any>;
   incrementCounter: (projectId: string, counterId: string, step: number) => Promise<any>;
+  reorderCounters: (projectId: string, orderedIds: string[]) => Promise<any>;
   remoteLogin: (login: LoginParameters) => Promise<void>;
   authStatus: DatabaseConnectionPresentation;
   signOut: () => void;
@@ -291,6 +292,10 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return db?.incrementCounter(projectId, counterId, step);
   };
 
+  const reorderCounters = async (projectId: string, orderedIds: string[]) => {
+    return db?.reorderCounters(projectId, orderedIds);
+  };
+
   const value: DatabaseContextType = {
     getProjectById,
     getProjectList,
@@ -301,6 +306,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     updateCounter,
     deleteCounter,
     incrementCounter,
+    reorderCounters,
     remoteLogin,
     authStatus,
     signOut,

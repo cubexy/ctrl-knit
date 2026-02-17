@@ -4,6 +4,7 @@ import type { Counter } from "./Counter";
 export type CounterPresentation = {
   id: string;
   name: string;
+  order: number;
   count: {
     current: number;
     target?: number;
@@ -21,6 +22,7 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
     return {
       id: counter.id,
       name: counter.name,
+      order: counter.order ?? 0,
       count: {
         current: counter.count.current
       },
@@ -41,6 +43,7 @@ export const counterPresenter = (counter: Counter): CounterPresentation => {
   return {
     id: counter.id,
     name: counter.name,
+    order: counter.order ?? 0,
     count: {
       current: isZero ? 0 : currentCount,
       target: counter.count.target

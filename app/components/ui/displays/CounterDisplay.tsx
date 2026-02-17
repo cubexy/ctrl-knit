@@ -4,6 +4,7 @@ import type { CounterUIRepresentation } from "~/models/entities/counter/Counter"
 import type { CounterPresentation } from "~/models/entities/counter/CounterPresentation";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import { clamp } from "~/utility/clamp";
+import DragHandleIcon from "../icons/DragHandleIcon";
 import InfoIcon from "../icons/InfoIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import CounterInfoPopover from "../popover/CounterInfoPopover";
@@ -15,6 +16,10 @@ type CounterDisplayProps = CounterPresentation & {
   onEdit: (update: EditCounter) => void;
   onDelete: () => void;
   ref?: React.Ref<HTMLDivElement>;
+  dragHandleProps?: {
+    listeners?: Record<string, Function>;
+    attributes?: Record<string, any>;
+  };
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
@@ -47,6 +52,15 @@ function CounterDisplay(props: CounterDisplayProps) {
     >
       <div className="card-body w-full items-center p-2">
         <div className="flex w-full flex-row items-center justify-between gap-1 pl-1">
+          {props.dragHandleProps && (
+            <button
+              className="btn btn-xs btn-ghost h-full cursor-grab touch-none px-0.5 py-0.5 active:cursor-grabbing"
+              {...props.dragHandleProps.listeners}
+              {...props.dragHandleProps.attributes}
+            >
+              <DragHandleIcon className="size-5 stroke-current" strokeWidth={1.5} />
+            </button>
+          )}
           <p className="break-all">{props.name}</p>
           <EditCounterPopover
             onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
