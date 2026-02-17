@@ -71,7 +71,7 @@ function CounterDisplay(props: CounterDisplayProps) {
             -
           </button>
           <div
-            className={`input input-neutral ${backgroundClass} relative flex min-h-36 w-full flex-col items-center justify-center gap-0 overflow-hidden rounded-none border border-b-2`}
+            className={`input input-neutral ${backgroundClass} relative flex min-h-36 w-full flex-col items-center justify-center gap-0 overflow-visible rounded-none border border-b-2`}
             style={{
               borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
             }}
