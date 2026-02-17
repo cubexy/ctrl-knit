@@ -74,7 +74,8 @@ function ProjectPage(props: ProjectPageProps) {
         onDelete={() => deleteProject(props.id)}
       />
       <div className="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
-        {project.counters.map((counter) => (
+        <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />
+        {[...project.counters].reverse().map((counter) => (
           <CounterDisplay
             key={counter.id}
             ref={counter.id === firstIncrementableId ? targetRef : undefined}
@@ -90,7 +91,6 @@ function ProjectPage(props: ProjectPageProps) {
             editedAt={counter.editedAt}
           />
         ))}
-        <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />
       </div>
     </>
   );
