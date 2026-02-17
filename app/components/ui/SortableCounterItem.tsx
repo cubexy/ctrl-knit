@@ -17,7 +17,7 @@ function SortableCounterItem({ id, children }: SortableCounterItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 50 : "auto" as const
+    zIndex: isDragging ? 50 : ("auto" as const)
   };
 
   return (

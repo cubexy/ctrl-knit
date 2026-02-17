@@ -1,4 +1,14 @@
-import { DndContext, DragOverlay, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent
+} from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
 import CounterDisplay from "~/components/ui/displays/CounterDisplay";
@@ -7,8 +17,8 @@ import ProjectLoadingDisplay from "~/components/ui/displays/ProjectLoadingDispla
 import AddCounterModal from "~/components/ui/modals/AddCounterModal";
 import SortableCounterItem from "~/components/ui/SortableCounterItem";
 import { useDatabase } from "~/contexts/DatabaseContext";
-import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { CounterPresentation } from "~/models/entities/counter/CounterPresentation";
+import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { ProjectPresentation } from "~/models/entities/project/ProjectPresentation";
@@ -119,7 +129,12 @@ function ProjectPage(props: ProjectPageProps) {
         onConfirmEdit={(project: CreateProject) => updateProject(props.id, project)}
         onDelete={() => deleteProject(props.id)}
       />
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={project.counters.map((c) => c.id)} strategy={rectSortingStrategy}>
           <div className="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
             <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />

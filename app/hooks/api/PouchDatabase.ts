@@ -501,7 +501,7 @@ export class PouchDatabase {
       const newOrder = orderedIds.indexOf(c.id);
       return {
         ...c,
-        order: newOrder !== -1 ? newOrder : c.order ?? 0
+        order: newOrder !== -1 ? newOrder : (c.order ?? 0)
       };
     });
 
