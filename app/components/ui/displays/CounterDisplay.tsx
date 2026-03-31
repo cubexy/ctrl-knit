@@ -51,10 +51,10 @@ function CounterDisplay(props: CounterDisplayProps) {
       ref={props.ref}
     >
       <div className="card-body w-full items-center p-2">
-        <div className="flex w-full flex-row items-center justify-between gap-1 pl-1">
+        <div className="flex w-full flex-row items-center justify-between gap-1">
           {props.dragHandleProps && (
             <button
-              className="btn btn-xs btn-ghost h-full cursor-grab touch-none px-0.5 py-0.5 active:cursor-grabbing"
+              className="btn btn-xs btn-ghost h-full cursor-grab touch-none rounded-tl-2xl px-0.5 pr-0.5 active:cursor-grabbing"
               {...props.dragHandleProps.listeners}
               {...props.dragHandleProps.attributes}
             >
@@ -80,14 +80,15 @@ function CounterDisplay(props: CounterDisplayProps) {
             <SettingsIcon className="size-5 stroke-current" strokeWidth={1} />
           </button>
         </div>
-        <div className="join w-full">
-          <button className="btn h-full rounded-l-2xl text-xl" onClick={props.onDecrement} disabled={!canDecrement}>
+        <div className="join w-full items-stretch">
+          <button className="btn h-auto rounded-l-2xl text-xl" onClick={props.onDecrement} disabled={!canDecrement}>
             -
           </button>
+
           <div
             className={`input input-neutral ${backgroundClass} relative flex min-h-36 w-full flex-col items-center justify-center gap-0 overflow-visible rounded-none border border-b-2`}
             style={{
-              borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))" // color not available through daisyUI, so we have to use inline styles
+              borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))"
             }}
           >
             <div
@@ -118,7 +119,12 @@ function CounterDisplay(props: CounterDisplayProps) {
               )}
             </div>
           </div>
-          <button className="btn h-full rounded-r-2xl text-xl" onClick={props.onIncrement} disabled={!canIncrement}>
+
+          <button
+            className="btn flex h-auto items-center justify-center rounded-r-2xl text-xl"
+            onClick={props.onIncrement}
+            disabled={!canIncrement}
+          >
             +
           </button>
         </div>
