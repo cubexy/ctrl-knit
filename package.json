@@ -2,7 +2,7 @@
   "name": "ctrl-knit",
   "private": true,
   "type": "module",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
