@@ -317,7 +317,7 @@ export class PouchDatabase {
     const newCounter: Counter = {
       id: counterId,
       name: counter.name,
-      order: existingCounters.length,
+      order: 0,
       count: {
         current: 0,
         target: counter.count ? counter.count.target : undefined
@@ -330,10 +330,14 @@ export class PouchDatabase {
       createdAt: new Date(),
       editedAt: new Date()
     };
+    const updatedCounters = existingCounters.map((existingCounter, index) => ({
+      ...existingCounter,
+      order: (existingCounter.order ?? index) + 1
+    }));
 
     const updatedProject = {
       ...project,
-      counters: [...existingCounters, newCounter],
+      counters: [newCounter, ...updatedCounters],
       updatedAt: new Date(),
       lastUpdatedCounter: counterId
     };
