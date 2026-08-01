@@ -36,7 +36,9 @@ function ProjectPage(props: ProjectPageProps) {
     deleteCounter,
     updateProject,
     deleteProject,
-    reorderCounters
+    reorderCounters,
+    startTimer,
+    stopTimer
   } = useDatabase();
 
   const [project, setProject] = useState<ProjectPresentation | null>(null);
@@ -125,9 +127,16 @@ function ProjectPage(props: ProjectPageProps) {
   return (
     <>
       <ProjectHeaderDisplay
-        project={{ name: project.name, url: project.url, trackedTime: project.trackedTime }}
+        project={{
+          name: project.name,
+          url: project.url,
+          trackedTime: project.trackedTime,
+          timeSpanStart: project.timeSpanStart
+        }}
         onConfirmEdit={(project: CreateProject) => updateProject(props.id, project)}
         onDelete={() => deleteProject(props.id)}
+        onStartTimer={() => startTimer(props.id)}
+        onStopTimer={() => stopTimer(props.id)}
       />
       <DndContext
         sensors={sensors}

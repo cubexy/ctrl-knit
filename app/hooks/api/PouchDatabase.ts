@@ -261,6 +261,65 @@ export class PouchDatabase {
   }
 
   /**
+   * Persists the start of a timer without relying on an in-memory interval.
+   */
+  public async startTimer(projectId: string): Promise<void> {
+    const startedAt = new Date();
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const project = await this.getProjectById(projectId);
+      if (project.timeSpanStart) return;
+
+      try {
+        await this.localDb.put({
+          ...project,
+          timeSpanStart: startedAt,
+          updatedAt: new Date()
+        });
+        return;
+      } catch (error: any) {
+        if (error.name !== "conflict" || attempt === 2) {
+          throw new UnexpectedError(`Failed to start timer: ${error.message}`);
+        }
+      }
+    }
+  }
+
+  /**
+   * Closes the active timer span and adds its timestamp-based duration to the total.
+   */
+  public async stopTimer(projectId: string): Promise<void> {
+    const endedAt = new Date();
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const project = await this.getProjectById(projectId);
+      if (!project.timeSpanStart) return;
+
+      const startedAt = project.timeSpanStart.getTime();
+      const duration = endedAt.getTime() - startedAt;
+      if (!Number.isFinite(startedAt) || duration < 0) {
+        throw new UnexpectedError("Failed to stop timer: the timer start time is invalid.");
+      }
+
+      const { timeSpanStart: _, ...projectWithoutTimer } = project;
+      const updatedProject = {
+        ...projectWithoutTimer,
+        trackedTime: project.trackedTime + duration,
+        updatedAt: endedAt
+      };
+
+      try {
+        await this.localDb.put(updatedProject);
+        return;
+      } catch (error: any) {
+        if (error.name !== "conflict" || attempt === 2) {
+          throw new UnexpectedError(`Failed to stop timer: ${error.message}`);
+        }
+      }
+    }
+  }
+
+  /**
    * Deletes project from database.
    * @param id - Project ID to delete
    * @return PouchDB response with deletion result.
@@ -568,7 +627,8 @@ export class PouchDatabase {
         editedAt: new Date(counter.editedAt)
       })),
       lastUpdatedCounter: document.lastUpdatedCounter,
-      trackedTime: document.trackedTime ?? 0
+      trackedTime: document.trackedTime ?? 0,
+      timeSpanStart: document.timeSpanStart ? new Date(document.timeSpanStart) : undefined
     };
   }
 }

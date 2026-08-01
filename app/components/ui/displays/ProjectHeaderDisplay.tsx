@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 import ClockIcon from "../icons/ClockIcon";
 import LinkIcon from "../icons/LinkIcon";
@@ -8,61 +8,49 @@ import EditProjectPopover from "../popover/EditProjectPopover";
 type ProjectHeaderDisplayProps = {
   onConfirmEdit: (project: CreateProject) => void;
   onDelete: () => void;
-  project: CreateProject;
+  onStartTimer: () => Promise<void>;
+  onStopTimer: () => Promise<void>;
+  project: CreateProject & {
+    trackedTime: number;
+    timeSpanStart?: Date;
+  };
 };
 
 function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [time, setTime] = useState(props.project.trackedTime ?? 0);
+  const [now, setNow] = useState(() => Date.now());
+  const [timerUpdating, setTimerUpdating] = useState(false);
 
-  const timeRef = useRef(time);
-  const projectRef = useRef(props.project);
-  const onConfirmEditRef = useRef(props.onConfirmEdit);
-
-  useEffect(() => {
-    timeRef.current = time;
-  }, [time]);
+  const isRunning = props.project.timeSpanStart !== undefined;
+  const activeDuration = props.project.timeSpanStart
+    ? Math.max(0, now - props.project.timeSpanStart.getTime())
+    : 0;
+  const time = props.project.trackedTime + activeDuration;
 
   useEffect(() => {
-    projectRef.current = props.project;
-  }, [props.project]);
+    if (!isRunning) return;
 
-  useEffect(() => {
-    onConfirmEditRef.current = props.onConfirmEdit;
-  }, [props.onConfirmEdit]);
-
-  useEffect(() => {
-    if (!isRunning) {
-      setTime(props.project.trackedTime ?? 0);
-    }
-  }, [props.project.trackedTime, isRunning]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRunning) {
-      interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1000);
-      }, 1000);
-    }
+    const updateNow = () => setNow(Date.now());
+    updateNow();
+    const interval = setInterval(updateNow, 1000);
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, props.project.timeSpanStart]);
 
-  useEffect(() => {
-    let saveInterval: NodeJS.Timeout;
-    if (isRunning) {
-      saveInterval = setInterval(() => {
-        onConfirmEditRef.current({ ...projectRef.current, trackedTime: timeRef.current });
-      }, 60000);
-    }
-    return () => clearInterval(saveInterval);
-  }, [isRunning]);
+  const toggleTimer = async () => {
+    if (timerUpdating) return;
 
-  const toggleTimer = () => {
-    if (isRunning) {
-      props.onConfirmEdit({ ...props.project, trackedTime: time });
+    setTimerUpdating(true);
+    try {
+      if (isRunning) {
+        await props.onStopTimer();
+      } else {
+        await props.onStartTimer();
+      }
+    } catch (error) {
+      console.error("Failed to update timer:", error);
+    } finally {
+      setTimerUpdating(false);
     }
-    setIsRunning(!isRunning);
   };
 
   const formatTime = (ms: number) => {
@@ -116,7 +104,8 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
             )}
             <button
               className={`btn btn-ghost px-1 py-3 font-medium ${isRunning ? "text-primary" : ""}`}
-              onClick={toggleTimer}
+              onClick={() => void toggleTimer()}
+              disabled={timerUpdating}
             >
               <ClockIcon className="size-4 stroke-current" strokeWidth={1.5} />
               {formatTime(time)}

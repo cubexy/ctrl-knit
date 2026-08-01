@@ -25,6 +25,7 @@ export type ProjectPresentation = {
   counters: CounterPresentation[];
   lastUpdatedCounter?: string;
   trackedTime: number;
+  timeSpanStart?: Date;
 };
 
 export const projectPresenter = (project: Project | undefined): ProjectPresentation | null => {
@@ -40,6 +41,7 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
       .map((counter, index) => counterPresenter({ ...counter, order: counter.order ?? index }))
       .sort((a, b) => a.order - b.order),
     lastUpdatedCounter: project.lastUpdatedCounter,
-    trackedTime: project.trackedTime ?? 0
+    trackedTime: project.trackedTime ?? 0,
+    timeSpanStart: project.timeSpanStart
   };
 };

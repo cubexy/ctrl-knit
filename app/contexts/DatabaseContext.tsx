@@ -24,6 +24,8 @@ interface DatabaseContextType {
   createProject: (project: CreateProject) => Promise<any>;
   updateProject: (id: string, project: CreateProject) => Promise<any>;
   deleteProject: (id: string) => Promise<any>;
+  startTimer: (projectId: string) => Promise<void>;
+  stopTimer: (projectId: string) => Promise<void>;
   createCounter: (projectId: string, counter: CreateCounter) => Promise<any>;
   updateCounter: (projectId: string, counterId: string, update: EditCounter) => Promise<any>;
   deleteCounter: (projectId: string, counterId: string) => Promise<any>;
@@ -266,6 +268,14 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return db?.deleteProject(id);
   };
 
+  const startTimer = async (projectId: string) => {
+    await db?.startTimer(projectId);
+  };
+
+  const stopTimer = async (projectId: string) => {
+    await db?.stopTimer(projectId);
+  };
+
   const createCounter = async (projectId: string, counter: CreateCounter) => {
     return db?.createCounter(projectId, counter);
   };
@@ -292,6 +302,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     createProject,
     updateProject,
     deleteProject,
+    startTimer,
+    stopTimer,
     createCounter,
     updateCounter,
     deleteCounter,

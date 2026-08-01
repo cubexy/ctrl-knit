@@ -12,12 +12,16 @@ type DatabaseCounter = Omit<Counter, "createdAt" | "editedAt"> & {
 /**
  * Represents a project as serialized by PouchDB.
  */
-export type DatabaseProject = Omit<Project, "id" | "createdAt" | "updatedAt" | "counters" | "trackedTime"> & {
+export type DatabaseProject = Omit<
+  Project,
+  "id" | "createdAt" | "updatedAt" | "counters" | "trackedTime" | "timeSpanStart"
+> & {
   _id: string;
   createdAt: string;
   updatedAt: string;
   counters?: DatabaseCounter[];
   trackedTime?: number;
+  timeSpanStart?: string;
 };
 
 export type CouchDbProject = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & DatabaseProject;
