@@ -60,7 +60,13 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
 
   return (
     <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle">
-      <div className="modal-box">
+      <form
+        className="modal-box"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleConfirm();
+        }}
+      >
         <h3 className="pb-2 text-xl font-bold font-stretch-expanded">{dialogText}</h3>
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
@@ -91,19 +97,19 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
           <p className="label">Optional</p>
         </fieldset>
         <div className="modal-action">
-          <button className="btn" onClick={handleClose}>
+          <button type="button" className="btn" onClick={handleClose}>
             Abbrechen
           </button>
           <div
             className={inputValid ? "" : "tooltip tooltip-left"}
             data-tip="Bitte fülle alle erforderlichen Felder aus!"
           >
-            <button type="submit" className="btn btn-primary" onClick={handleConfirm} disabled={!inputValid}>
+            <button type="submit" className="btn btn-primary" disabled={!inputValid}>
               {dialogConfirmText}
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </dialog>
   );
 }

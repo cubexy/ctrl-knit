@@ -65,7 +65,13 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
 
   return (
     <dialog ref={ref} className="modal modal-bottom sm:modal-middle">
-      <div className="modal-box">
+      <form
+        className="modal-box"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleConfirm();
+        }}
+      >
         <div className="flex flex-row items-start justify-between">
           <h3 className="pb-2 text-xl font-bold">Projekt bearbeiten</h3>
 
@@ -75,7 +81,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
             </summary>
             <div className="dropdown-content menu bg-base-100 rounded-box shadow-neutral/15 z-1 flex w-46 flex-col items-center gap-y-0.5 py-4 shadow-sm">
               <p>Wirklich löschen?</p>
-              <button className="btn btn-dash btn-error" onClick={handleDelete}>
+              <button type="button" className="btn btn-dash btn-error" onClick={handleDelete}>
                 Projekt löschen
               </button>
             </div>
@@ -101,19 +107,19 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
           />
         </fieldset>
         <div className="modal-action">
-          <button className="btn" onClick={() => props.setOpen(false)}>
+          <button type="button" className="btn" onClick={() => props.setOpen(false)}>
             Abbrechen
           </button>
           <div
             className={inputValid ? "" : "tooltip tooltip-left"}
             data-tip="Bitte fülle alle erforderlichen Felder aus!"
           >
-            <button type="submit" className="btn btn-primary" onClick={handleConfirm} disabled={!inputValid}>
+            <button type="submit" className="btn btn-primary" disabled={!inputValid}>
               Speichern
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </dialog>
   );
 }
