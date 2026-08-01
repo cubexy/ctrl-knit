@@ -152,26 +152,16 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     setAuthStatus((_) => DEFAULT_DATABASE_CONNECTION_PRESENTATION);
   };
 
-  const onProjectUpsert = (updatedDoc: any) => {
+  const onProjectUpsert = (project: Project) => {
     setProjects((prev) => {
-      const index = prev.findIndex((p) => p.id === updatedDoc._id);
-      const projectFromDoc: Project = {
-        id: updatedDoc._id,
-        name: updatedDoc.name,
-        url: updatedDoc.url,
-        createdAt: new Date(updatedDoc.createdAt),
-        updatedAt: new Date(updatedDoc.updatedAt),
-        counters: updatedDoc.counters || [],
-        lastUpdatedCounter: updatedDoc.lastUpdatedCounter,
-        trackedTime: updatedDoc.trackedTime ?? 0
-      };
+      const index = prev.findIndex((existingProject) => existingProject.id === project.id);
 
       if (index === -1) {
-        return [...prev, projectFromDoc];
+        return [...prev, project];
       }
 
       const newProjects = [...prev];
-      newProjects[index] = projectFromDoc;
+      newProjects[index] = project;
       return newProjects;
     });
   };

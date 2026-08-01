@@ -1,12 +1,23 @@
+import type { Counter } from "../counter/Counter";
 import type { Project } from "./Project";
 
 /**
- * Represents a project as stored in the database.
- * It includes the project's unique identifier and all other properties
- * except for the `id` field, which is replaced with `_id` for database compatibility.
+ * Represents a counter as serialized by PouchDB.
  */
-export type DatabaseProject = {
+type DatabaseCounter = Omit<Counter, "createdAt" | "editedAt"> & {
+  createdAt: string;
+  editedAt: string;
+};
+
+/**
+ * Represents a project as serialized by PouchDB.
+ */
+export type DatabaseProject = Omit<Project, "id" | "createdAt" | "updatedAt" | "counters" | "trackedTime"> & {
   _id: string;
-} & Omit<Project, "id">;
+  createdAt: string;
+  updatedAt: string;
+  counters?: DatabaseCounter[];
+  trackedTime?: number;
+};
 
 export type CouchDbProject = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & DatabaseProject;

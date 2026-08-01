@@ -17,6 +17,8 @@ import {
 
 const ctrlKnitDocumentPrefix = "knit-project:";
 
+type ProjectDocument = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & Omit<Project, "id">;
+
 export class PouchDatabase {
   private localDb: PouchDB.Database;
   private remoteDb: PouchDB.Database | null = null;
@@ -148,7 +150,7 @@ export class PouchDatabase {
    * @param onUpdate - Callback for document update or addition
    * @return PouchDB changes listener instance.
    */
-  public onChange(onDelete: (id: string) => void, onUpdate: (doc: any) => void) {
+  public onChange(onDelete: (id: string) => void, onUpdate: (project: Project) => void) {
     return this.localDb
       .changes({
         live: true,
@@ -166,9 +168,9 @@ export class PouchDatabase {
           const deletedDocumentIdentifier = change.id;
           onDelete(deletedDocumentIdentifier);
         } else {
-          // Document (project, counter, ...) was added or updated
-          const updatedDocument = change.doc;
-          onUpdate(updatedDocument);
+          if (!change.doc) return;
+          const updatedDocument = change.doc as unknown as DatabaseProject;
+          onUpdate(this.projectFromDocument(updatedDocument));
         }
       })
       .on("error", console.log.bind(console));
@@ -241,7 +243,7 @@ export class PouchDatabase {
    * @throws UnexpectedError if update fails for unknown reasons.
    */
   public async updateProject(id: string, project: CreateProject) {
-    const existingProject = await this.localDb.get(id);
+    const existingProject = await this.getProjectById(id);
     const updatedProject = {
       ...existingProject,
       ...project,
@@ -265,7 +267,7 @@ export class PouchDatabase {
    * @throws UnexpectedError if deletion fails for unknown reasons.
    */
   public async deleteProject(id: string) {
-    const project = await this.localDb.get(id);
+    const project = await this.getProjectById(id);
     try {
       return await this.localDb.remove(project);
     } catch (error: any) {
@@ -287,28 +289,18 @@ export class PouchDatabase {
       startkey: ctrlKnitDocumentPrefix,
       endkey: `${ctrlKnitDocumentPrefix}\ufff0`
     });
-    const mappedDocs = result.rows.map((row) => {
-      const doc = row.doc as unknown as DatabaseProject;
-      return {
-        id: doc._id,
-        name: doc.name,
-        url: doc.url,
-        createdAt: new Date(doc.createdAt),
-        updatedAt: new Date(doc.updatedAt),
-        counters: doc.counters || [],
-        lastUpdatedCounter: doc.lastUpdatedCounter,
-        trackedTime: doc.trackedTime
-      };
-    });
-    return mappedDocs;
+    return result.rows.flatMap((row) =>
+      row.doc ? [this.projectFromDocument(row.doc as unknown as DatabaseProject)] : []
+    );
   }
 
   /**
-   * Internal helper to fetch project document by ID.
+   * Fetches a project document and converts its serialized timestamps to Dates.
    */
-  private async getProjectById(id: string) {
-    const project = await this.localDb.get(id);
-    return project;
+  private async getProjectById(id: string): Promise<ProjectDocument> {
+    const document = (await this.localDb.get(id)) as DatabaseProject;
+    const { id: _, ...project } = this.projectFromDocument(document);
+    return { ...document, ...project } as ProjectDocument;
   }
 
   /**
@@ -321,7 +313,7 @@ export class PouchDatabase {
   public async createCounter(projectId: string, counter: CreateCounter) {
     const project = await this.getProjectById(projectId);
     const counterId = this.generateIdentifier("counter");
-    const existingCounters = (project as any).counters || [];
+    const existingCounters = project.counters;
     const newCounter: Counter = {
       id: counterId,
       name: counter.name,
@@ -366,7 +358,7 @@ export class PouchDatabase {
    */
   public async updateCounter(projectId: string, counterId: string, update: EditCounter) {
     const project = await this.getProjectById(projectId);
-    const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
+    const updatedCounters = project.counters.map((c: Counter) => {
       if (c.id === counterId) {
         const stepOverMultiplier = update.stepOver?.target ?? c.stepOver?.target ?? 1;
         const updatedTarget = update.count?.target ?? c.count.target;
@@ -411,7 +403,7 @@ export class PouchDatabase {
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
     const project = await this.getProjectById(projectId);
 
-    const updatedCounters = (project as unknown as Project).counters.map((c: Counter) => {
+    const updatedCounters = project.counters.map((c: Counter) => {
       if (c.id === counterId) {
         const incrementedCurrent = c.count.current + increment;
         if (c.count.target === undefined) {
@@ -464,7 +456,7 @@ export class PouchDatabase {
    * @throws UnexpectedError if deletion fails for unknown reasons.
    */
   public async deleteCounter(projectId: string, counterId: string) {
-    const project = (await this.getProjectById(projectId)) as unknown as Project;
+    const project = await this.getProjectById(projectId);
     const updatedCounters = project.counters.filter((c: Counter) => c.id !== counterId);
     const updatedLastEditedCounterId =
       project.lastUpdatedCounter !== counterId
@@ -496,7 +488,7 @@ export class PouchDatabase {
    * @throws UnexpectedError if reorder fails for unknown reasons.
    */
   public async reorderCounters(projectId: string, orderedIds: string[]) {
-    const project = (await this.getProjectById(projectId)) as unknown as Project;
+    const project = await this.getProjectById(projectId);
     const updatedCounters = project.counters.map((c: Counter) => {
       const newOrder = orderedIds.indexOf(c.id);
       return {
@@ -557,5 +549,22 @@ export class PouchDatabase {
       }
     }
     return lastIncrementedCounterId;
+  }
+
+  private projectFromDocument(document: DatabaseProject): Project {
+    return {
+      id: document._id,
+      name: document.name,
+      url: document.url,
+      createdAt: new Date(document.createdAt),
+      updatedAt: new Date(document.updatedAt),
+      counters: (document.counters ?? []).map((counter) => ({
+        ...counter,
+        createdAt: new Date(counter.createdAt),
+        editedAt: new Date(counter.editedAt)
+      })),
+      lastUpdatedCounter: document.lastUpdatedCounter,
+      trackedTime: document.trackedTime ?? 0
+    };
   }
 }
