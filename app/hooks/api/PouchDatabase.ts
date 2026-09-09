@@ -24,6 +24,7 @@ export class PouchDatabase {
   private localDb: PouchDB.Database;
   private remoteDb: PouchDB.Database | null = null;
   private remoteDbBaseUrl: string | null = null;
+  private syncHandler: PouchDB.Replication.Sync<{}> | null = null;
   private conflictResolutionQueue: Promise<void> = Promise.resolve();
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
@@ -69,29 +70,37 @@ export class PouchDatabase {
       }
       throw new Error(`Unexpected error`);
     }
-    this.remoteDb = new PouchDB(`https://${url}/${dbName}`);
+    const remoteDb = new PouchDB(`https://${url}/${dbName}`);
     try {
-      await this.remoteDb.info();
+      await remoteDb.info();
     } catch (error) {
       throw new ConnectionError(
         `Failed to connect to remote database at ${url}/${dbName}. Please check your connection and try again.`
       );
     }
+    this.remoteDb = remoteDb;
     this.remoteDbBaseUrl = url;
-    return this.sync();
+    this.sync();
   }
 
   /**
    * Starts live bidirectional sync between local and remote databases.
    */
-  private async sync() {
+  private sync() {
     if (!this.remoteDb) {
       throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
     }
-    this.localDb.sync(this.remoteDb, {
+    // A re-login replaces the existing live replication instead of adding another one.
+    this.cancelSync();
+    this.syncHandler = this.localDb.sync(this.remoteDb, {
       live: true,
       retry: true
     });
+  }
+
+  private cancelSync() {
+    this.syncHandler?.cancel();
+    this.syncHandler = null;
   }
 
   public async getSession(baseUrl: string, dbName: string): Promise<CouchDbSession> {
@@ -135,8 +144,13 @@ export class PouchDatabase {
     if (!response.ok) {
       throw new AuthenticationError(`Failed to sign out. Response: ${response.statusText}`);
     }
+    this.cancelSync();
     this.remoteDb = null; // Clear remote database reference
-    return response.json();
+    this.remoteDbBaseUrl = null;
+  }
+
+  public shutdown() {
+    this.cancelSync();
   }
 
   /**
