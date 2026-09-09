@@ -464,49 +464,48 @@ export class PouchDatabase {
    * @throws UnexpectedError if increment fails for unknown reasons.
    */
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
-    const project = await this.getProjectById(projectId);
-
-    const updatedCounters = project.counters.map((c: Counter) => {
-      if (c.id === counterId) {
-        const incrementedCurrent = c.count.current + increment;
-        if (c.count.target === undefined) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const project = await this.getProjectById(projectId);
+      const updatedCounters = project.counters.map((c: Counter) => {
+        if (c.id === counterId) {
+          const incrementedCurrent = c.count.current + increment;
+          if (c.count.target === undefined) {
+            return {
+              ...c,
+              count: {
+                ...c.count,
+                current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
+              },
+              editedAt: new Date()
+            };
+          }
+          // If stepOver is defined, calculate max based on target
+          const max = c.stepOver ? c.stepOver.target * c.count.target : c.count.target;
           return {
             ...c,
             count: {
               ...c.count,
-              current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
+              current: clamp(incrementedCurrent, 0, max)
             },
             editedAt: new Date()
           };
         }
-        // If stepOver is defined, calculate max based on target
-        const max = c.stepOver ? c.stepOver.target * c.count.target : c.count.target;
-        return {
-          ...c,
-          count: {
-            ...c.count,
-            current: clamp(incrementedCurrent, 0, max)
-          },
-          editedAt: new Date()
-        };
-      }
-      return c;
-    });
+        return c;
+      });
 
-    const updatedProject = {
-      ...project,
-      counters: updatedCounters,
-      updatedAt: new Date(),
-      lastUpdatedCounter: counterId
-    };
+      const updatedProject = {
+        ...project,
+        counters: updatedCounters,
+        updatedAt: new Date(),
+        lastUpdatedCounter: counterId
+      };
 
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to increment counter: ${error.message}`);
+      try {
+        return await this.localDb.put(updatedProject);
+      } catch (error: any) {
+        if (error.name !== "conflict" || attempt === 2) {
+          throw new UnexpectedError(`Failed to increment counter: ${error.message}`);
+        }
       }
     }
   }
