@@ -28,7 +28,7 @@ function SyncStatusModal() {
   };
 
   const onLogout = () => {
-    signOut();
+    void signOut();
   };
 
   const resetCredentials = () => {

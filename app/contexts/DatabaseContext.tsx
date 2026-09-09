@@ -33,7 +33,7 @@ interface DatabaseContextType {
   reorderCounters: (projectId: string, orderedIds: string[]) => Promise<any>;
   remoteLogin: (login: LoginParameters) => Promise<void>;
   authStatus: DatabaseConnectionPresentation;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   initialLoadingDone: boolean;
 }
 
@@ -133,6 +133,7 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return () => {
       feed?.cancel();
       feed?.removeAllListeners();
+      db?.shutdown();
       setInitialLoadingDone(false);
     };
   }, []);
@@ -145,13 +146,26 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     LocalStorageController.setRemoteDb(hostname, dbName);
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     if (!db) {
       console.error("error: db is not initialized. is this being called on the server?");
       return;
     }
-    db.signOut();
-    setAuthStatus((_) => DEFAULT_DATABASE_CONNECTION_PRESENTATION);
+    try {
+      await db.signOut();
+      setAuthStatus((_) => DEFAULT_DATABASE_CONNECTION_PRESENTATION);
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+      setAuthStatus((currentStatus) => ({
+        ...currentStatus,
+        status: {
+          type: "status-error",
+          message: "Abmeldung fehlgeschlagen. Bitte versuche es erneut.",
+          loading: false
+        },
+        disabled: false
+      }));
+    }
   };
 
   const onProjectUpsert = (project: Project) => {
