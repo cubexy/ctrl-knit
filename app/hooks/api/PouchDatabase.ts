@@ -24,6 +24,7 @@ export class PouchDatabase {
   private localDb: PouchDB.Database;
   private remoteDb: PouchDB.Database | null = null;
   private remoteDbBaseUrl: string | null = null;
+  private conflictResolutionQueue: Promise<void> = Promise.resolve();
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
   }
@@ -160,9 +161,15 @@ export class PouchDatabase {
         conflicts: true
       })
       .on("change", (change) => {
-        if (change.doc?._conflicts) {
-          // Conflict detected, handle it
-          this.handleConflict(change.doc);
+        if (change.doc?._conflicts?.length) {
+          // Resolve conflicts one at a time so concurrent change events cannot race.
+          this.conflictResolutionQueue = this.conflictResolutionQueue
+            .then(async () => {
+              // Reload the document because the change event may contain stale revisions.
+              const currentWinningDocument = await this.localDb.get(change.id, { conflicts: true });
+              if (currentWinningDocument._conflicts?.length) await this.handleConflict(currentWinningDocument);
+            })
+            .catch((error) => console.error(`Failed to resolve conflict for ${change.id}.`, error));
         }
         if (change.deleted) {
           // Document (project) was deleted
@@ -183,29 +190,41 @@ export class PouchDatabase {
    * @returns void (clears conflict(s))
    */
   private async handleConflict(changedDoc: PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta>) {
-    if (!changedDoc._conflicts || changedDoc._conflicts.length === 0 || this.remoteDb === null) {
-      throw new UnexpectedError(
-        `No conflicts found for document ${changedDoc._id} or remote database is not initialized.`
-      );
+    if (!changedDoc._conflicts || changedDoc._conflicts.length === 0) {
+      return;
     }
 
-    const conflictedDocuments = (await Promise.all(
-      changedDoc._conflicts.map(async (conflictId) => await this.remoteDb!.get(changedDoc._id, { rev: conflictId }))
+    const conflictingDocumentRevisions = (await Promise.all(
+      changedDoc._conflicts.map((conflictId) => this.localDb.get(changedDoc._id, { rev: conflictId }))
     )) as CouchDbProject[];
 
-    let initialDoc = changedDoc as CouchDbProject;
-    for (const doc of conflictedDocuments) {
-      const initialDocUpdatedAt = new Date(initialDoc.updatedAt);
-      const docUpdatedAt = new Date(doc.updatedAt);
+    const currentDocumentRevision = changedDoc as CouchDbProject;
+    // use newest timestamp, with the revision ID as a tie-breaker
+    const winningRevision = [currentDocumentRevision, ...conflictingDocumentRevisions].reduce(
+      (revisionA, revisionB) => {
+        const revADate = new Date(revisionA.updatedAt).getTime();
+        const revBDate = new Date(revisionB.updatedAt).getTime();
 
-      if (docUpdatedAt > initialDocUpdatedAt) {
-        // If the current document is newer, replace the initial document
-        initialDoc = doc;
-        await this.remoteDb!.remove(initialDoc._id, initialDoc._rev);
-        continue;
+        if (revBDate !== revADate) {
+          return revBDate > revADate ? revisionB : revisionA;
+        }
+        return revisionB._rev > revisionA._rev ? revisionB : revisionA;
       }
-      // If the initial document is newer, remove the current document
-      await this.remoteDb!.remove(doc._id, doc._rev);
+    );
+
+    if (winningRevision._rev !== currentDocumentRevision._rev) {
+      // promote conflicting winner before removing any of the conflict leaves.
+      const { _rev, _conflicts, ...winningDocument } = winningRevision;
+      await this.localDb.put({
+        ...winningDocument,
+        _id: currentDocumentRevision._id,
+        _rev: currentDocumentRevision._rev
+      });
+    }
+
+    // remove the original losing conflict revisions after resolution succeeds
+    for (const document of conflictingDocumentRevisions) {
+      await this.localDb.remove(document._id, document._rev);
     }
   }
 
