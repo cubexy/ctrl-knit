@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
+import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditProjectPopoverProps {
@@ -59,7 +60,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
     navigate("/", { viewTransition: true });
   };
 
-  const inputValid = name !== "";
+  const inputValid = name.trim() !== "" && isValidProjectUrl(url);
 
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -91,7 +92,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input
-            type="text"
+            type="url"
             className="input w-full"
             placeholder="Easy Knit Sweater"
             value={name}

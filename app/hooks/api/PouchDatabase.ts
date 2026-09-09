@@ -8,6 +8,7 @@ import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { CouchDbProject, DatabaseProject } from "~/models/entities/project/DatabaseProject";
 import type { Project } from "~/models/entities/project/Project";
 import { clamp } from "~/utility/clamp";
+import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 import {
   AuthenticationError,
   ConnectionError,
@@ -219,7 +220,7 @@ export class PouchDatabase {
       return await this.localDb.put({
         _id: `${ctrlKnitDocumentPrefix}${new Date().toJSON()}`, // use timestamp as ID for default sorting
         name: project.name,
-        url: project.url,
+        url: isValidProjectUrl(project.url) ? project.url : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastUpdatedCounter: undefined,
@@ -247,6 +248,7 @@ export class PouchDatabase {
     const updatedProject = {
       ...existingProject,
       ...project,
+      url: isValidProjectUrl(project.url) ? project.url : undefined,
       updatedAt: new Date()
     };
     try {

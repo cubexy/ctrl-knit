@@ -4,6 +4,7 @@ import ClockIcon from "../icons/ClockIcon";
 import LinkIcon from "../icons/LinkIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditProjectPopover from "../popover/EditProjectPopover";
+import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 
 type ProjectHeaderDisplayProps = {
   onConfirmEdit: (project: CreateProject) => void;
@@ -91,7 +92,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
             {props.project.name}
           </h2>
           <div className="flex flex-col items-center justify-center gap-x-2 gap-y-0.5 md:flex-row">
-            {props.project.url && (
+            {props.project.url && isValidProjectUrl(props.project.url) && (
               <a
                 href={props.project.url}
                 target="_blank"

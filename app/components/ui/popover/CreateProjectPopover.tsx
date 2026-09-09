@@ -1,6 +1,7 @@
 import { useState, type RefObject } from "react";
 import { useNavigate } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
+import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 
 type CreateProjectPopoverProps = {
   ref: RefObject<HTMLDialogElement | null>;
@@ -37,7 +38,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
     }
   };
 
-  const canBeSubmitted = projectName.trim().length > 0;
+  const canBeSubmitted = projectName.trim().length > 0 && isValidProjectUrl(projectReference);
 
   return (
     <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle font-mono">
@@ -74,7 +75,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
           </button>
           <div
             className={canBeSubmitted ? "" : "tooltip"}
-            data-tip={canBeSubmitted ? undefined : "Gib einen Namen an!"}
+            data-tip={canBeSubmitted ? undefined : "Gib einen gültigen Namen und eine gültige URL an!"}
           >
             <button type="submit" className="btn btn-primary" disabled={!canBeSubmitted}>
               Projekt erstellen
