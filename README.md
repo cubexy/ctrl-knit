@@ -5,7 +5,6 @@
 [![Release & Deploy](https://github.com/cubexy/ctrl-knit/actions/workflows/release.yml/badge.svg)](https://github.com/cubexy/ctrl-knit/actions/workflows/release.yml)
 ![GitHub Release](https://img.shields.io/github/v/release/cubexy/ctrl-knit?include_prereleases&sort=date)
 
-
 `ctrl` + `knit` is a simple, mobile-first row counter web app for tracking your knitting. It is implemented as a PWA, letting it work offline and across devices.
 
 ## Showcase
@@ -30,3 +29,7 @@
 - Database
   - CouchDB
 ```
+
+## Self-hosted CouchDB as remote
+
+See [`couchdb-configuration.md`](couchdb-configuration.md) for setting up CouchDB, CORS, NGINX, users, and ctrl-knit synchronization.
