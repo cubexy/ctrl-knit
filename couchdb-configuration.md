@@ -154,10 +154,6 @@ server {
     ssl_certificate /etc/letsencrypt/live/<couchdb-admin-hostname>/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/<couchdb-admin-hostname>/privkey.pem;
 
-    # Recommended: permit only your own IP address or VPN.
-    # allow <your-public-ip>;
-    # deny all;
-
     location / {
         proxy_pass http://<couchdb-container>:5984;
         proxy_http_version 1.1;

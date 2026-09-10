@@ -3,6 +3,7 @@ import { useDatabase } from "~/contexts/DatabaseContext";
 import { LocalStorageController, type RemoteDbHostInfo } from "~/hooks/api/LocalStorageController";
 import ConnectionStatusDisplay from "../displays/ConnectionStatusDisplay";
 import CloudIcon from "../icons/CloudIcon";
+import InfoIcon from "../icons/InfoIcon";
 
 let remoteDbHostInfo: RemoteDbHostInfo = null;
 if (typeof window !== "undefined") {
@@ -49,6 +50,15 @@ function SyncStatusModal() {
             Melde dich direkt mit deinen Anmeldedaten an einem CouchDB-Server an, um deine Projekte mit mehreren Geräten
             zu synchronisieren!
           </p>
+          <a
+            href="https://github.com/cubexy/ctrl-knit/blob/main/couchdb-configuration.md"
+            target="_blank"
+            rel="noreferrer"
+            className="label text-primary hover:underline"
+          >
+            <InfoIcon className="size-5 stroke-current" strokeWidth={1.5} />
+            CouchDB-Konfiguration
+          </a>
           <legend className="fieldset-legend">Nutzername</legend>
           <input
             type="email"
