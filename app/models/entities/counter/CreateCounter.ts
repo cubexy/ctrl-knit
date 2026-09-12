@@ -4,6 +4,7 @@
  */
 export type CreateCounter = {
   name: string;
+  categoryId?: string;
   count?: {
     target: number;
   };

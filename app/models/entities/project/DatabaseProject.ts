@@ -1,4 +1,5 @@
 import type { Counter } from "../counter/Counter";
+import type { CounterCategory } from "../counter/CounterCategory";
 import type { Project } from "./Project";
 
 /**
@@ -7,6 +8,8 @@ import type { Project } from "./Project";
 type DatabaseCounter = Omit<Counter, "createdAt" | "editedAt"> & {
   createdAt: string;
   editedAt: string;
+  /** Legacy field used before counter categories became explicit entities. */
+  group?: string;
 };
 
 /**
@@ -14,11 +17,12 @@ type DatabaseCounter = Omit<Counter, "createdAt" | "editedAt"> & {
  */
 export type DatabaseProject = Omit<
   Project,
-  "id" | "createdAt" | "updatedAt" | "counters" | "trackedTime" | "timeSpanStart"
+  "id" | "createdAt" | "updatedAt" | "categories" | "counters" | "trackedTime" | "timeSpanStart"
 > & {
   _id: string;
   createdAt: string;
   updatedAt: string;
+  categories?: CounterCategory[];
   counters?: DatabaseCounter[];
   trackedTime?: number;
   timeSpanStart?: string;

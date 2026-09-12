@@ -9,6 +9,7 @@
 export type Counter = {
   id: string;
   name: string;
+  categoryId?: string;
   createdAt: Date;
   editedAt: Date;
   order: number;
@@ -23,6 +24,7 @@ export type Counter = {
 
 export type CounterUIRepresentation = {
   name: string;
+  categoryId?: string;
   count?: {
     target: number;
   };

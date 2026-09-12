@@ -6,6 +6,7 @@
 export type EditCounter = {
   id: string;
   name?: string;
+  categoryId?: string;
   count?: {
     target: number;
   };

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { LocalStorageController } from "~/hooks/api/LocalStorageController";
 import { PouchDatabase } from "~/hooks/api/PouchDatabase";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import type { CounterCategory } from "~/models/entities/counter/CounterCategory";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { Project } from "~/models/entities/project/Project";
@@ -30,7 +31,16 @@ interface DatabaseContextType {
   updateCounter: (projectId: string, counterId: string, update: EditCounter) => Promise<any>;
   deleteCounter: (projectId: string, counterId: string) => Promise<any>;
   incrementCounter: (projectId: string, counterId: string, step: number) => Promise<any>;
-  reorderCounters: (projectId: string, orderedIds: string[]) => Promise<any>;
+  createCategory: (projectId: string, name: string) => Promise<CounterCategory | undefined>;
+  updateCategory: (projectId: string, categoryId: string, name: string) => Promise<any>;
+  reorderCategories: (projectId: string, orderedIds: string[]) => Promise<any>;
+  deleteCategory: (projectId: string, categoryId: string, targetCategoryId?: string) => Promise<any>;
+  moveCountersToCategory: (projectId: string, counterIds: string[], categoryId?: string) => Promise<any>;
+  reorderCounters: (
+    projectId: string,
+    orderedIds: string[],
+    placement?: { counterId: string; categoryId?: string }
+  ) => Promise<any>;
   remoteLogin: (login: LoginParameters) => Promise<void>;
   authStatus: DatabaseConnectionPresentation;
   signOut: () => Promise<void>;
@@ -308,8 +318,32 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return db?.incrementCounter(projectId, counterId, step);
   };
 
-  const reorderCounters = async (projectId: string, orderedIds: string[]) => {
-    return db?.reorderCounters(projectId, orderedIds);
+  const createCategory = async (projectId: string, name: string) => {
+    return db?.createCategory(projectId, name);
+  };
+
+  const updateCategory = async (projectId: string, categoryId: string, name: string) => {
+    return db?.updateCategory(projectId, categoryId, name);
+  };
+
+  const reorderCategories = async (projectId: string, orderedIds: string[]) => {
+    return db?.reorderCategories(projectId, orderedIds);
+  };
+
+  const deleteCategory = async (projectId: string, categoryId: string, targetCategoryId?: string) => {
+    return db?.deleteCategory(projectId, categoryId, targetCategoryId);
+  };
+
+  const moveCountersToCategory = async (projectId: string, counterIds: string[], categoryId?: string) => {
+    return db?.moveCountersToCategory(projectId, counterIds, categoryId);
+  };
+
+  const reorderCounters = async (
+    projectId: string,
+    orderedIds: string[],
+    placement?: { counterId: string; categoryId?: string }
+  ) => {
+    return db?.reorderCounters(projectId, orderedIds, placement);
   };
 
   const value: DatabaseContextType = {
@@ -324,6 +358,11 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     updateCounter,
     deleteCounter,
     incrementCounter,
+    createCategory,
+    updateCategory,
+    reorderCategories,
+    deleteCategory,
+    moveCountersToCategory,
     reorderCounters,
     remoteLogin,
     authStatus,

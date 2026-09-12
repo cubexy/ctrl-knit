@@ -9,6 +9,7 @@ type CreateProjectPopoverProps = {
 
 function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const [projectName, setProjectName] = useState("");
+  const [projectGroup, setProjectGroup] = useState("");
   const [projectReference, setProjectReference] = useState("");
 
   const { createProject } = useDatabase();
@@ -18,10 +19,12 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
     if (props.ref.current && projectName.trim().length > 0) {
       const response = await createProject({
         name: projectName,
+        group: projectGroup,
         url: projectReference
       });
       props.ref.current.close();
       setProjectName("");
+      setProjectGroup("");
       setProjectReference("");
 
       if (response.id) {
@@ -34,6 +37,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
     if (props.ref.current) {
       props.ref.current.close();
       setProjectName("");
+      setProjectGroup("");
       setProjectReference("");
     }
   };
@@ -59,6 +63,15 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
           />
+          <legend className="fieldset-legend">Gruppe</legend>
+          <input
+            type="text"
+            className="input w-full"
+            placeholder="Archiv"
+            value={projectGroup}
+            onChange={(e) => setProjectGroup(e.target.value)}
+          />
+          <p className="label">Optional</p>
           <legend className="fieldset-legend">Referenz</legend>
           <input
             type="url"

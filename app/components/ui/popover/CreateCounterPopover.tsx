@@ -1,9 +1,14 @@
 import { useState, type RefObject } from "react";
+import type { CounterCategory } from "~/models/entities/counter/CounterCategory";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import CategoryPicker from "../CategoryPicker";
 
 interface CreateCounterPopoverProps {
   ref: RefObject<HTMLDialogElement | null>;
-  onConfirm: (counter: CreateCounter) => void;
+  onConfirm: (counter: CreateCounter) => void | Promise<void>;
+  categories: CounterCategory[];
+  initialCategoryId?: string;
+  onCreateCategory?: (name: string) => Promise<CounterCategory | undefined>;
 }
 
 function CreateCounterPopover(props: CreateCounterPopoverProps) {
@@ -15,7 +20,10 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
     setName("");
     setTargetValue(null);
     setStepOver(null);
+    setCategoryId(props.initialCategoryId);
   };
+
+  const [categoryId, setCategoryId] = useState<string | undefined>(props.initialCategoryId);
 
   const handleClose = () => {
     if (props.ref.current) {
@@ -29,6 +37,7 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
 
     const newCounter: CreateCounter = {
       name: name,
+      categoryId,
       count: targetValue !== null ? { target: targetValue } : undefined,
       stepOver: stepOver !== null ? { target: stepOver } : undefined
     };
@@ -95,6 +104,12 @@ function CreateCounterPopover(props: CreateCounterPopoverProps) {
             onChange={(e) => setCounterStepOverTargetValue(e.target.value)}
           />
           <p className="label">Optional</p>
+          <CategoryPicker
+            categories={props.categories}
+            value={categoryId}
+            onChange={setCategoryId}
+            onCreateCategory={props.onCreateCategory}
+          />
         </fieldset>
         <div className="modal-action">
           <button type="button" className="btn" onClick={handleClose}>

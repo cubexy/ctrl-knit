@@ -1,6 +1,7 @@
 import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 import type { CounterUIRepresentation } from "~/models/entities/counter/Counter";
+import type { CounterCategory } from "~/models/entities/counter/CounterCategory";
 import type { CounterPresentation } from "~/models/entities/counter/CounterPresentation";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import { clamp } from "~/utility/clamp";
@@ -20,6 +21,8 @@ type CounterDisplayProps = CounterPresentation & {
     listeners?: Record<string, Function>;
     attributes?: Record<string, any>;
   };
+  categories?: CounterCategory[];
+  onCreateCategory?: (name: string) => Promise<CounterCategory | undefined>;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
@@ -36,6 +39,7 @@ function CounterDisplay(props: CounterDisplayProps) {
 
   const passedCounter: CounterUIRepresentation = {
     name: props.name,
+    categoryId: props.categoryId,
     count: props.count.target ? { target: props.count.target } : undefined,
     stepOver: props.stepOver ? { target: props.stepOver.target } : undefined,
     createdAt: props.createdAt,
@@ -68,6 +72,8 @@ function CounterDisplay(props: CounterDisplayProps) {
             counter={passedCounter}
             open={settingsPopoverOpen}
             setOpen={setSettingsPopoverOpen}
+            categories={props.categories}
+            onCreateCategory={props.onCreateCategory}
           />
           <CounterInfoPopover counter={passedCounter} open={infoPopoverOpen} setOpen={setInfoPopoverOpen} />
           <button className="btn btn-xs btn-ghost h-full px-0.5 py-0.5" onClick={() => setInfoPopoverOpen(true)}>

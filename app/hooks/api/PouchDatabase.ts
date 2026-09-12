@@ -2,6 +2,7 @@ import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
 import type { CouchDbSession } from "~/models/CouchDbSession";
 import type { Counter } from "~/models/entities/counter/Counter";
+import type { CounterCategory } from "~/models/entities/counter/CounterCategory";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
@@ -17,6 +18,13 @@ import {
 } from "../../models/error/ConnectionError";
 
 const ctrlKnitDocumentPrefix = "knit-project:";
+
+const normalizeGroup = (group: string | undefined) => group?.trim() || undefined;
+
+type CounterPlacement = {
+  counterId: string;
+  categoryId?: string;
+};
 
 type ProjectDocument = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & Omit<Project, "id">;
 
@@ -156,7 +164,7 @@ export class PouchDatabase {
   /**
    * Generates unique identifier with type prefix and UUID.
    */
-  private generateIdentifier(type: "project" | "counter") {
+  private generateIdentifier(type: "project" | "counter" | "category") {
     return `${type}:${uuidv4()}`;
   }
 
@@ -253,10 +261,12 @@ export class PouchDatabase {
       return await this.localDb.put({
         _id: `${ctrlKnitDocumentPrefix}${new Date().toJSON()}`, // use timestamp as ID for default sorting
         name: project.name,
+        group: normalizeGroup(project.group),
         url: isValidProjectUrl(project.url) ? project.url : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastUpdatedCounter: undefined,
+        categories: [],
         trackedTime: 0,
         counters: []
       });
@@ -281,6 +291,7 @@ export class PouchDatabase {
     const updatedProject = {
       ...existingProject,
       ...project,
+      group: project.group === undefined ? existingProject.group : normalizeGroup(project.group),
       url: isValidProjectUrl(project.url) ? project.url : undefined,
       updatedAt: new Date()
     };
@@ -411,6 +422,7 @@ export class PouchDatabase {
     const newCounter: Counter = {
       id: counterId,
       name: counter.name,
+      categoryId: counter.categoryId,
       order: 0,
       count: {
         current: 0,
@@ -446,6 +458,129 @@ export class PouchDatabase {
     }
   }
 
+  public async createCategory(projectId: string, name: string): Promise<CounterCategory | undefined> {
+    const categoryName = name.trim();
+    if (!categoryName) return;
+
+    const project = await this.getProjectById(projectId);
+    const category: CounterCategory = {
+      id: this.generateIdentifier("category"),
+      name: categoryName,
+      order: project.categories.length
+    };
+    const updatedProject = {
+      ...project,
+      categories: [...project.categories, category],
+      updatedAt: new Date()
+    };
+    try {
+      await this.localDb.put(updatedProject);
+      return category;
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to create category: ${error.message}`);
+      }
+    }
+  }
+
+  public async updateCategory(projectId: string, categoryId: string, name: string) {
+    const categoryName = name.trim();
+    if (!categoryName) return;
+
+    const project = await this.getProjectById(projectId);
+    const updatedCategories = project.categories.map((category) =>
+      category.id === categoryId ? { ...category, name: categoryName } : category
+    );
+    const updatedProject = { ...project, categories: updatedCategories, updatedAt: new Date() };
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to update category: ${error.message}`);
+      }
+    }
+  }
+
+  public async reorderCategories(projectId: string, orderedIds: string[]) {
+    const project = await this.getProjectById(projectId);
+    const categoriesById = new Map(project.categories.map((category) => [category.id, category]));
+    const orderedCategories = [
+      ...orderedIds.map((categoryId) => categoriesById.get(categoryId)).filter((category) => category !== undefined),
+      ...project.categories.filter((category) => !orderedIds.includes(category.id))
+    ].map((category, index) => ({ ...category, order: index }));
+    const updatedProject = { ...project, categories: orderedCategories, updatedAt: new Date() };
+
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to reorder categories: ${error.message}`);
+      }
+    }
+  }
+
+  public async deleteCategory(projectId: string, categoryId: string, targetCategoryId?: string) {
+    const project = await this.getProjectById(projectId);
+    const reassignmentCategoryId =
+      targetCategoryId && project.categories.some((category) => category.id === targetCategoryId)
+        ? targetCategoryId
+        : undefined;
+    const updatedCategories = project.categories
+      .filter((category) => category.id !== categoryId)
+      .map((category, index) => ({ ...category, order: index }));
+    const updatedCounters = project.counters.map((counter) => {
+      if (counter.categoryId !== categoryId) return counter;
+      return this.setCounterCategory(counter, reassignmentCategoryId);
+    });
+    const updatedProject = {
+      ...project,
+      categories: updatedCategories,
+      counters: updatedCounters,
+      updatedAt: new Date()
+    };
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to delete category: ${error.message}`);
+      }
+    }
+  }
+
+  public async moveCountersToCategory(projectId: string, counterIds: string[], categoryId?: string) {
+    if (counterIds.length === 0) return;
+
+    const project = await this.getProjectById(projectId);
+    const targetCategoryId =
+      categoryId && project.categories.some((category) => category.id === categoryId) ? categoryId : undefined;
+    const selectedCounterIds = new Set(counterIds);
+    const updatedProject = {
+      ...project,
+      counters: project.counters.map((counter) =>
+        selectedCounterIds.has(counter.id) ? this.setCounterCategory(counter, targetCategoryId) : counter
+      ),
+      updatedAt: new Date()
+    };
+
+    try {
+      return await this.localDb.put(updatedProject);
+    } catch (error: any) {
+      if (error.name === "conflict") {
+        console.log(error);
+      } else {
+        throw new UnexpectedError(`Failed to move counters: ${error.message}`);
+      }
+    }
+  }
+
   /**
    * Updates counter properties and clamps current value within limits.
    * @param projectId - ID of the project containing the counter
@@ -461,7 +596,7 @@ export class PouchDatabase {
         const stepOverMultiplier = update.stepOver?.target ?? c.stepOver?.target ?? 1;
         const updatedTarget = update.count?.target ?? c.count.target;
         const clampMax = updatedTarget ? updatedTarget * stepOverMultiplier : Number.MAX_VALUE;
-        return {
+        const updatedCounter = {
           ...c,
           count: {
             current: clamp(c.count.current, 0, clampMax),
@@ -470,6 +605,9 @@ export class PouchDatabase {
           stepOver: update.stepOver ? { target: update.stepOver.target ?? c.stepOver?.target } : undefined,
           name: update.name ?? c.name
         };
+        return Object.prototype.hasOwnProperty.call(update, "categoryId")
+          ? this.setCounterCategory(updatedCounter, update.categoryId)
+          : updatedCounter;
       }
       return c;
     });
@@ -584,13 +722,17 @@ export class PouchDatabase {
    * @return PouchDB response with updated project document.
    * @throws UnexpectedError if reorder fails for unknown reasons.
    */
-  public async reorderCounters(projectId: string, orderedIds: string[]) {
+  public async reorderCounters(projectId: string, orderedIds: string[], placement?: CounterPlacement) {
     const project = await this.getProjectById(projectId);
+    if (placement?.categoryId && !project.categories.some((category) => category.id === placement.categoryId)) {
+      return;
+    }
     const updatedCounters = project.counters.map((c: Counter) => {
       const newOrder = orderedIds.indexOf(c.id);
+      const counterWithPlacement = placement?.counterId === c.id ? this.setCounterCategory(c, placement.categoryId) : c;
       return {
-        ...c,
-        order: newOrder !== -1 ? newOrder : (c.order ?? 0)
+        ...counterWithPlacement,
+        order: newOrder !== -1 ? newOrder : (counterWithPlacement.order ?? 0)
       };
     });
 
@@ -648,18 +790,55 @@ export class PouchDatabase {
     return lastIncrementedCounterId;
   }
 
+  private setCounterCategory(counter: Counter, categoryId: string | undefined): Counter {
+    if (categoryId) return { ...counter, categoryId };
+    const { categoryId: _, ...counterWithoutCategory } = counter;
+    return counterWithoutCategory;
+  }
+
   private projectFromDocument(document: DatabaseProject): Project {
+    const categories = [...(document.categories ?? [])];
+    const categoryIds = new Set(categories.map((category) => category.id));
+    const legacyCategories = new Map<string, CounterCategory>();
+    const counters = (document.counters ?? []).map((counter) => {
+      let categoryId = counter.categoryId && categoryIds.has(counter.categoryId) ? counter.categoryId : undefined;
+      const legacyGroup = counter.group?.trim();
+
+      if (!categoryId && legacyGroup) {
+        let category = legacyCategories.get(legacyGroup);
+        if (!category) {
+          category = categories.find((existingCategory) => existingCategory.name === legacyGroup);
+          if (!category) {
+            category = {
+              id: `category:${encodeURIComponent(legacyGroup)}`,
+              name: legacyGroup,
+              order: categories.length
+            };
+            categories.push(category);
+          }
+          legacyCategories.set(legacyGroup, category);
+        }
+        categoryId = category.id;
+      }
+
+      const { group: _, ...counterWithoutLegacyGroup } = counter;
+      return {
+        ...counterWithoutLegacyGroup,
+        categoryId,
+        createdAt: new Date(counter.createdAt),
+        editedAt: new Date(counter.editedAt)
+      };
+    });
+
     return {
       id: document._id,
       name: document.name,
+      group: document.group,
       url: document.url,
       createdAt: new Date(document.createdAt),
       updatedAt: new Date(document.updatedAt),
-      counters: (document.counters ?? []).map((counter) => ({
-        ...counter,
-        createdAt: new Date(counter.createdAt),
-        editedAt: new Date(counter.editedAt)
-      })),
+      categories,
+      counters,
       lastUpdatedCounter: document.lastUpdatedCounter,
       trackedTime: document.trackedTime ?? 0,
       timeSpanStart: document.timeSpanStart ? new Date(document.timeSpanStart) : undefined
