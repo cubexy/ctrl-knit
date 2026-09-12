@@ -15,16 +15,19 @@ interface EditProjectPopoverProps {
 function EditProjectPopover(props: EditProjectPopoverProps) {
   const DEFAULTS = {
     name: props.project.name,
+    group: props.project.group ?? "",
     url: props.project.url
   };
 
   const [name, setName] = useState(DEFAULTS.name);
+  const [group, setGroup] = useState(DEFAULTS.group);
   const [url, setUrl] = useState<string | undefined>(DEFAULTS.url);
 
   const navigate = useNavigate();
 
   const resetFields = () => {
     setName(DEFAULTS.name);
+    setGroup(DEFAULTS.group);
     setUrl(DEFAULTS.url);
   };
 
@@ -46,6 +49,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
 
     const newProject: CreateProject = {
       name: name,
+      group: group,
       url: url
     };
 
@@ -98,6 +102,15 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <legend className="fieldset-legend">Gruppe</legend>
+          <input
+            type="text"
+            className="input w-full"
+            placeholder="Archiv"
+            value={group}
+            onChange={(e) => setGroup(e.target.value)}
+          />
+          <p className="label">Optional</p>
           <legend className="fieldset-legend">URL</legend>
           <input
             type="text"

@@ -4,6 +4,7 @@
  */
 export type CreateProject = {
   name: string;
+  group?: string;
   url: string | undefined;
   trackedTime?: number;
 };

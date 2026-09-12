@@ -1,4 +1,5 @@
 import type { Counter } from "../counter/Counter";
+import type { CounterCategory } from "../counter/CounterCategory";
 
 /**
  * Represents a knitting project.
@@ -10,9 +11,11 @@ import type { Counter } from "../counter/Counter";
 export type Project = {
   id: string;
   name: string;
+  group?: string;
   url: string | undefined;
   createdAt: Date;
   updatedAt: Date;
+  categories: CounterCategory[];
   counters: Counter[];
   lastUpdatedCounter: string | undefined;
   trackedTime: number;

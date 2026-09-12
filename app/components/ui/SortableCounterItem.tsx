@@ -4,14 +4,18 @@ import type { ReactNode } from "react";
 
 type SortableCounterItemProps = {
   id: string;
+  categoryId?: string;
   children: (dragHandleProps: {
     listeners: ReturnType<typeof useSortable>["listeners"];
     attributes: ReturnType<typeof useSortable>["attributes"];
   }) => ReactNode;
 };
 
-function SortableCounterItem({ id, children }: SortableCounterItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+function SortableCounterItem({ id, categoryId, children }: SortableCounterItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    data: { type: "counter", categoryId }
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),

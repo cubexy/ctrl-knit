@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import type { CounterCategory } from "~/models/entities/counter/CounterCategory";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import CategoryPicker from "../CategoryPicker";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditCounterPopoverProps {
@@ -8,23 +10,28 @@ interface EditCounterPopoverProps {
   counter: CreateCounter;
   open: boolean;
   setOpen: (open: boolean) => void;
+  categories?: CounterCategory[];
+  onCreateCategory?: (name: string) => Promise<CounterCategory | undefined>;
 }
 
 function EditCounterPopover(props: EditCounterPopoverProps) {
   const DEFAULTS = {
     name: props.counter.name,
     counterTarget: props.counter.count?.target ?? null,
-    counterStepOver: props.counter.stepOver?.target ?? null
+    counterStepOver: props.counter.stepOver?.target ?? null,
+    categoryId: props.counter.categoryId
   };
 
   const [counterName, setCounterName] = useState(DEFAULTS.name);
   const [counterValue, setCounterValue] = useState<number | null>(DEFAULTS.counterTarget);
   const [counterStepOver, setCounterStepOver] = useState<number | null>(DEFAULTS.counterStepOver);
+  const [categoryId, setCategoryId] = useState<string | undefined>(DEFAULTS.categoryId);
 
   const resetFields = () => {
     setCounterName(DEFAULTS.name);
     setCounterValue(DEFAULTS.counterTarget);
     setCounterStepOver(DEFAULTS.counterStepOver);
+    setCategoryId(DEFAULTS.categoryId);
   };
 
   useEffect(() => {
@@ -45,6 +52,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
 
     const newCounter: CreateCounter = {
       name: counterName,
+      categoryId,
       count: counterValue !== null ? { target: counterValue } : undefined,
       stepOver: counterStepOver !== null ? { target: counterStepOver } : undefined
     };
@@ -131,6 +139,14 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
             onChange={(e) => setCounterStepOverTargetValue(e.target.value)}
           />
           <p className="label">Optional</p>
+          {props.categories && (
+            <CategoryPicker
+              categories={props.categories}
+              value={categoryId}
+              onChange={setCategoryId}
+              onCreateCategory={props.onCreateCategory}
+            />
+          )}
         </fieldset>
         <div className="modal-action">
           <button type="button" className="btn" onClick={() => props.setOpen(false)}>
