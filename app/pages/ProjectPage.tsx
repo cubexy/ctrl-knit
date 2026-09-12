@@ -129,6 +129,7 @@ function ProjectPage(props: ProjectPageProps) {
       <ProjectHeaderDisplay
         project={{
           name: project.name,
+          notes: project.notes,
           url: project.url,
           trackedTime: project.trackedTime,
           timeSpanStart: project.timeSpanStart

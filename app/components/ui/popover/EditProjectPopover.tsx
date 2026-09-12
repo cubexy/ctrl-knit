@@ -15,16 +15,19 @@ interface EditProjectPopoverProps {
 function EditProjectPopover(props: EditProjectPopoverProps) {
   const DEFAULTS = {
     name: props.project.name,
+    notes: props.project.notes,
     url: props.project.url
   };
 
   const [name, setName] = useState(DEFAULTS.name);
+  const [notes, setNotes] = useState(DEFAULTS.notes);
   const [url, setUrl] = useState<string | undefined>(DEFAULTS.url);
 
   const navigate = useNavigate();
 
   const resetFields = () => {
     setName(DEFAULTS.name);
+    setNotes(DEFAULTS.notes);
     setUrl(DEFAULTS.url);
   };
 
@@ -46,6 +49,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
 
     const newProject: CreateProject = {
       name: name,
+      notes: notes?.trim() || undefined,
       url: url
     };
 
@@ -105,6 +109,13 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
             placeholder="https://pinterest.com/easysweater"
             value={url ?? ""}
             onChange={(e) => setUrl(e.target.value)}
+          />
+          <legend className="fieldset-legend">Beschreibung</legend>
+          <textarea
+            className="textarea h-24 w-full"
+            placeholder="z. B. Garn, Größe, Maße"
+            value={notes ?? ""}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </fieldset>
         <div className="modal-action">
