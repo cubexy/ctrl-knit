@@ -92,6 +92,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Name</legend>
           <input
+            type="text"
             className="input w-full"
             placeholder="Easy Knit Sweater"
             value={name}
