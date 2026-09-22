@@ -91,6 +91,9 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
           >
             {props.project.name}
           </h2>
+          {props.project.notes?.trim() && (
+            <p className="max-w-3xl px-4 pb-2 text-center break-all whitespace-pre-wrap">{props.project.notes}</p>
+          )}
           <div className="flex flex-col items-center justify-center gap-x-2 gap-y-0.5 md:flex-row">
             {props.project.url && isValidProjectUrl(props.project.url) && (
               <a

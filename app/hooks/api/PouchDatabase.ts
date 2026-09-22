@@ -253,6 +253,7 @@ export class PouchDatabase {
       return await this.localDb.put({
         _id: `${ctrlKnitDocumentPrefix}${new Date().toJSON()}`, // use timestamp as ID for default sorting
         name: project.name,
+        notes: project.notes,
         url: isValidProjectUrl(project.url) ? project.url : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -281,6 +282,7 @@ export class PouchDatabase {
     const updatedProject = {
       ...existingProject,
       ...project,
+      notes: project.notes,
       url: isValidProjectUrl(project.url) ? project.url : undefined,
       updatedAt: new Date()
     };
@@ -652,6 +654,7 @@ export class PouchDatabase {
     return {
       id: document._id,
       name: document.name,
+      notes: document.notes,
       url: document.url,
       createdAt: new Date(document.createdAt),
       updatedAt: new Date(document.updatedAt),

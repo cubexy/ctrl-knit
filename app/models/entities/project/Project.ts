@@ -2,7 +2,7 @@ import type { Counter } from "../counter/Counter";
 
 /**
  * Represents a knitting project.
- * A project has a unique identifier, a name, an optional URL,
+ * A project has a unique identifier, a name, optional notes and an optional URL,
  * timestamps for creation and last update, and a list of counters.
  *
  * Examples of projects would be a sweater, a blanket, or a pair of socks.
@@ -10,6 +10,7 @@ import type { Counter } from "../counter/Counter";
 export type Project = {
   id: string;
   name: string;
+  notes?: string;
   url: string | undefined;
   createdAt: Date;
   updatedAt: Date;

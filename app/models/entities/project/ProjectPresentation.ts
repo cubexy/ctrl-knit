@@ -19,6 +19,7 @@ export const projectListItemPresenter = (project: Project): ProjectListItemPrese
 export type ProjectPresentation = {
   id: string;
   name: string;
+  notes?: string;
   url?: string;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +35,7 @@ export const projectPresenter = (project: Project | undefined): ProjectPresentat
   return {
     id: project.id,
     name: project.name,
+    notes: project.notes,
     url: project.url,
     createdAt: formatDate(project.createdAt),
     updatedAt: formatDate(project.updatedAt),
