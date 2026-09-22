@@ -41,7 +41,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const canBeSubmitted = projectName.trim().length > 0 && isValidProjectUrl(projectReference);
 
   return (
-    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle font-mono">
+    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle lg:modal-end font-mono">
       <form
         className="modal-box"
         onSubmit={(event) => {
@@ -74,7 +74,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
             Abbrechen
           </button>
           <div
-            className={canBeSubmitted ? "" : "tooltip"}
+            className={canBeSubmitted ? "" : "tooltip tooltip-end"}
             data-tip={canBeSubmitted ? undefined : "Gib einen gültigen Namen und eine gültige URL an!"}
           >
             <button type="submit" className="btn btn-primary" disabled={!canBeSubmitted}>
