@@ -5,7 +5,7 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 
 function Header() {
   return (
-    <header className="card card-border shadow-neutral/10 bg-base-300/30 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 shadow-sm inset-shadow-xs backdrop-blur-sm">
+    <header className="card card-border bg-base-300/30 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 backdrop-blur-sm">
       <div className="navbar m-0 min-h-10 p-0 px-2 pr-1.5">
         <div className="flex grow items-center justify-start gap-2 sm:gap-3">
           <CtrlKnitIcon />

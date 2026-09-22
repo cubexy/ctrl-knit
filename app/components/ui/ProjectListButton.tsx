@@ -16,10 +16,7 @@ function ProjectListButton() {
         <HamburgerIcon className="size-4 stroke-current sm:hidden" strokeWidth={1.5} />
         <p className="hidden sm:block">Projekte</p>
       </div>
-      <ul
-        tabIndex={0}
-        className="menu dropdown-content bg-base-200 rounded-box shadow-neutral/15 z-1 mt-4 w-52 p-2 shadow-sm"
-      >
+      <ul tabIndex={0} className="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 max-w-52 p-2">
         <li>
           <a onClick={handleShow}>
             <AddIcon className="size-5 stroke-current" strokeWidth={2} />

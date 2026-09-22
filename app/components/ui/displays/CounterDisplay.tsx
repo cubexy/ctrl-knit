@@ -47,7 +47,7 @@ function CounterDisplay(props: CounterDisplayProps) {
   return (
     <div
       key={props.id}
-      className="card card-border shadow-neutral/30 bg-base-100 w-full rounded-3xl shadow-xs"
+      className="card card-border shadow-neutral/0 bg-base-200/50 w-full rounded-3xl border-0 shadow-xl"
       ref={props.ref}
     >
       <div className="card-body w-full items-center p-2">
