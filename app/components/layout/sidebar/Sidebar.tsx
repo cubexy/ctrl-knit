@@ -10,8 +10,8 @@ function Sidebar() {
   let { id } = useParams();
   const { handleShow } = useProjectPopover();
   return (
-    <div className="bg-neutral text-neutral-content hidden min-h-full flex-col gap-6 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
-      <div className="flex flex-row items-center justify-between">
+    <div className="bg-neutral text-neutral-content hidden h-full min-h-0 flex-col gap-6 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
+      <div className="flex shrink-0 flex-row items-center justify-between">
         <Link to="/" className="w-fit" viewTransition>
           <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
         </Link>
@@ -19,7 +19,7 @@ function Sidebar() {
           <SyncButton />
         </span>
       </div>
-      <div className="flex flex-col gap-4 px-0.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 px-0.5 [&>:not(ul)]:shrink-0">
         <button
           className="btn btn-dash border-base-300 text-base-300 hover:bg-base-300 hover:text-base-content w-full"
           onClick={handleShow}

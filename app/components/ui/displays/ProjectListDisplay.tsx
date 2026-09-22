@@ -10,7 +10,7 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
   const projects = getProjectList();
 
   return (
-    <ul className="flex h-[calc(100dvh-236px)] w-full flex-col overflow-y-auto">
+    <ul className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto">
       {!initialLoadingDone && <span className="loading loading-spinner loading-xl" />}
       {initialLoadingDone &&
         projects.map((project) => (

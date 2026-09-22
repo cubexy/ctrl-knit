@@ -9,11 +9,11 @@ function RootLayout() {
 
   return (
     <div className="flex min-h-screen w-screen flex-row justify-center font-mono">
-      <div className="h-full max-w-0 grow py-5 transition-normal duration-300 ease-out lg:max-w-80 lg:pl-5">
+      <div className="h-dvh max-w-0 grow py-4 transition-normal duration-300 ease-out lg:max-w-80 lg:pl-4">
         <Sidebar />
       </div>
       <div
-        className="flex max-h-screen grow flex-col items-center gap-5 overflow-auto p-5"
+        className="flex max-h-screen grow flex-col items-center gap-5 overflow-auto p-4 pr-2"
         style={{ scrollbarGutter: "stable" }}
       >
         <Header />
