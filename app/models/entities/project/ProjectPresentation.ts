@@ -12,7 +12,7 @@ export const projectListItemPresenter = (project: Project): ProjectListItemPrese
   return {
     id: project.id,
     name: project.name,
-    updatedAt: formatDate(project.updatedAt)
+    updatedAt: formatDate(project.updatedAt, { includeSeconds: false })
   };
 };
 

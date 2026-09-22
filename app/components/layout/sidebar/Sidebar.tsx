@@ -10,7 +10,7 @@ function Sidebar() {
   let { id } = useParams();
   const { handleShow } = useProjectPopover();
   return (
-    <div className="bg-neutral text-neutral-content hidden h-full min-h-0 flex-col gap-6 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
+    <div className="bg-neutral text-neutral-content hidden h-full min-h-0 flex-col gap-4 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
       <div className="flex shrink-0 flex-row items-center justify-between">
         <Link to="/" className="w-fit" viewTransition>
           <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
@@ -27,9 +27,9 @@ function Sidebar() {
           <AddIcon className="size-4 stroke-current" strokeWidth={1.5} />
           <p className="text-nowrap text-current">Projekt erstellen</p>
         </button>
-        <hr className="divider divider-primary text-neutral-content/50 fill-base-content m-0 h-px rounded-none" />
+        <hr className="divider divider-primary text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
         <ProjectListDisplay currentProjectId={id} />
-        <hr className="divider divider-primary text-neutral-content/50 fill-base-content m-0 h-px rounded-none" />
+        <hr className="divider divider-primary text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
         <SidebarFooter />
       </div>
     </div>

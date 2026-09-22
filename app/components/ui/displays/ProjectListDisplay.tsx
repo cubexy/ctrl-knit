@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
+import EditIcon from "../icons/EditIcon";
 
 type ProjectListDisplayProps = {
   currentProjectId?: string;
@@ -21,7 +22,16 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
             <Link to={`/projects/${project.id}`} viewTransition className="w-full">
               <p className="break-all">{project.name}</p>
               {props.currentProjectId === project.id && (
-                <p className="text-base-300/50 text-xs">zuletzt am {project.updatedAt} geändert</p>
+                <p className="text-base-300/50 flex items-center gap-2 text-xs">
+                  <span aria-hidden="true">
+                    <EditIcon className="size-3 stroke-current" strokeWidth={1.5} />
+                  </span>
+                  <span>
+                    <span className="sr-only">zuletzt am </span>
+                    {project.updatedAt}
+                    <span className="sr-only"> geändert</span>
+                  </span>
+                </p>
               )}
             </Link>
           </li>

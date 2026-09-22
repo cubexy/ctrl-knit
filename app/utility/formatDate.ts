@@ -1,4 +1,4 @@
-export function formatDate(date: Date) {
+export function formatDate(date: Date, options: { includeSeconds?: boolean } = {}) {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   const day = pad(date.getDate());
@@ -7,7 +7,7 @@ export function formatDate(date: Date) {
 
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
+  const seconds = options.includeSeconds ? `:${pad(date.getSeconds())}` : "";
 
-  return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+  return `${day}.${month}.${year} ${hours}:${minutes}${seconds}`;
 }
