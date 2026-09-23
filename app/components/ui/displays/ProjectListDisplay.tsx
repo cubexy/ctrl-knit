@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import EditIcon from "../icons/EditIcon";
 
-type ProjectListDisplayProps = {
+export type ProjectListDisplayProps = {
   currentProjectId?: string;
 };
 

@@ -1,9 +1,12 @@
+import { useParams } from "react-router";
 import CtrlKnitIcon from "../ui/icons/CtrlKnitIcon";
 import ProjectListButton from "../ui/ProjectListButton";
 import { SyncButton } from "../ui/SyncButton";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
 function Header() {
+  let { id } = useParams();
+
   return (
     <header className="card card-border bg-base-300/30 sticky top-0 z-10 w-full grow-0 p-1.5 pb-1 backdrop-blur-sm">
       <div className="navbar m-0 min-h-10 p-0 px-2 pr-1.5">
@@ -18,7 +21,7 @@ function Header() {
         </span>
         <div className="flex grow items-center justify-end lg:hidden">
           <div className="flex items-stretch">
-            <ProjectListButton />
+            <ProjectListButton currentProjectId={id} />
           </div>
         </div>
         <span className="lg:hidden">

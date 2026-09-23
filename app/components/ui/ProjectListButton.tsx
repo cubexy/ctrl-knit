@@ -1,10 +1,12 @@
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
 import { useProjectPopover } from "~/contexts/ProjectPopoverContext";
+import type { ProjectListDisplayProps } from "./displays/ProjectListDisplay";
 import AddIcon from "./icons/AddIcon";
+import EditIcon from "./icons/EditIcon";
 import HamburgerIcon from "./icons/HamburgerIcon";
 
-function ProjectListButton() {
+function ProjectListButton(props: ProjectListDisplayProps) {
   const { handleShow } = useProjectPopover();
 
   const { getProjectList, initialLoadingDone } = useDatabase();
@@ -28,8 +30,24 @@ function ProjectListButton() {
         {initialLoadingDone &&
           projects.map((project) => (
             <li key={project.id}>
-              <Link className="min-w-0 break-all" to={`/projects/${project.id}`} viewTransition>
-                {project.name}{" "}
+              <Link
+                to={`/projects/${project.id}`}
+                viewTransition
+                className={`flex w-full flex-col items-start justify-start ${props.currentProjectId === project.id && "bg-base-content text-base-300"}`}
+              >
+                <p className="break-all">{project.name}</p>
+                {props.currentProjectId === project.id && (
+                  <p className="text-base-300/50 flex items-center gap-2 text-xs">
+                    <span aria-hidden="true">
+                      <EditIcon className="size-3 stroke-current" strokeWidth={1.5} />
+                    </span>
+                    <span>
+                      <span className="sr-only">zuletzt am </span>
+                      {project.updatedAt}
+                      <span className="sr-only"> geändert</span>
+                    </span>
+                  </p>
+                )}
               </Link>
             </li>
           ))}
