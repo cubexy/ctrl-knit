@@ -16,16 +16,14 @@ function AddCounterModal(props: AddCounterModalProps) {
 
   return (
     <>
-      <div className="card card-dash border-base-300 w-full rounded-3xl">
-        <div className="card-body w-full items-center p-2">
-          <button
-            className="btn btn-ghost flex h-full w-full flex-row items-start justify-start rounded-xl p-1"
-            onClick={handleShow}
-          >
-            <AddIcon className="size-5 stroke-current" strokeWidth={1.5} />
-          </button>
-        </div>
-      </div>
+      <button
+        type="button"
+        className="btn btn-ghost text-base-content/65 min-h-12 gap-2 px-4 font-normal"
+        onClick={handleShow}
+      >
+        <AddIcon className="size-5 stroke-current" strokeWidth={1.5} />
+        Zähler hinzufügen
+      </button>
       <CreateCounterPopover ref={editCounterPopoverRef} onConfirm={(counter) => props.onAddCounter(counter)} />
     </>
   );

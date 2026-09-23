@@ -2,17 +2,17 @@ import GithubIcon from "~/components/ui/icons/GithubIconFilled";
 
 function SidebarFooter() {
   return (
-    <div className="flex flex-row items-center justify-between">
+    <div>
       <a
         href="https://github.com/cubexy/ctrl-knit"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-row items-center gap-1.5"
+        className="text-base-content/60 hover:text-base-content flex min-h-11 items-center gap-2 rounded-lg px-2 text-xs transition-colors"
+        aria-label={`ctrl+knit ${APP_VERSION} auf GitHub (neuer Tab)`}
       >
-        <GithubIcon className="fill-neutral-content/50 size-5" />
-        <p className="text-neutral-content/40 text-sm hover:underline">{APP_VERSION}</p>
+        <GithubIcon className="size-4 fill-current" />
+        <span>{APP_VERSION}</span>
       </a>
-      <p className="text text-neutral-content/40 text-sm">{"made with ♡!"}</p>
     </div>
   );
 }

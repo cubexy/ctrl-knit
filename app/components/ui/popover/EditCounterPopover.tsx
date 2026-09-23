@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
+import type { CounterUIRepresentation } from "~/models/entities/counter/Counter";
 import RemoveIcon from "../icons/RemoveIcon";
 
 interface EditCounterPopoverProps {
   onConfirm: (counter: CreateCounter) => void;
   onDelete: () => void;
-  counter: CreateCounter;
+  counter: CounterUIRepresentation;
   open: boolean;
   setOpen: (open: boolean) => void;
+  onMoveEarlier?: () => void;
+  onMoveLater?: () => void;
 }
 
 function EditCounterPopover(props: EditCounterPopoverProps) {
@@ -80,7 +83,7 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   return (
-    <dialog ref={ref} className="modal modal-bottom sm:modal-middle">
+    <dialog ref={ref} className="modal modal-bottom sm:modal-middle" onClose={() => props.setOpen(false)}>
       <form
         className="modal-box"
         onSubmit={(event) => {
@@ -132,6 +135,42 @@ function EditCounterPopover(props: EditCounterPopoverProps) {
           />
           <p className="label">Optional</p>
         </fieldset>
+        {(props.onMoveEarlier || props.onMoveLater) && (
+          <fieldset className="mt-4">
+            <legend className="text-base-content/65 mb-2 text-xs">Reihenfolge</legend>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="btn btn-ghost min-h-11 font-normal"
+                disabled={!props.onMoveEarlier}
+                onClick={props.onMoveEarlier}
+              >
+                Nach vorne
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost min-h-11 font-normal"
+                disabled={!props.onMoveLater}
+                onClick={props.onMoveLater}
+              >
+                Nach hinten
+              </button>
+            </div>
+          </fieldset>
+        )}
+        <details className="text-base-content/65 mt-4 text-xs">
+          <summary className="w-fit cursor-pointer py-3">Zählerinformationen</summary>
+          <dl className="flex flex-col gap-2 pb-2">
+            <div>
+              <dt>Erstellt</dt>
+              <dd>{props.counter.createdAt}</dd>
+            </div>
+            <div>
+              <dt>Zuletzt bearbeitet</dt>
+              <dd>{props.counter.editedAt}</dd>
+            </div>
+          </dl>
+        </details>
         <div className="modal-action">
           <button type="button" className="btn" onClick={() => props.setOpen(false)}>
             Abbrechen

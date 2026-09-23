@@ -9,7 +9,7 @@ function RootLayout() {
 
   return (
     <div className="flex min-h-screen w-screen flex-row justify-center font-mono">
-      <div className="h-dvh max-w-0 grow py-4 transition-normal duration-300 ease-out lg:max-w-80 lg:pl-4">
+      <div className="h-dvh max-w-0 grow py-4 transition-normal duration-300 ease-out lg:max-w-64 lg:pl-4">
         <Sidebar />
       </div>
       <div

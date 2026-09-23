@@ -2,16 +2,21 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ReactNode } from "react";
 
+export type CounterDragHandleProps = {
+  listeners: ReturnType<typeof useSortable>["listeners"];
+  attributes: ReturnType<typeof useSortable>["attributes"];
+  ref: ReturnType<typeof useSortable>["setActivatorNodeRef"];
+};
+
 type SortableCounterItemProps = {
   id: string;
-  children: (dragHandleProps: {
-    listeners: ReturnType<typeof useSortable>["listeners"];
-    attributes: ReturnType<typeof useSortable>["attributes"];
-  }) => ReactNode;
+  children: (dragHandleProps: CounterDragHandleProps) => ReactNode;
 };
 
 function SortableCounterItem({ id, children }: SortableCounterItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -21,8 +26,8 @@ function SortableCounterItem({ id, children }: SortableCounterItemProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
-      {children({ listeners, attributes })}
+    <div ref={setNodeRef} style={style} className="min-w-0">
+      {children({ listeners, attributes, ref: setActivatorNodeRef })}
     </div>
   );
 }

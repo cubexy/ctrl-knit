@@ -14,7 +14,7 @@ function ProjectListButton(props: ProjectListDisplayProps) {
 
   return (
     <div className="dropdown dropdown-bottom dropdown-end">
-      <div tabIndex={0} role="button" className="btn btn-ghost rounded-field px-2 sm:px-4">
+      <div tabIndex={0} role="button" aria-label="Projekte öffnen" className="btn btn-ghost rounded-field px-2 sm:px-4">
         <HamburgerIcon className="size-4 stroke-current sm:hidden" strokeWidth={1.5} />
         <p className="hidden sm:block">Projekte</p>
       </div>

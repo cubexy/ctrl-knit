@@ -4,24 +4,24 @@ import ConnectionStatusDisplay from "./displays/ConnectionStatusDisplay";
 import CloudIcon from "./icons/CloudIcon";
 import LocalIconFilled from "./icons/LocalIconFilled";
 
-export function SyncButton() {
+export function SyncButton({ quiet = false }: { quiet?: boolean }) {
   const { authStatus } = useDatabase();
 
   return (
-    <Link to={`/sync`} viewTransition>
-      <button
-        className={`btn ${authStatus.loggedIn ? "hover:btn-success" : "hover:btn-error"} flex flex-row items-center justify-between px-3 sm:w-26`}
-      >
-        <span className="flex w-full flex-row items-center gap-1">
-          <label className="swap">
-            <input type="checkbox" checked={authStatus.loggedIn} readOnly />
-            <CloudIcon className="swap-on size-3 fill-current" strokeWidth={2} />
-            <LocalIconFilled className="swap-off size-3 fill-current" />
-          </label>
-          <p className="xs:block hidden">{authStatus.loggedIn ? "Sync" : "Lokal"}</p>
-        </span>
-        <ConnectionStatusDisplay displayStatusText={false} pingAnimation={false} />
-      </button>
+    <Link
+      to="/sync"
+      viewTransition
+      aria-label="Synchronisierung verwalten"
+      title={authStatus.loggedIn ? "Synchronisierung verwalten" : "Lokal gespeichert · Synchronisierung einrichten"}
+      className={`btn flex items-center gap-2 px-3 ${quiet ? "btn-ghost text-base-content/60 min-h-11 font-normal" : `${authStatus.loggedIn ? "hover:btn-success" : "hover:btn-error"} sm:w-26`}`}
+    >
+      {authStatus.loggedIn ? (
+        <CloudIcon className="size-3 fill-current" strokeWidth={2} />
+      ) : (
+        <LocalIconFilled className="size-3 fill-current" />
+      )}
+      <span className={quiet ? "" : "xs:block hidden"}>{authStatus.loggedIn ? "Sync" : "Lokal"}</span>
+      {(!quiet || authStatus.loggedIn) && <ConnectionStatusDisplay displayStatusText={false} pingAnimation={false} />}
     </Link>
   );
 }

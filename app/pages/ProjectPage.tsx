@@ -1,7 +1,8 @@
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  KeyboardSensor,
+  MouseSensor,
   TouchSensor,
   closestCenter,
   useSensor,
@@ -9,7 +10,7 @@ import {
   type DragEndEvent,
   type DragStartEvent
 } from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
 import CounterDisplay from "~/components/ui/displays/CounterDisplay";
 import ProjectHeaderDisplay from "~/components/ui/displays/ProjectHeaderDisplay";
@@ -46,10 +47,12 @@ function ProjectPage(props: ProjectPageProps) {
   const hasScrolled = useRef(false);
   const [loading, setLoading] = useState(true);
   const [activeCounter, setActiveCounter] = useState<CounterPresentation | null>(null);
+  const [reorderMessage, setReorderMessage] = useState("");
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   const firstIncrementableId =
@@ -92,11 +95,18 @@ function ProjectPage(props: ProjectPageProps) {
 
     if (!over || active.id === over.id || !project) return;
 
-    const counters = [...project.counters];
-    const oldIndex = counters.findIndex((c) => c.id === active.id);
-    const newIndex = counters.findIndex((c) => c.id === over.id);
+    moveCounter(
+      String(active.id),
+      project.counters.findIndex((counter) => counter.id === over.id)
+    );
+  };
 
-    if (oldIndex === -1 || newIndex === -1) return;
+  const moveCounter = (id: string, newIndex: number) => {
+    if (!project) return;
+    const counters = [...project.counters];
+    const oldIndex = counters.findIndex((c) => c.id === id);
+
+    if (oldIndex === -1 || newIndex < 0 || newIndex >= counters.length || oldIndex === newIndex) return;
 
     const [moved] = counters.splice(oldIndex, 1);
     counters.splice(newIndex, 0, moved);
@@ -113,7 +123,10 @@ function ProjectPage(props: ProjectPageProps) {
     });
 
     reorderCounters(props.id, orderedIds);
+    setReorderMessage(`${moved.name}: Position ${newIndex + 1} von ${counters.length}.`);
   };
+
+  const counterName = (id: string | number) => project?.counters.find((counter) => counter.id === id)?.name ?? "Zähler";
 
   if (loading) {
     return <ProjectLoadingDisplay />;
@@ -143,11 +156,24 @@ function ProjectPage(props: ProjectPageProps) {
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveCounter(null)}
+        accessibility={{
+          announcements: {
+            onDragStart: ({ active }) => `${counterName(active.id)} aufgenommen.`,
+            onDragOver: ({ active, over }) =>
+              over ? `${counterName(active.id)} über ${counterName(over.id)}.` : undefined,
+            onDragEnd: ({ active }) => `${counterName(active.id)} abgelegt.`,
+            onDragCancel: ({ active }) => `${counterName(active.id)}: Verschieben abgebrochen.`
+          },
+          screenReaderInstructions: {
+            draggable:
+              "Drücke die Leertaste, um den Zähler aufzunehmen. Verschiebe ihn mit den Pfeiltasten. Drücke die Leertaste zum Ablegen oder Escape zum Abbrechen."
+          }
+        }}
       >
         <SortableContext items={project.counters.map((c) => c.id)} strategy={rectSortingStrategy}>
-          <div className="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
-            <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />
-            {project.counters.map((counter) => (
+          <div className="grid w-full max-w-5xl grid-cols-1 items-start gap-4 sm:grid-cols-2">
+            {project.counters.map((counter, index) => (
               <SortableCounterItem key={counter.id} id={counter.id}>
                 {(dragHandleProps) => (
                   <CounterDisplay
@@ -163,7 +189,11 @@ function ProjectPage(props: ProjectPageProps) {
                     onDelete={() => deleteCounter(props.id, counter.id)}
                     createdAt={counter.createdAt}
                     editedAt={counter.editedAt}
-                    dragHandleProps={dragHandleProps}
+                    dragHandleProps={project.counters.length > 1 ? dragHandleProps : undefined}
+                    onMoveEarlier={index > 0 ? () => moveCounter(counter.id, index - 1) : undefined}
+                    onMoveLater={
+                      index < project.counters.length - 1 ? () => moveCounter(counter.id, index + 1) : undefined
+                    }
                   />
                 )}
               </SortableCounterItem>
@@ -190,6 +220,12 @@ function ProjectPage(props: ProjectPageProps) {
           ) : null}
         </DragOverlay>
       </DndContext>
+      <div className="flex w-full max-w-5xl justify-center pb-6">
+        <AddCounterModal onAddCounter={(counter: CreateCounter) => createCounter(props.id, counter)} />
+      </div>
+      <p role="status" className="sr-only">
+        {reorderMessage}
+      </p>
     </>
   );
 }

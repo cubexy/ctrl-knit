@@ -5,10 +5,9 @@ import type { CounterPresentation } from "~/models/entities/counter/CounterPrese
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import { clamp } from "~/utility/clamp";
 import DragHandleIcon from "../icons/DragHandleIcon";
-import InfoIcon from "../icons/InfoIcon";
 import SettingsIcon from "../icons/SettingsIcon";
-import CounterInfoPopover from "../popover/CounterInfoPopover";
 import EditCounterPopover from "../popover/EditCounterPopover";
+import type { CounterDragHandleProps } from "../SortableCounterItem";
 
 type CounterDisplayProps = CounterPresentation & {
   onIncrement: () => void;
@@ -16,14 +15,12 @@ type CounterDisplayProps = CounterPresentation & {
   onEdit: (update: EditCounter) => void;
   onDelete: () => void;
   ref?: React.Ref<HTMLDivElement>;
-  dragHandleProps?: {
-    listeners?: Record<string, Function>;
-    attributes?: Record<string, any>;
-  };
+  dragHandleProps?: CounterDragHandleProps;
+  onMoveEarlier?: () => void;
+  onMoveLater?: () => void;
 };
 
 function CounterDisplay(props: CounterDisplayProps) {
-  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
   const [settingsPopoverOpen, setSettingsPopoverOpen] = useState(false);
   const percentage = props.count.target ? clamp((props.count.current / props.count.target) * 100, 0, 100) : 0;
 
@@ -42,93 +39,116 @@ function CounterDisplay(props: CounterDisplayProps) {
     editedAt: props.editedAt
   };
 
-  const backgroundClass = props.count.target ? "bg-base-100" : "bg-linear-to-r from-base-300 to-base-100";
-
   return (
     <div
       key={props.id}
-      className="card card-border shadow-neutral/0 bg-base-200/50 w-full rounded-3xl border-0 shadow-xl"
+      role="group"
+      aria-label={`Zähler: ${props.name}`}
+      className="group bg-base-200/60 w-full rounded-2xl p-4"
       ref={props.ref}
     >
-      <div className="card-body w-full items-center p-2">
-        <div className="flex w-full flex-row items-center justify-between gap-1">
-          {props.dragHandleProps && (
-            <button
-              className="btn btn-xs btn-ghost h-full cursor-grab touch-none rounded-tl-2xl px-0.5 pr-0.5 active:cursor-grabbing"
-              {...props.dragHandleProps.listeners}
-              {...props.dragHandleProps.attributes}
-            >
-              <DragHandleIcon className="size-5 stroke-current" strokeWidth={1.5} />
-            </button>
-          )}
-          <p className="break-all">{props.name}</p>
-          <EditCounterPopover
-            onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
-            onDelete={props.onDelete}
-            counter={passedCounter}
-            open={settingsPopoverOpen}
-            setOpen={setSettingsPopoverOpen}
-          />
-          <CounterInfoPopover counter={passedCounter} open={infoPopoverOpen} setOpen={setInfoPopoverOpen} />
-          <button className="btn btn-xs btn-ghost h-full px-0.5 py-0.5" onClick={() => setInfoPopoverOpen(true)}>
-            <InfoIcon className="size-5 stroke-current" strokeWidth={1} />
-          </button>
+      <div className="flex min-w-0 items-center gap-1">
+        <h2 className="min-w-0 flex-1 text-sm wrap-anywhere">{props.name}</h2>
+        {props.dragHandleProps && (
           <button
-            className="btn btn-xs btn-ghost h-full rounded-tr-2xl px-0.5 py-0.5"
-            onClick={() => setSettingsPopoverOpen(true)}
+            type="button"
+            className="btn btn-ghost text-base-content/60 size-11 cursor-grab touch-none p-0 transition-opacity active:cursor-grabbing [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
+            ref={props.dragHandleProps.ref}
+            {...props.dragHandleProps.listeners}
+            {...props.dragHandleProps.attributes}
+            aria-label={`${props.name} verschieben`}
+            aria-roledescription="verschiebbarer Zähler"
+            title="Zähler verschieben"
           >
-            <SettingsIcon className="size-5 stroke-current" strokeWidth={1} />
+            <DragHandleIcon className="size-4 stroke-current" strokeWidth={1.5} />
           </button>
-        </div>
-        <div className="join w-full items-stretch">
-          <button className="btn h-auto rounded-l-2xl text-xl" onClick={props.onDecrement} disabled={!canDecrement}>
-            -
-          </button>
-
-          <div
-            className={`input input-neutral ${backgroundClass} relative flex min-h-36 w-full flex-col items-center justify-center gap-0 overflow-visible rounded-none border border-b-2`}
-            style={{
-              borderColor: "color-mix(in oklab, var(--color-base-200), #000 calc(var(--depth) * 5%))"
-            }}
-          >
-            <div
-              className="bg-base-300 absolute inset-y-0 left-0 transition-all duration-300 ease-in-out"
-              style={{ width: `${percentage}%` }}
-            />
-            <div className="relative z-5 flex h-full w-full flex-col items-center justify-center">
-              <NumberFlow
-                value={props.count.current}
-                /** @ts-ignore - NumberFlow is a third-party library that does not have types */
-                style={{ fontSize: "60px", fontWeight: "normal", "--number-flow-mask-height": "0em" }}
-              />
-              {props.count.target && <p className="text-x grow-0">von {props.count.target}</p>}
-              {props.stepOver && props.stepOver.target > 1 && props.count.target && (
-                <div
-                  className="tooltip tooltip-bottom"
-                  data-tip={`${(props.stepOver.current - 1) * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
-                >
-                  <div className="badge badge-neutral">
-                    <NumberFlow
-                      value={props.stepOver.current}
-                      /** @ts-ignore - NumberFlow is a third-party library that does not have types */
-                      style={{ fontWeight: "normal", "--number-flow-mask-height": "0em" }}
-                    />
-                    {` / ${props.stepOver.target}`}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button
-            className="btn flex h-auto items-center justify-center rounded-r-2xl text-xl"
-            onClick={props.onIncrement}
-            disabled={!canIncrement}
-          >
-            +
-          </button>
-        </div>
+        )}
+        <EditCounterPopover
+          onConfirm={(counter) => props.onEdit({ ...counter, id: props.id })}
+          onDelete={props.onDelete}
+          counter={passedCounter}
+          open={settingsPopoverOpen}
+          setOpen={setSettingsPopoverOpen}
+          onMoveEarlier={props.onMoveEarlier}
+          onMoveLater={props.onMoveLater}
+        />
+        <button
+          type="button"
+          className="btn btn-ghost text-base-content/60 size-11 p-0"
+          onClick={() => setSettingsPopoverOpen(true)}
+          aria-label={`${props.name} bearbeiten`}
+          aria-haspopup="dialog"
+          title="Zähler bearbeiten"
+        >
+          <SettingsIcon className="size-4 stroke-current" strokeWidth={1.5} />
+        </button>
       </div>
+      <div className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-2 py-4">
+        <button
+          type="button"
+          className="btn btn-ghost size-12 rounded-full p-0 text-2xl font-normal"
+          onClick={props.onDecrement}
+          disabled={!canDecrement}
+          aria-label={`${props.name}: eine Reihe zurück`}
+        >
+          −
+        </button>
+
+        <div
+          className="flex min-h-28 min-w-0 flex-col items-center justify-center"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <NumberFlow
+            value={props.count.current}
+            className="[--number-flow-mask-height:0em]"
+            style={{
+              fontSize: props.count.current >= 10000 ? "32px" : "60px",
+              fontWeight: "normal"
+            }}
+          />
+          {!!props.count.target && <p className="text-base-content/65 text-xs">von {props.count.target}</p>}
+          {props.stepOver && props.stepOver.target > 1 && props.count.target && (
+            <div
+              className="tooltip tooltip-bottom"
+              data-tip={`${(props.stepOver.current - 1) * props.count.target + props.count.current} / ${props.stepOver.target * props.count.target} geschafft!`}
+            >
+              <div className="text-base-content/65 mt-2 flex flex-wrap justify-center gap-x-1 text-xs">
+                Wiederholung
+                <span className="whitespace-nowrap">
+                  <NumberFlow value={props.stepOver.current} className="font-normal [--number-flow-mask-height:0em]" />
+                  {` / ${props.stepOver.target}`}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="btn bg-base-300/70 hover:bg-base-300 size-12 rounded-full border-0 p-0 text-2xl font-normal shadow-none"
+          onClick={props.onIncrement}
+          disabled={!canIncrement}
+          aria-label={`${props.name}: eine Reihe weiter`}
+        >
+          +
+        </button>
+      </div>
+      {!!props.count.target && (
+        <div
+          className="bg-base-content/5 h-1 overflow-hidden rounded-full"
+          role="progressbar"
+          aria-label={`${props.name}: Fortschritt`}
+          aria-valuenow={props.count.current}
+          aria-valuemin={0}
+          aria-valuemax={props.count.target}
+        >
+          <div
+            className="bg-base-content/35 h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 }

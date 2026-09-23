@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { useDatabase } from "~/contexts/DatabaseContext";
-import EditIcon from "../icons/EditIcon";
 
 export type ProjectListDisplayProps = {
   currentProjectId?: string;
@@ -11,28 +10,23 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
   const projects = getProjectList();
 
   return (
-    <ul className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto">
-      {!initialLoadingDone && <span className="loading loading-spinner loading-xl" />}
+    <ul className="flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto">
+      {!initialLoadingDone && (
+        <li role="status" aria-label="Projekte werden geladen">
+          <span className="loading loading-spinner m-3" />
+        </li>
+      )}
       {initialLoadingDone &&
         projects.map((project) => (
-          <li
-            key={project.id}
-            className={`${props.currentProjectId === project.id && "bg-base-200/10"} flex w-full items-start justify-between rounded-lg px-1.5 pb-1 transition-normal duration-200 ease-in-out`}
-          >
-            <Link to={`/projects/${project.id}`} viewTransition className="w-full">
-              <p className="break-all">{project.name}</p>
-              {props.currentProjectId === project.id && (
-                <p className="text-base-300/50 flex items-center gap-2 text-xs">
-                  <span aria-hidden="true">
-                    <EditIcon className="size-3 stroke-current" strokeWidth={1.5} />
-                  </span>
-                  <span>
-                    <span className="sr-only">zuletzt am </span>
-                    {project.updatedAt}
-                    <span className="sr-only"> geändert</span>
-                  </span>
-                </p>
-              )}
+          <li key={project.id}>
+            <Link
+              to={`/projects/${project.id}`}
+              viewTransition
+              aria-current={props.currentProjectId === project.id ? "page" : undefined}
+              title={`Zuletzt geändert: ${project.updatedAt}`}
+              className={`flex min-h-11 w-full items-center rounded-lg px-3 py-3 text-sm wrap-anywhere transition-colors ${props.currentProjectId === project.id ? "bg-base-300/60 text-base-content" : "text-base-content/75 hover:bg-base-300/30 hover:text-base-content"}`}
+            >
+              {project.name}
             </Link>
           </li>
         ))}
@@ -44,7 +38,7 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
 function NoProjectModal() {
   return (
     <li>
-      <span className="text-neutral-content/50 w-full text-sm">Erstelle dein erstes Projekt! 😊</span>
+      <p className="text-base-content/60 px-3 py-2 text-xs leading-relaxed">Hier finden deine Projekte ihren Platz.</p>
     </li>
   );
 }
