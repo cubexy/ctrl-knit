@@ -65,7 +65,7 @@ function EditProjectPopover(props: EditProjectPopoverProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   return (
-    <dialog ref={ref} className="modal modal-bottom sm:modal-middle">
+    <dialog ref={ref} className="modal modal-bottom sm:modal-middle" onClose={() => props.setOpen(false)}>
       <form
         className="modal-box"
         onSubmit={(event) => {

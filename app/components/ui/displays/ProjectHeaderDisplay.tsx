@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
+import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 import ClockIcon from "../icons/ClockIcon";
 import LinkIcon from "../icons/LinkIcon";
+import PauseIconFilled from "../icons/PauseIconFilled";
 import SettingsIcon from "../icons/SettingsIcon";
 import EditProjectPopover from "../popover/EditProjectPopover";
-import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 
 type ProjectHeaderDisplayProps = {
   onConfirmEdit: (project: CreateProject) => void;
@@ -23,9 +24,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
   const [timerUpdating, setTimerUpdating] = useState(false);
 
   const isRunning = props.project.timeSpanStart !== undefined;
-  const activeDuration = props.project.timeSpanStart
-    ? Math.max(0, now - props.project.timeSpanStart.getTime())
-    : 0;
+  const activeDuration = props.project.timeSpanStart ? Math.max(0, now - props.project.timeSpanStart.getTime()) : 0;
   const time = props.project.trackedTime + activeDuration;
 
   useEffect(() => {
@@ -83,41 +82,58 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
         onConfirm={props.onConfirmEdit}
         onDelete={props.onDelete}
       />
-      <div className="w-full bg-linear-to-tl">
-        <div className="card-body items-center justify-center gap-0.5 px-8 py-2">
-          <h2
-            className="card-title hover:to-base-300 pb-2 text-center text-6xl break-all transition-all duration-300 ease-in-out hover:scale-105 sm:text-7xl md:text-8xl"
+      <section aria-label="Projektübersicht" className="w-full max-w-5xl shrink-0 py-4 sm:py-6">
+        <div className="flex min-w-0 flex-col items-center gap-4">
+          <h1
+            className="m-0 max-w-full text-center text-6xl leading-none font-normal text-balance wrap-anywhere sm:text-7xl md:text-8xl"
             style={{ fontFamily: "Le Murmure_Regular" }}
           >
             {props.project.name}
-          </h2>
-          <div className="flex flex-col items-center justify-center gap-x-2 gap-y-0.5 md:flex-row">
+          </h1>
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-1 text-sm max-[360px]:gap-0 sm:gap-2">
             {props.project.url && isValidProjectUrl(props.project.url) && (
               <a
                 href={props.project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="link wrap flex items-center gap-2"
+                className="btn btn-ghost text-base-content/75 h-11 gap-2 px-3 font-normal max-[360px]:px-1 max-[360px]:text-xs"
+                title={props.project.url}
+                aria-label={`Referenz öffnen: ${fetchShortenedUrl(props.project.url)} (neuer Tab)`}
               >
                 <LinkIcon className="size-4 stroke-current" strokeWidth={1} />
-                <p className="break-all">{fetchShortenedUrl(props.project.url)}</p>
+                Referenz
               </a>
             )}
             <button
-              className={`btn btn-ghost px-1 py-3 font-medium ${isRunning ? "text-primary" : ""}`}
+              type="button"
+              className={`btn btn-ghost h-11 gap-2 px-3 font-normal tabular-nums max-[360px]:px-1 max-[360px]:text-xs ${isRunning ? "bg-primary/10 text-base-content" : "text-base-content/75"}`}
               onClick={() => void toggleTimer()}
               disabled={timerUpdating}
+              aria-label={isRunning ? "Zeiterfassung pausieren" : "Zeiterfassung starten"}
+              aria-pressed={isRunning}
+              aria-busy={timerUpdating}
+              title={`${isRunning ? "Zeiterfassung pausieren" : "Zeiterfassung starten"}${time > 0 ? ` · ${formatTime(time)}` : ""}`}
             >
-              <ClockIcon className="size-4 stroke-current" strokeWidth={1.5} />
+              {isRunning ? (
+                <PauseIconFilled className="text-primary size-4 fill-current" />
+              ) : (
+                <ClockIcon className="size-4 stroke-current" strokeWidth={1.5} />
+              )}
               {formatTime(time)}
             </button>
-            <button className="btn btn-ghost px-1 py-3 font-medium" onClick={() => setPopoverOpen(true)}>
+            <button
+              type="button"
+              className="btn btn-ghost text-base-content/75 size-11 p-0"
+              onClick={() => setPopoverOpen(true)}
+              aria-label="Projekt verwalten"
+              aria-haspopup="dialog"
+              title="Projekt verwalten"
+            >
               <SettingsIcon className="size-4 stroke-current" strokeWidth={1.5} />
-              Verwalten
             </button>
           </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }
