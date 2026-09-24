@@ -20,7 +20,7 @@ function ProjectListDisplay(props: ProjectListDisplayProps) {
             className={`${props.currentProjectId === project.id && "bg-base-200/10"} flex w-full items-start justify-between rounded-lg px-1.5 pb-1 transition-normal duration-200 ease-in-out`}
           >
             <Link to={`/projects/${project.id}`} viewTransition className="w-full">
-              <p className="break-all">{project.name}</p>
+              <p className="truncate">{project.name}</p>
               {props.currentProjectId === project.id && (
                 <p className="text-base-300/50 flex items-center gap-2 text-xs">
                   <span aria-hidden="true">

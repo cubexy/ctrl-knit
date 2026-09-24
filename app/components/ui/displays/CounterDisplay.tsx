@@ -81,7 +81,11 @@ function CounterDisplay(props: CounterDisplayProps) {
           </button>
         </div>
         <div className="join w-full items-stretch">
-          <button className="btn h-auto rounded-l-2xl text-xl" onClick={props.onDecrement} disabled={!canDecrement}>
+          <button
+            className="btn h-auto w-14 rounded-l-2xl text-xl"
+            onClick={props.onDecrement}
+            disabled={!canDecrement}
+          >
             -
           </button>
 
@@ -121,7 +125,7 @@ function CounterDisplay(props: CounterDisplayProps) {
           </div>
 
           <button
-            className="btn flex h-auto items-center justify-center rounded-r-2xl text-xl"
+            className="btn flex h-auto w-14 items-center justify-center rounded-r-2xl text-xl"
             onClick={props.onIncrement}
             disabled={!canIncrement}
           >
