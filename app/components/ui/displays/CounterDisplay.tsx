@@ -54,7 +54,7 @@ function CounterDisplay(props: CounterDisplayProps) {
         <div className="flex w-full flex-row items-center justify-between gap-1">
           {props.dragHandleProps && (
             <button
-              className="btn btn-xs btn-ghost h-full cursor-grab touch-none rounded-tl-2xl px-0.5 pr-0.5 active:cursor-grabbing"
+              className="btn btn-xs btn-ghost h-full cursor-grab touch-none rounded-tl-2xl px-0.5 pr-1 active:cursor-grabbing"
               {...props.dragHandleProps.listeners}
               {...props.dragHandleProps.attributes}
             >
