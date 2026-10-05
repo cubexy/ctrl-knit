@@ -5,26 +5,18 @@ import ProjectPage from "~/pages/ProjectPage";
 import type { Route } from "../+types/root";
 
 export function meta({}: Route.MetaArgs) {
-  let { id } = useParams();
-
-  const { getProjectById } = useDatabase();
-
-  if (!id) {
-    return [{ title: "Kein Projekt | ctrl-knit ✿" }, { name: "description", content: "A simple row counting tool." }];
-  }
-
-  return [
-    { title: (getProjectById(id)?.name ?? "Lade Projekt...") + " | ctrl-knit ✿" },
-    { name: "description", content: "A simple row counting tool." }
-  ];
+  return [{ name: "description", content: "A simple row counting tool." }];
 }
 
 export default function Project() {
-  let { id } = useParams();
+  const { id } = useParams();
+  const { getProjectById } = useDatabase();
+  const title = id ? (getProjectById(id)?.name ?? "Lade Projekt...") : "Kein Projekt";
 
-  if (!id) {
-    return <NoProjectPage />;
-  }
-
-  return <ProjectPage id={id} />;
+  return (
+    <>
+      <title>{title + " | ctrl-knit ✿"}</title>
+      {id ? <ProjectPage id={id} /> : <NoProjectPage />}
+    </>
+  );
 }
