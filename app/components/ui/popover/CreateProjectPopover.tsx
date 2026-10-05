@@ -41,7 +41,7 @@ function CreateProjectPopover(props: CreateProjectPopoverProps) {
   const canBeSubmitted = projectName.trim().length > 0 && isValidProjectUrl(projectReference);
 
   return (
-    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle lg:modal-end font-mono">
+    <dialog ref={props.ref} className="modal modal-bottom sm:modal-middle font-mono">
       <form
         className="modal-box"
         onSubmit={(event) => {

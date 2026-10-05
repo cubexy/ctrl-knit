@@ -62,7 +62,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
     if (hours > 0) return `${hours} h ${pad(minutes)} min`;
     if (minutes > 0) return `${pad(minutes)} min`;
     if (ms > 0) return `${pad(seconds)} s`;
-    return "Zeit erfassen";
+    return "";
   };
 
   const fetchShortenedUrl = (url: string) => {
@@ -100,8 +100,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
                 title={props.project.url}
                 aria-label={`Referenz öffnen: ${fetchShortenedUrl(props.project.url)} (neuer Tab)`}
               >
-                <LinkIcon className="size-4 stroke-current" strokeWidth={1} />
-                Referenz
+                <LinkIcon className="size-4 stroke-current" strokeWidth={1.5} />
               </a>
             )}
             <button

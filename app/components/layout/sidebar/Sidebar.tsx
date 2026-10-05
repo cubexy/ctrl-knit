@@ -13,7 +13,7 @@ function Sidebar() {
     <div className="bg-neutral text-neutral-content hidden h-full min-h-0 flex-col gap-4 rounded-2xl p-3 shadow-sm inset-shadow-xs lg:flex">
       <div className="flex shrink-0 flex-row items-center justify-between">
         <Link to="/" className="w-fit" viewTransition>
-          <WoolIcon className="fill-base-300 size-8 w-fit" strokeWidth={2} />
+          <WoolIcon className="fill-base-300 size-8" strokeWidth={2} />
         </Link>
         <span className="text-neutral">
           <SyncButton />
