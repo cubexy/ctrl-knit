@@ -100,7 +100,7 @@ function ProjectHeaderDisplay(props: ProjectHeaderDisplayProps) {
                 title={props.project.url}
                 aria-label={`Referenz öffnen: ${fetchShortenedUrl(props.project.url)} (neuer Tab)`}
               >
-                <LinkIcon className="size-4 stroke-current" strokeWidth={1.5} />
+                <LinkIcon className="size-[15px] stroke-current" strokeWidth={1.5} />
               </a>
             )}
             <button

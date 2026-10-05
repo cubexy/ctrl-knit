@@ -27,9 +27,9 @@ function Sidebar() {
           <AddIcon className="size-4 stroke-current" strokeWidth={1.5} />
           <p className="text-nowrap text-current">Projekt erstellen</p>
         </button>
-        <hr className="divider divider-primary text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
+        <hr className="divider divider-neutral text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
         <ProjectListDisplay currentProjectId={id} />
-        <hr className="divider divider-primary text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
+        <hr className="divider divider-neutral text-neutral-content/35 fill-base-content m-0 h-px rounded-none" />
         <SidebarFooter />
       </div>
     </div>
