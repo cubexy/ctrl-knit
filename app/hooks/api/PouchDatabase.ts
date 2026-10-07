@@ -392,9 +392,9 @@ export class PouchDatabase {
    * Fetches a project document and converts its serialized timestamps to Dates.
    */
   private async getProjectById(id: string): Promise<ProjectDocument> {
-    const document = (await this.localDb.get(id)) as DatabaseProject;
+    const document = await this.localDb.get<CouchDbProject>(id);
     const { id: _, ...project } = this.projectFromDocument(document);
-    return { ...document, ...project } as ProjectDocument;
+    return { ...document, ...project };
   }
 
   /**

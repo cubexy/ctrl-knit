@@ -16,5 +16,5 @@ export type Project = {
   counters: Counter[];
   lastUpdatedCounter: string | undefined;
   trackedTime: number;
-  timeSpanStart?: Date;
+  timeSpanStart: Date | undefined;
 };
