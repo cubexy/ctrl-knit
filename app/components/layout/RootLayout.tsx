@@ -1,11 +1,13 @@
 import { useRef } from "react";
 import { Outlet } from "react-router";
+import { useDatabase } from "~/contexts/DatabaseContext";
 import WelcomePopover from "../ui/popover/WelcomePopover";
 import Header from "./Header";
 import Sidebar from "./sidebar/Sidebar";
 
 function RootLayout() {
   const welcomePopoverRef = useRef<HTMLDialogElement>(null);
+  const { databaseError } = useDatabase();
 
   return (
     <div className="flex min-h-screen w-screen flex-row justify-center font-mono">
@@ -17,6 +19,11 @@ function RootLayout() {
         style={{ scrollbarGutter: "stable" }}
       >
         <Header />
+        {databaseError && (
+          <div role="alert" className="alert alert-error w-full shrink-0">
+            <span>{databaseError}</span>
+          </div>
+        )}
         <WelcomePopover ref={welcomePopoverRef} />
         <Outlet />
       </div>

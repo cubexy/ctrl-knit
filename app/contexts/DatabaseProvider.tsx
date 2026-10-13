@@ -12,6 +12,7 @@ import {
   type ProjectListItemPresentation
 } from "~/models/entities/project/ProjectPresentation";
 import { AuthenticationError, ConnectionError } from "~/models/error/ConnectionError";
+import { ProjectMigrationError } from "~/models/error/ProjectMigrationError";
 import type { LoginParameters } from "~/models/LoginParameters";
 import {
   DEFAULT_DATABASE_CONNECTION_PRESENTATION,
@@ -37,19 +38,51 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     DEFAULT_LOADING_DATABASE_CONNECTION_PRESENTATION
   );
   const [initialLoadingDone, setInitialLoadingDone] = useState(false);
+  const [databaseError, setDatabaseError] = useState<string | null>(null);
+
+  const reportDatabaseError = (error: unknown) => {
+    console.error("Failed to access project data:", error);
+    if (error instanceof ProjectMigrationError) {
+      setProjects((previous) => previous.filter((project) => project.id !== error.projectId));
+      setDatabaseError(
+        `Das Projekt ${error.projectId} ist wegen eines Migrationsfehlers oder einer inkompatiblen Datenversion gesperrt. Die gespeicherten Projektdaten bleiben erhalten.`
+      );
+    } else {
+      setDatabaseError("Die Projektdaten konnten nicht geladen oder gespeichert werden.");
+    }
+  };
+
+  async function runDatabaseOperation<T>(work: () => Promise<T> | undefined): Promise<T | undefined> {
+    try {
+      return await work();
+    } catch (error) {
+      reportDatabaseError(error);
+      throw error;
+    }
+  }
 
   useEffect(() => {
-    const loadInitialData = async () => {
-      if (!db) {
-        setProjects([]);
-        console.error("error: db is not initialized. is this being called on the server?");
-        return;
-      }
-      setProjects(await db.getProjects());
-      setInitialLoadingDone(true);
+    let active = true;
+    const controller = new AbortController();
+    const reportError = (error: unknown) => {
+      if (active && !controller.signal.aborted) reportDatabaseError(error);
     };
-    loadInitialData();
-    const feed = db?.onChange(onProjectDelete, onProjectUpsert);
+    const loadInitialData = async () => {
+      try {
+        if (!db) {
+          setProjects([]);
+          return;
+        }
+        const loadedProjects = await db.getProjects(controller.signal, reportError);
+        if (active) setProjects(loadedProjects);
+      } catch (error) {
+        reportError(error);
+      } finally {
+        if (active) setInitialLoadingDone(true);
+      }
+    };
+    const feed = db?.onChange(onProjectDelete, onProjectUpsert, reportError, controller.signal);
+    void loadInitialData();
 
     const checkSession = async () => {
       if (!db || !remoteDbHostInfo) {
@@ -111,6 +144,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     checkSession();
 
     return () => {
+      active = false;
+      controller.abort();
       feed?.cancel();
       feed?.removeAllListeners();
       db?.shutdown();
@@ -242,10 +277,6 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     return projectPresenter(locatedProject);
   };
 
-  /**
-   * Fetches all projects.
-   * @returns A list of projects with minimal information for display purposes.
-   */
   const getProjectList = (): ProjectListItemPresentation[] => {
     return [...projects]
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
@@ -253,43 +284,43 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
   };
 
   const createProject = async (project: CreateProject) => {
-    return db?.createProject(project);
+    return runDatabaseOperation(() => db?.createProject(project));
   };
 
   const updateProject = async (id: string, project: CreateProject) => {
-    return db?.updateProject(id, project);
+    return runDatabaseOperation(() => db?.updateProject(id, project));
   };
 
   const deleteProject = async (id: string) => {
-    return db?.deleteProject(id);
+    return runDatabaseOperation(() => db?.deleteProject(id));
   };
 
   const startTimer = async (projectId: string) => {
-    await db?.startTimer(projectId);
+    await runDatabaseOperation(() => db?.startTimer(projectId));
   };
 
   const stopTimer = async (projectId: string) => {
-    await db?.stopTimer(projectId);
+    await runDatabaseOperation(() => db?.stopTimer(projectId));
   };
 
   const createCounter = async (projectId: string, counter: CreateCounter) => {
-    return db?.createCounter(projectId, counter);
+    return runDatabaseOperation(() => db?.createCounter(projectId, counter));
   };
 
   const updateCounter = async (projectId: string, counterId: string, update: EditCounter) => {
-    return db?.updateCounter(projectId, counterId, update);
+    return runDatabaseOperation(() => db?.updateCounter(projectId, counterId, update));
   };
 
   const deleteCounter = async (projectId: string, counterId: string) => {
-    return db?.deleteCounter(projectId, counterId);
+    return runDatabaseOperation(() => db?.deleteCounter(projectId, counterId));
   };
 
   const incrementCounter = async (projectId: string, counterId: string, step: number) => {
-    return db?.incrementCounter(projectId, counterId, step);
+    return runDatabaseOperation(() => db?.incrementCounter(projectId, counterId, step));
   };
 
   const reorderCounters = async (projectId: string, orderedIds: string[]) => {
-    return db?.reorderCounters(projectId, orderedIds);
+    return runDatabaseOperation(() => db?.reorderCounters(projectId, orderedIds));
   };
 
   const value: DatabaseContextType = {
@@ -308,7 +339,8 @@ export function DatabaseProvider({ children }: DatabaseProviderProps) {
     remoteLogin,
     authStatus,
     signOut,
-    initialLoadingDone
+    initialLoadingDone,
+    databaseError
   };
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;

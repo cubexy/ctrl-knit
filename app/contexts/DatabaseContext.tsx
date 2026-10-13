@@ -23,6 +23,7 @@ export interface DatabaseContextType {
   authStatus: DatabaseConnectionPresentation;
   signOut: () => Promise<void>;
   initialLoadingDone: boolean;
+  databaseError: string | null;
 }
 
 export const DatabaseContext = createContext<DatabaseContextType | null>(null);

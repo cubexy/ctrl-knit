@@ -17,10 +17,11 @@ export type DatabaseProject = Omit<
   "id" | "createdAt" | "updatedAt" | "counters" | "trackedTime" | "timeSpanStart"
 > & {
   _id: string;
+  version: string;
   createdAt: string;
   updatedAt: string;
-  counters?: DatabaseCounter[];
-  trackedTime?: number;
+  counters: DatabaseCounter[];
+  trackedTime: number;
   timeSpanStart?: string;
 };
 

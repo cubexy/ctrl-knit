@@ -1,12 +1,12 @@
 import PouchDB from "pouchdb";
 import { v4 as uuidv4 } from "uuid";
 import type { CouchDbSession } from "~/models/CouchDbSession";
-import type { Counter } from "~/models/entities/counter/Counter";
 import type { CreateCounter } from "~/models/entities/counter/CreateCounter";
 import type { EditCounter } from "~/models/entities/counter/EditCounter";
 import type { CreateProject } from "~/models/entities/project/CreateProject";
 import type { CouchDbProject, DatabaseProject } from "~/models/entities/project/DatabaseProject";
 import type { Project } from "~/models/entities/project/Project";
+import { ProjectMigrationError } from "~/models/error/ProjectMigrationError";
 import { clamp } from "~/utility/clamp";
 import { isValidProjectUrl } from "~/utility/isValidProjectUrl";
 import {
@@ -15,33 +15,27 @@ import {
   ForbiddenError,
   UnexpectedError
 } from "../../models/error/ConnectionError";
-
-const ctrlKnitDocumentPrefix = "knit-project:";
-
-type ProjectDocument = PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta> & Omit<Project, "id">;
+import { PROJECT_DOCUMENT_PREFIX } from "./migrations/Migration";
+import { MigratingProjectStore } from "./migrations/MigratingProjectStore";
 
 export class PouchDatabase {
   private localDb: PouchDB.Database;
+  private readonly projectStore: MigratingProjectStore;
   private remoteDb: PouchDB.Database | null = null;
   private remoteDbBaseUrl: string | null = null;
   private syncHandler: PouchDB.Replication.Sync<{}> | null = null;
-  private conflictResolutionQueue: Promise<void> = Promise.resolve();
+
   constructor() {
     this.localDb = new PouchDB("ctrl-knit");
+    this.projectStore = new MigratingProjectStore(this.localDb);
   }
 
-  /**
-   * Authenticates with remote CouchDB server using session-based auth.
-   * Throws AuthenticationError or ConnectionError on failure.
-   */
   private async authenticateRemote(username: string, password: string, url: string) {
     let response: Response;
     try {
       response = await fetch(`https://${url}/_session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: username, password: password }),
         credentials: "include"
       });
@@ -57,19 +51,8 @@ export class PouchDatabase {
     }
   }
 
-  /**
-   * Initializes connection to remote CouchDB and starts syncing.
-   * Returns sync promise after successful authentication.
-   */
   public async initializeRemoteDb(username: string, password: string, url: string, dbName: string) {
-    try {
-      await this.authenticateRemote(username, password, url);
-    } catch (error) {
-      if (error instanceof AuthenticationError || error instanceof ConnectionError) {
-        throw error; // Re-throw known errors
-      }
-      throw new Error(`Unexpected error`);
-    }
+    await this.authenticateRemote(username, password, url);
     const remoteDb = new PouchDB(`https://${url}/${dbName}`);
     try {
       await remoteDb.info();
@@ -83,19 +66,12 @@ export class PouchDatabase {
     this.sync();
   }
 
-  /**
-   * Starts live bidirectional sync between local and remote databases.
-   */
   private sync() {
     if (!this.remoteDb) {
       throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
     }
-    // A re-login replaces the existing live replication instead of adding another one.
     this.cancelSync();
-    this.syncHandler = this.localDb.sync(this.remoteDb, {
-      live: true,
-      retry: true
-    });
+    this.syncHandler = this.localDb.sync(this.remoteDb, { live: true, retry: true });
   }
 
   private cancelSync() {
@@ -113,19 +89,15 @@ export class PouchDatabase {
     } catch (error) {
       throw new ConnectionError(`Failed to connect to remote database at ${baseUrl}. Please check your connection.`);
     }
-
     if (response.status === 401) {
-      throw new AuthenticationError(`Authentication failed. Please check your credentials and try again.`);
+      throw new AuthenticationError("Failed to authenticate. Please check your credentials and try again.");
     }
-
     if (response.status === 403) {
-      throw new ForbiddenError(`Access denied. You do not have permission to access this resource.`);
+      throw new ForbiddenError("Access denied. You do not have permission to access this resource.");
     }
-
     this.remoteDb = new PouchDB(`https://${baseUrl}/${dbName}`);
     this.remoteDbBaseUrl = baseUrl;
     this.sync();
-
     return (await response.json()) as CouchDbSession;
   }
 
@@ -138,14 +110,14 @@ export class PouchDatabase {
       });
     } catch (error) {
       throw new ConnectionError(
-        `Failed to sign out from remote database at ${this.remoteDbBaseUrl}. Please check your connection.`
+        `Failed to sign out from remote database at ${this.remoteDbBaseUrl}. Please check your connection and try again.`
       );
     }
     if (!response.ok) {
       throw new AuthenticationError(`Failed to sign out. Response: ${response.statusText}`);
     }
     this.cancelSync();
-    this.remoteDb = null; // Clear remote database reference
+    this.remoteDb = null;
     this.remoteDbBaseUrl = null;
   }
 
@@ -153,499 +125,230 @@ export class PouchDatabase {
     this.cancelSync();
   }
 
-  /**
-   * Generates unique identifier with type prefix and UUID.
-   */
-  private generateIdentifier(type: "project" | "counter") {
-    return `${type}:${uuidv4()}`;
-  }
-
-  /**
-   * Sets up live change listener for database updates and deletions.
-   * @param onDelete - Callback for document deletion
-   * @param onUpdate - Callback for document update or addition
-   * @return PouchDB changes listener instance.
-   */
-  public onChange(onDelete: (id: string) => void, onUpdate: (project: Project) => void) {
+  public onChange(
+    onDelete: (id: string) => void,
+    onUpdate: (project: Project) => void,
+    onError: (error: unknown) => void = console.error,
+    signal?: AbortSignal
+  ) {
+    let queue: Promise<void> = Promise.resolve();
+    let active = true;
     return this.localDb
-      .changes({
-        live: true,
-        since: "now",
-        include_docs: true,
-        conflicts: true
-      })
+      .changes({ live: true, since: "now" })
       .on("change", (change) => {
-        if (change.doc?._conflicts?.length) {
-          // Resolve conflicts one at a time so concurrent change events cannot race.
-          this.conflictResolutionQueue = this.conflictResolutionQueue
-            .then(async () => {
-              // Reload the document because the change event may contain stale revisions.
-              const currentWinningDocument = await this.localDb.get(change.id, { conflicts: true });
-              if (currentWinningDocument._conflicts?.length) await this.handleConflict(currentWinningDocument);
-            })
-            .catch((error) => console.error(`Failed to resolve conflict for ${change.id}.`, error));
-        }
-        if (change.deleted) {
-          // Document (project) was deleted
-          const deletedDocumentIdentifier = change.id;
-          onDelete(deletedDocumentIdentifier);
-        } else {
-          if (!change.doc) return;
-          const updatedDocument = change.doc as unknown as DatabaseProject;
-          onUpdate(this.projectFromDocument(updatedDocument));
-        }
+        if (!change.id.startsWith(PROJECT_DOCUMENT_PREFIX)) return;
+        // Re-read instead of trusting event payloads: replication and migration commits can make them stale.
+        queue = queue
+          .then(async () => {
+            if (!active || signal?.aborted) return;
+            if (change.deleted) {
+              onDelete(change.id);
+              return;
+            }
+            try {
+              const document = await this.projectStore.get(change.id, signal);
+              if (active && !signal?.aborted) onUpdate(this.projectFromDocument(document));
+            } catch (error) {
+              if (typeof error === "object" && error !== null && "status" in error && error.status === 404) {
+                if (active && !signal?.aborted) onDelete(change.id);
+                return;
+              }
+              throw error;
+            }
+          })
+          .catch((error: unknown) => {
+            if (active && !signal?.aborted) onError(error);
+          });
       })
-      .on("error", console.log.bind(console));
+      .on("complete", () => {
+        active = false;
+      })
+      .on("error", onError);
   }
 
-  /**
-   * Handles conflicts for a single document.
-   * @param changedDoc Conflicted document
-   * @returns void (clears conflict(s))
-   */
-  private async handleConflict(changedDoc: PouchDB.Core.ExistingDocument<PouchDB.Core.ChangesMeta>) {
-    if (!changedDoc._conflicts || changedDoc._conflicts.length === 0) {
-      return;
-    }
-
-    const conflictingDocumentRevisions = (await Promise.all(
-      changedDoc._conflicts.map((conflictId) => this.localDb.get(changedDoc._id, { rev: conflictId }))
-    )) as CouchDbProject[];
-
-    const currentDocumentRevision = changedDoc as CouchDbProject;
-    // use newest timestamp, with the revision ID as a tie-breaker
-    const winningRevision = [currentDocumentRevision, ...conflictingDocumentRevisions].reduce(
-      (revisionA, revisionB) => {
-        const revADate = new Date(revisionA.updatedAt).getTime();
-        const revBDate = new Date(revisionB.updatedAt).getTime();
-
-        if (revBDate !== revADate) {
-          return revBDate > revADate ? revisionB : revisionA;
-        }
-        return revisionB._rev > revisionA._rev ? revisionB : revisionA;
-      }
-    );
-
-    if (winningRevision._rev !== currentDocumentRevision._rev) {
-      // promote conflicting winner before removing any of the conflict leaves.
-      const { _rev, _conflicts, ...winningDocument } = winningRevision;
-      await this.localDb.put({
-        ...winningDocument,
-        _id: currentDocumentRevision._id,
-        _rev: currentDocumentRevision._rev
-      });
-    }
-
-    // remove the original losing conflict revisions after resolution succeeds
-    for (const document of conflictingDocumentRevisions) {
-      await this.localDb.remove(document._id, document._rev);
-    }
-  }
-
-  /**
-   * Creates new project with timestamp ID and initial metadata.
-   * @param project - Project creation data
-   * @return PouchDB response with created project document.
-   * @throws UnexpectedError if project creation fails for unknown reasons.
-   */
   public async createProject(project: CreateProject) {
-    try {
-      return await this.localDb.put({
-        _id: `${ctrlKnitDocumentPrefix}${new Date().toJSON()}`, // use timestamp as ID for default sorting
+    const now = new Date().toJSON();
+    return this.runProjectOperation("create project", () =>
+      this.projectStore.create({
+        _id: `${PROJECT_DOCUMENT_PREFIX}${now}`,
         name: project.name,
         url: isValidProjectUrl(project.url) ? project.url : undefined,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
         lastUpdatedCounter: undefined,
         trackedTime: 0,
         counters: []
-      });
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to create project: ${error.message}`);
-      }
-    }
+      })
+    );
   }
 
-  /**
-   * Updates existing project with new data and timestamp.
-   * @param id - Project ID to update
-   * @param project - Updated project data
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if update fails for unknown reasons.
-   */
   public async updateProject(id: string, project: CreateProject) {
-    const existingProject = await this.getProjectById(id);
-    const updatedProject = {
-      ...existingProject,
+    return this.editProject(id, "update project", (existing) => ({
+      ...existing,
       ...project,
       url: isValidProjectUrl(project.url) ? project.url : undefined,
-      updatedAt: new Date()
-    };
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to update project: ${error.message}`);
-      }
-    }
+      updatedAt: new Date().toJSON()
+    }));
   }
 
-  /**
-   * Persists the start of a timer without relying on an in-memory interval.
-   */
   public async startTimer(projectId: string): Promise<void> {
-    const startedAt = new Date();
-
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const project = await this.getProjectById(projectId);
+    const startedAt = new Date().toJSON();
+    await this.editProject(projectId, "start timer", (project) => {
       if (project.timeSpanStart) return;
-
-      try {
-        await this.localDb.put({
-          ...project,
-          timeSpanStart: startedAt,
-          updatedAt: new Date()
-        });
-        return;
-      } catch (error: any) {
-        if (error.name !== "conflict" || attempt === 2) {
-          throw new UnexpectedError(`Failed to start timer: ${error.message}`);
-        }
-      }
-    }
+      return { ...project, timeSpanStart: startedAt, updatedAt: startedAt };
+    });
   }
 
-  /**
-   * Closes the active timer span and adds its timestamp-based duration to the total.
-   */
   public async stopTimer(projectId: string): Promise<void> {
     const endedAt = new Date();
-
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const project = await this.getProjectById(projectId);
+    await this.editProject(projectId, "stop timer", (project) => {
       if (!project.timeSpanStart) return;
-
-      const startedAt = project.timeSpanStart.getTime();
+      const startedAt = Date.parse(project.timeSpanStart);
       const duration = endedAt.getTime() - startedAt;
       if (!Number.isFinite(startedAt) || duration < 0) {
         throw new UnexpectedError("Failed to stop timer: the timer start time is invalid.");
       }
-
-      const { timeSpanStart: _, ...projectWithoutTimer } = project;
-      const updatedProject = {
-        ...projectWithoutTimer,
-        trackedTime: project.trackedTime + duration,
-        updatedAt: endedAt
-      };
-
-      try {
-        await this.localDb.put(updatedProject);
-        return;
-      } catch (error: any) {
-        if (error.name !== "conflict" || attempt === 2) {
-          throw new UnexpectedError(`Failed to stop timer: ${error.message}`);
-        }
-      }
-    }
-  }
-
-  /**
-   * Deletes project from database.
-   * @param id - Project ID to delete
-   * @return PouchDB response with deletion result.
-   * @throws UnexpectedError if deletion fails for unknown reasons.
-   */
-  public async deleteProject(id: string) {
-    const project = await this.getProjectById(id);
-    try {
-      return await this.localDb.remove(project);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to delete project: ${error.message}`);
-      }
-    }
-  }
-
-  /**
-   * Retrieves all projects with proper date conversion and mapping.
-   * @return Array of Project objects with metadata.
-   */
-  public async getProjects(): Promise<Array<Project>> {
-    const result = await this.localDb.allDocs({
-      include_docs: true,
-      startkey: ctrlKnitDocumentPrefix,
-      endkey: `${ctrlKnitDocumentPrefix}\ufff0`
+      const { timeSpanStart, ...withoutTimer } = project;
+      return { ...withoutTimer, trackedTime: project.trackedTime + duration, updatedAt: endedAt.toJSON() };
     });
-    return result.rows.flatMap((row) =>
-      row.doc ? [this.projectFromDocument(row.doc as unknown as DatabaseProject)] : []
-    );
   }
 
-  /**
-   * Fetches a project document and converts its serialized timestamps to Dates.
-   */
-  private async getProjectById(id: string): Promise<ProjectDocument> {
-    const document = await this.localDb.get<CouchDbProject>(id);
-    const { id: _, ...project } = this.projectFromDocument(document);
-    return { ...document, ...project };
+  public async deleteProject(id: string) {
+    return this.runProjectOperation("delete project", () => this.projectStore.remove(id));
   }
 
-  /**
-   * Creates new counter and adds it to specified project.
-   * @param projectId - ID of the project to add counter to
-   * @param counter - Counter creation data
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if counter creation fails for unknown reasons.
-   */
+  public async getProjects(signal?: AbortSignal, onError?: (error: ProjectMigrationError) => void): Promise<Project[]> {
+    const documents = await this.projectStore.getAll(signal, onError);
+    return documents.map((document) => this.projectFromDocument(document));
+  }
+
   public async createCounter(projectId: string, counter: CreateCounter) {
-    const project = await this.getProjectById(projectId);
-    const counterId = this.generateIdentifier("counter");
-    const existingCounters = project.counters;
-    const newCounter: Counter = {
-      id: counterId,
-      name: counter.name,
-      order: 0,
-      count: {
-        current: 0,
-        target: counter.count ? counter.count.target : undefined
-      },
-      stepOver: counter.stepOver
-        ? {
-            target: counter.stepOver.target
-          }
-        : undefined,
-      createdAt: new Date(),
-      editedAt: new Date()
-    };
-    const updatedCounters = existingCounters.map((existingCounter, index) => ({
-      ...existingCounter,
-      order: (existingCounter.order ?? index) + 1
-    }));
-
-    const updatedProject = {
+    const counterId = `counter:${uuidv4()}`;
+    const now = new Date().toJSON();
+    return this.editProject(projectId, "create counter", (project) => ({
       ...project,
-      counters: [newCounter, ...updatedCounters],
-      updatedAt: new Date(),
+      counters: [
+        {
+          id: counterId,
+          name: counter.name,
+          order: 0,
+          count: { current: 0, target: counter.count?.target },
+          stepOver: counter.stepOver ? { target: counter.stepOver.target } : undefined,
+          createdAt: now,
+          editedAt: now
+        },
+        ...project.counters.map((existing) => ({ ...existing, order: existing.order + 1 }))
+      ],
+      updatedAt: now,
       lastUpdatedCounter: counterId
-    };
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to create counter: ${error.message}`);
-      }
-    }
+    }));
   }
 
-  /**
-   * Updates counter properties and clamps current value within limits.
-   * @param projectId - ID of the project containing the counter
-   * @param counterId - ID of the counter to update
-   * @param update - Partial counter data to update
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if update fails for unknown reasons.
-   */
   public async updateCounter(projectId: string, counterId: string, update: EditCounter) {
-    const project = await this.getProjectById(projectId);
-    const updatedCounters = project.counters.map((c: Counter) => {
-      if (c.id === counterId) {
-        const stepOverMultiplier = update.stepOver?.target ?? c.stepOver?.target ?? 1;
-        const updatedTarget = update.count?.target ?? c.count.target;
+    return this.editProject(projectId, "update counter", (project) => ({
+      ...project,
+      counters: project.counters.map((counter) => {
+        if (counter.id !== counterId) return counter;
+        const stepOverMultiplier = update.stepOver?.target ?? counter.stepOver?.target ?? 1;
+        const updatedTarget = update.count?.target ?? counter.count.target;
         const clampMax = updatedTarget ? updatedTarget * stepOverMultiplier : Number.MAX_VALUE;
         return {
-          ...c,
+          ...counter,
           count: {
-            current: clamp(c.count.current, 0, clampMax),
-            target: update.count?.target ?? c.count.target
+            current: clamp(counter.count.current, 0, clampMax),
+            target: updatedTarget
           },
-          stepOver: update.stepOver ? { target: update.stepOver.target ?? c.stepOver?.target } : undefined,
-          name: update.name ?? c.name
+          stepOver: update.stepOver ? { target: update.stepOver.target ?? counter.stepOver?.target } : undefined,
+          name: update.name ?? counter.name
         };
-      }
-      return c;
-    });
-
-    const updatedProject = {
-      ...project,
-      counters: updatedCounters,
-      updatedAt: new Date()
-    };
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to update counter: ${error.message}`);
-      }
-    }
+      }),
+      updatedAt: new Date().toJSON()
+    }));
   }
 
-  /**
-   * Increments counter value with clamping to valid range.
-   * @param projectId - ID of the project containing the counter
-   * @param counterId - ID of the counter to increment
-   * @param increment - Amount to increment the counter by
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if increment fails for unknown reasons.
-   */
   public async incrementCounter(projectId: string, counterId: string, increment: number) {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const project = await this.getProjectById(projectId);
-      const updatedCounters = project.counters.map((c: Counter) => {
-        if (c.id === counterId) {
-          const incrementedCurrent = c.count.current + increment;
-          if (c.count.target === undefined) {
-            return {
-              ...c,
-              count: {
-                ...c.count,
-                current: Math.max(incrementedCurrent, 0) // No target, just clamp to 0
-              },
-              editedAt: new Date()
-            };
-          }
-          // If stepOver is defined, calculate max based on target
-          const max = c.stepOver ? c.stepOver.target * c.count.target : c.count.target;
-          return {
-            ...c,
-            count: {
-              ...c.count,
-              current: clamp(incrementedCurrent, 0, max)
-            },
-            editedAt: new Date()
-          };
-        }
-        return c;
-      });
-
-      const updatedProject = {
-        ...project,
-        counters: updatedCounters,
-        updatedAt: new Date(),
-        lastUpdatedCounter: counterId
-      };
-
-      try {
-        return await this.localDb.put(updatedProject);
-      } catch (error: any) {
-        if (error.name !== "conflict" || attempt === 2) {
-          throw new UnexpectedError(`Failed to increment counter: ${error.message}`);
-        }
-      }
-    }
-  }
-
-  /**
-   * Removes counter from project by filtering out the specified ID.
-   * @param projectId - ID of the project containing the counter
-   * @param counterId - ID of the counter to delete
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if deletion fails for unknown reasons.
-   */
-  public async deleteCounter(projectId: string, counterId: string) {
-    const project = await this.getProjectById(projectId);
-    const updatedCounters = project.counters.filter((c: Counter) => c.id !== counterId);
-    const updatedLastEditedCounterId =
-      project.lastUpdatedCounter !== counterId
-        ? project.lastUpdatedCounter
-        : this.findLastIncrementedCounter(updatedCounters);
-
-    const updatedProject = {
+    return this.editProject(projectId, "increment counter", (project) => ({
       ...project,
-      counters: updatedCounters,
-      updatedAt: new Date(),
-      lastUpdatedCounter: updatedLastEditedCounterId
-    };
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to delete counter: ${error.message}`);
-      }
-    }
+      counters: project.counters.map((counter) => {
+        if (counter.id !== counterId) return counter;
+        const current = counter.count.current + increment;
+        const max =
+          counter.count.target === undefined
+            ? undefined
+            : counter.stepOver
+              ? counter.stepOver.target * counter.count.target
+              : counter.count.target;
+        return {
+          ...counter,
+          count: { ...counter.count, current: max === undefined ? Math.max(current, 0) : clamp(current, 0, max) },
+          editedAt: new Date().toJSON()
+        };
+      }),
+      updatedAt: new Date().toJSON(),
+      lastUpdatedCounter: counterId
+    }));
   }
 
-  /**
-   * Reorders counters within a project by assigning new order values.
-   * @param projectId - ID of the project containing the counters
-   * @param orderedIds - Array of counter IDs in the desired new order
-   * @return PouchDB response with updated project document.
-   * @throws UnexpectedError if reorder fails for unknown reasons.
-   */
-  public async reorderCounters(projectId: string, orderedIds: string[]) {
-    const project = await this.getProjectById(projectId);
-    const updatedCounters = project.counters.map((c: Counter) => {
-      const newOrder = orderedIds.indexOf(c.id);
+  public async deleteCounter(projectId: string, counterId: string) {
+    return this.editProject(projectId, "delete counter", (project) => {
+      const counters = project.counters.filter((counter) => counter.id !== counterId);
       return {
-        ...c,
-        order: newOrder !== -1 ? newOrder : (c.order ?? 0)
+        ...project,
+        counters,
+        updatedAt: new Date().toJSON(),
+        lastUpdatedCounter:
+          project.lastUpdatedCounter !== counterId
+            ? project.lastUpdatedCounter
+            : this.findLastIncrementedCounter(counters)
       };
     });
-
-    const updatedProject = {
-      ...project,
-      counters: updatedCounters,
-      updatedAt: new Date()
-    };
-    try {
-      return await this.localDb.put(updatedProject);
-    } catch (error: any) {
-      if (error.name === "conflict") {
-        console.log(error);
-      } else {
-        throw new UnexpectedError(`Failed to reorder counters: ${error.message}`);
-      }
-    }
   }
 
-  /**
-   * Disconnects from remote database and cleans up connection.
-   */
+  public async reorderCounters(projectId: string, orderedIds: string[]) {
+    return this.editProject(projectId, "reorder counters", (project) => ({
+      ...project,
+      counters: project.counters.map((counter) => {
+        const order = orderedIds.indexOf(counter.id);
+        return { ...counter, order: order !== -1 ? order : counter.order };
+      }),
+      updatedAt: new Date().toJSON()
+    }));
+  }
+
   public async disconnectRemote() {
     if (!this.remoteDb) {
       throw new Error("Remote database is not initialized. Call initializeRemoteDb first.");
     }
-    this.remoteDb.close();
+    this.cancelSync();
+    await this.remoteDb.close();
     this.remoteDb = null;
   }
 
-  /**
-   * Closes both local and remote database connections.
-   */
   public async close() {
+    this.cancelSync();
     await this.localDb.close();
     await this.remoteDb?.close();
     this.remoteDb = null;
   }
 
-  private findLastIncrementedCounter(counters: Counter[]) {
-    if (counters.length === 0) {
-      return undefined;
+  private editProject(id: string, operation: string, update: (project: CouchDbProject) => DatabaseProject | undefined) {
+    return this.runProjectOperation(operation, () => this.projectStore.update(id, update));
+  }
+
+  private async runProjectOperation<T>(operation: string, work: () => Promise<T>): Promise<T> {
+    try {
+      return await work();
+    } catch (error) {
+      if (error instanceof ProjectMigrationError || error instanceof UnexpectedError) throw error;
+      throw new UnexpectedError(`Failed to ${operation}: ${error instanceof Error ? error.message : String(error)}`);
     }
-    if (counters.length === 1) {
-      return counters[0].id;
-    }
-    let lastIncrementedCounterId = counters[0].id;
-    let lastIncrementedTimestamp = counters[0].editedAt.getTime();
-    for (const counter of counters.slice(1)) {
-      if (counter.editedAt.getTime() > lastIncrementedTimestamp) {
-        lastIncrementedCounterId = counter.id;
-        lastIncrementedTimestamp = counter.editedAt.getTime();
-      }
-    }
-    return lastIncrementedCounterId;
+  }
+
+  private findLastIncrementedCounter(counters: DatabaseProject["counters"]) {
+    return counters.reduce<(typeof counters)[number] | undefined>((latest, counter) => {
+      if (!latest || Date.parse(counter.editedAt) > Date.parse(latest.editedAt)) return counter;
+      return latest;
+    }, undefined)?.id;
   }
 
   private projectFromDocument(document: DatabaseProject): Project {
@@ -655,13 +358,13 @@ export class PouchDatabase {
       url: document.url,
       createdAt: new Date(document.createdAt),
       updatedAt: new Date(document.updatedAt),
-      counters: (document.counters ?? []).map((counter) => ({
+      counters: document.counters.map((counter) => ({
         ...counter,
         createdAt: new Date(counter.createdAt),
         editedAt: new Date(counter.editedAt)
       })),
       lastUpdatedCounter: document.lastUpdatedCounter,
-      trackedTime: document.trackedTime ?? 0,
+      trackedTime: document.trackedTime,
       timeSpanStart: document.timeSpanStart ? new Date(document.timeSpanStart) : undefined
     };
   }
